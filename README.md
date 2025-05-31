@@ -78,6 +78,12 @@ stow -v -t ~ oh_my_posh/ code/ d2da/
 <a name="use2"></a>
 ### 📜 Instrução de uso ( Dconf )
 
+Resetar configurações:
+
+```bash
+dconf reset -f /caminho/
+```
+
 Exportar e aplicar configurações do **GNOME Terminal**:
 
 ```bash
