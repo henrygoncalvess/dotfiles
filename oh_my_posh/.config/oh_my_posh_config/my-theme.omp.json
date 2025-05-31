@@ -1,0 +1,91 @@
+{
+	"$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+	"blocks": [
+		{
+			"type": "prompt",
+			"alignment": "left",
+			"segments": [
+				{
+					"properties": {
+						"fetch_version": false
+					},
+					"style": "plain",
+					"template": "({{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }})",
+					"foreground": "white",
+					"type": "python"
+				}
+			]
+		},
+		{
+			"type": "prompt",
+			"alignment": "left",
+			"segments": [
+				{
+					"style": "plain",
+					"template": "<green>@</>{{ .UserName }} ",
+					"foreground": "green",
+					"type": "session"
+				},
+				{
+					"properties": {
+						"style": "full"
+					},
+					"style": "plain",
+					"template": "<#adadad>in </>{{ .Path }} ",
+					"foreground": "blue",
+					"type": "path"
+				},
+				{
+					"properties": {
+						"branch_icon": "",
+						"fetch_stash_count": true,
+						"fetch_status": true,
+						"fetch_upstream_icon": true,
+						"fetch_worktree_count": true
+					},
+					"style": "diamond",
+					"template": "<blue>(</>{{ .HEAD }}<blue>)</>{{ if .Working.Changed }}<red> \uf044 {{ .Working.String }}</>{{ end }}<lightGreen>{{ if and (.Working.Changed) (.Staging.Changed) }}</>{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} \ueb4b {{ .StashCount }}{{ end }}",
+					"foreground": "#ff8400",
+					"type": "git"
+				},
+				{
+					"style": "plain",
+					"template": " C:{{ if gt .Code 0 }}{{ .Code }}{{ end }} ",
+					"foreground": "red",
+					"type": "status"
+				},
+				{
+					"properties": {
+						"fetch_version": true
+					},
+					"style": "plain",
+					"template": "\n{{ .Full }}",
+					"foreground": "green",
+					"type": "node"
+				},
+				{
+					"style": "plain",
+					"template": "<#adadad> and</> {{.Full}}",
+					"foreground": "red",
+					"type": "npm"
+				}
+			],
+			"newline": true
+		},
+		{
+			"type": "prompt",
+			"alignment": "left",
+			"segments": [
+				{
+					"style": "plain",
+					"template": "$",
+					"foreground": "#ffffff",
+					"type": "text"
+				}
+			],
+			"newline": true
+		}
+	],
+	"version": 3,
+	"final_space": true
+}
