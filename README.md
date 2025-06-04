@@ -78,30 +78,42 @@ stow -v -t ~ oh_my_posh/ code/ d2da/
 <a name="use2"></a>
 ### 📜 Instrução de uso ( Dconf )
 
-Resetar configurações:
-
 ```bash
-dconf reset -f /caminho/
+# Exportar configurações (exemplo)
+dconf dump /org/gnome/path/example
+
+# Resetar configurações (exemplo)
+dconf reset -f /org/gnome/path/example
 ```
 
-Exportar e aplicar configurações do **GNOME Terminal**:
+Configurações do **GNOME Terminal**:
 
 ```bash
-# exportar
-dconf dump /org/gnome/terminal/legacy/profiles:/:profile-id-123/ > ~/dotfiles/gnome-terminal-backup.ini
-
-# aplicar
 dconf load /org/gnome/terminal/legacy/profiles:/:profile-id-123/ < ~/dotfiles/gnome-terminal-backup.ini
 ```
 
-Exportar e aplicar configurações da extensão **Dash2Dock Animated**:
+Configurações da extensão **Dash to Dock**:
 
 ```bash
-# exportar
-dconf dump /org/gnome/shell/extensions/dash2dock-lite/ > ~/dotfiles/dash2dock-backup.ini
+dconf load /org/gnome/shell/extensions/dash-to-dock/ < ~/dotfiles/dashtdock-backup.ini
+```
 
-# aplicar
-dconf load /org/gnome/shell/extensions/dash2dock-lite/ < ~/dotfiles/dash2dock-backup.ini
+Configurações da extensão **Zorin Taskbar**:
+
+```bash
+dconf load /org/gnome/shell/extensions/zorin-taskbar/ < ~/dotfiles/zorin-taskbar-backup.ini
+```
+
+Configurações da extensão **Forge** (css):
+
+```bash
+dconf load /org/gnome/shell/extensions/forge/ < ~/dotfiles/forge-style-backup.ini
+```
+
+Configurações da extensão **Forge** (keybindings):
+
+```bash
+dconf load/org/gnome/shell/extensions/forge/keybindings/ < ~/dotfiles/forge-keybindings-backup.ini
 ```
 
 <br>
