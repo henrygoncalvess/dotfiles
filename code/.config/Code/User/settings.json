@@ -1,4 +1,7 @@
 {
+  "editor.fontFamily": "Hasklug Nerd Font Propo",
+  // or JetBrainsMonoNL Nerd Font
+  "breadcrumbs.enabled": false,
   "explorer.confirmDelete": false,
   "workbench.editorAssociations": {
     "*.js": "default",
@@ -12,11 +15,10 @@
     110
   ],
   "editor.wordWrap": "on",
-  "editor.fontFamily": "Hasklug Nerd Font Propo",
-  // or JetBrainsMonoNL Nerd Font
   "editor.fontSize": 14,
   "editor.lineHeight": 1.5,
   "editor.fontLigatures": true,
+  "editor.scrollbar.horizontal": "hidden",
   "explorer.confirmDragAndDrop": false,
   "editor.stickyScroll.enabled": false,
   "editor.minimap.enabled": false,
@@ -24,8 +26,7 @@
   "liveServer.settings.donotShowInfoMsg": true,
   "window.customTitleBarVisibility": "auto",
   "symbols.hidesExplorerArrows": false,
-  "editor.guides.bracketPairs": true,
-  "workbench.editor.tabSizing": "fixed",
+  "editor.guides.bracketPairs": false,
   "workbench.editor.tabSizingFixedMaxWidth": 100,
   "workbench.editor.wrapTabs": true,
   "window.density.editorTabHeight": "compact",
@@ -56,9 +57,7 @@
   "window.zoomLevel": -1.08,
   "diffEditor.ignoreTrimWhitespace": true,
   "files.autoSave": "off",
-  "editor.formatOnSave": true,
   "workbench.panel.defaultLocation": "right",
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.inheritEnv": true,
-  "workbench.activityBar.location": "hidden"
 }

@@ -98,6 +98,12 @@ Configurações da extensão **Dash to Dock**:
 dconf load /org/gnome/shell/extensions/dash-to-dock/ < ~/dotfiles/dashtdock-backup.ini
 ```
 
+Configurações do **Blur my Shell**:
+
+```bash
+dconf load /org/gnome/terminal/legacy/profiles:/:profile-id-123/ < ~/dotfiles/blur-my-shell-backup.ini
+```
+
 Configurações da extensão **Zorin Taskbar**:
 
 ```bash
