@@ -80,7 +80,7 @@ stow -v -t ~ oh_my_posh/ code/ d2da/
 
 ```bash
 # Exportar configurações (exemplo)
-dconf dump /org/gnome/path/example
+dconf dump /org/gnome/path/example > ~/dotfiles/my-backup.ini
 
 # Resetar configurações (exemplo)
 dconf reset -f /org/gnome/path/example
