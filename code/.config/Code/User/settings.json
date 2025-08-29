@@ -38,7 +38,7 @@
     "workbench.navigationControl.enabled": false,
     // or JetBrainsMonoNL Nerd Font
     "editor.fontFamily": "Hasklug Nerd Font Propo",
-    "editor.rulers": [110],
+    "editor.rulers": [108],
     "editor.wordWrap": "on",
     "editor.fontSize": 14,
     "editor.lineHeight": 1.48,
@@ -46,9 +46,8 @@
     "editor.scrollbar.horizontal": "hidden",
     "editor.stickyScroll.enabled": false,
     "editor.minimap.enabled": false,
-    "editor.guides.bracketPairs": true,
+    "editor.guides.bracketPairs": "active",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
@@ -87,6 +86,17 @@
     "chat.commandCenter.enabled": false,
     "workbench.layoutControl.enabled": false,
     "workbench.editor.enablePreview": false,
-    "window.zoomLevel": -1.08,
+    "git.openRepositoryInParentFolders": "never",
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "workbench.activityBar.iconClickBehavior": "focus",
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "window.zoomLevel": 1,
+    // "window.zoomLevel": -1,
+    "workbench.editor.empty.hint": "hidden",
+    "editor.inlineSuggest.enabled": false,
+    "inlineChat.lineNaturalLanguageHint": false,
+    "terminal.integrated.tabs.enabled": false,
+    "editor.formatOnSave": true,
     "workbench.activityBar.location": "hidden"
 }

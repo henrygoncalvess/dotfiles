@@ -22,8 +22,7 @@
             "segments": [
                 {
                     "style": "plain",
-                    "template": "<green>@</>{{ .UserName }} ",
-                    "foreground": "green",
+                    "template": "<blue>C: <b>{{ .Code }} </><#a2a2a2>@</> </b><green>{{ .UserName }} </>",
                     "type": "session"
                 },
                 {
@@ -31,7 +30,7 @@
                         "style": "full"
                     },
                     "style": "plain",
-                    "template": "<#adadad>in </>{{ .Path }} ",
+                    "template": "<#797979><b>in</b> </>{{ .Path }} ",
                     "foreground": "blue",
                     "type": "path"
                 },
@@ -51,12 +50,6 @@
                     "type": "git"
                 },
                 {
-                    "style": "plain",
-                    "template": " C:{{ if gt .Code 0 }}{{ .Code }}{{ end }} ",
-                    "foreground": "red",
-                    "type": "status"
-                },
-                {
                     "properties": {
                         "fetch_version": true
                     },
@@ -67,7 +60,7 @@
                 },
                 {
                     "style": "plain",
-                    "template": "<#adadad> and</> {{.Full}}",
+                    "template": "<#797979> <b>and</b></> {{ .Full }} ",
                     "foreground": "red",
                     "type": "npm"
                 }
