@@ -7,6 +7,7 @@
 - [Requisitos](#prerequisites)
 - [Clonando Repositório](#cloning-repo)
 - [Instrução de uso ( Stow )](#use1)
+- [Explicação](#explanation)
 - [Instrução de uso ( Dconf )](#use2)
 - [Licença](#license)
 
@@ -52,10 +53,16 @@ git clone https://github.com/henrygoncalvess/dotfiles.git
 <a name="use1"></a>
 ### 📜 Instrução de uso ( Stow )
 
-1. Entre na pasta:
+1. Renomeie a pasta:
 
 ```bash
-cd ~/dotfiles
+mv ~/dotfiles ~/.dotfiles
+```
+
+2. Entre na pasta
+
+```bash
+cd ~/.dotfiles
 ```  
 <br>
 
@@ -63,14 +70,43 @@ cd ~/dotfiles
 > #### Atenção antes de utilizar o Stow.
 > Mova os arquivos em que deseja criar os links simbólicos para as pastas correspondentes.  
 > _EXEMPLO:_ se quiser criar um link para `~/.config/oh_my_posh_config/theme.omp.json`  
-> Mova o arquivo para `~/dotfiles/oh_my_posh/.config/oh_my_posh_config/`
+> Mova o arquivo para `~/.dotfiles/oh_my_posh/.config/oh_my_posh_config/`
+
 <br>
 
 2. Após organizar os arquivos desejados, crie Symlinks com Stow
 
-`~/dotfiles`
+`~/.dotfiles`
 ```bash
 stow -v -t ~ oh_my_posh/ code/ d2da/
+```
+
+<br>
+
+<a name="explanation"></a>
+### 💡 Explicação
+
+`-v` → verbose, ou seja, vai mostrar na saída o que ele está fazendo.
+
+`-t ~` → define o _target directory_ (`~/`, o diretório home do usuário). É para lá que os links simbólicos serão criados.
+
+`oh_my_posh/ code/ d2da/` → são os pacotes (pastas) que você quer "stowar". Cada pasta representa um conjunto de arquivos de configuração.
+
+Suponha que você tem a seguinte estrutura dentro de `~/.dotfiles/`:
+
+```bash
+.dotfiles/
+├── oh_my_posh/
+│   └── .config/oh-my-posh/config.json
+└── code/
+    └── .config/Code/User/settings.json
+```
+
+Ao rodar o comando, o Stow não copia os arquivos. Ele cria symlinks no diretório `~/`:
+
+```bash
+~/.config/oh-my-posh/config.json  →  ~/.dotfiles/oh_my_posh/.config/oh-my-posh/config.json
+~/.config/Code/User/settings.json →  ~/.dotfiles/code/.config/Code/User/settings.json
 ```
 
 <br>
@@ -80,7 +116,10 @@ stow -v -t ~ oh_my_posh/ code/ d2da/
 
 ```bash
 # Exportar configurações (exemplo)
-dconf dump /org/gnome/path/example > ~/dotfiles/my-backup.ini
+dconf dump /org/gnome/path/example > ~/.dotfiles/my-backup.ini
+
+# Carregar configurações (exemplo)
+dconf load /org/gnome/path/example < ~/.dotfiles/my-backup.ini
 
 # Resetar configurações (exemplo)
 dconf reset -f /org/gnome/path/example
@@ -89,37 +128,44 @@ dconf reset -f /org/gnome/path/example
 Configurações do **GNOME Terminal**:
 
 ```bash
-dconf load /org/gnome/terminal/legacy/profiles:/:profile-id-123/ < ~/dotfiles/gnome-terminal-backup.ini
+dconf list /org/gnome/terminal/legacy/profiles:/
+dconf dump /org/gnome/terminal/legacy/profiles:/:profile-id-123/ > ~/.dotfiles/normal-gnome-terminal-backup.ini
+dconf load /org/gnome/terminal/legacy/profiles:/:profile-id-123/ < ~/.dotfiles/normal-gnome-terminal-backup.ini
 ```
 
 Configurações da extensão **Dash to Dock**:
 
 ```bash
-dconf load /org/gnome/shell/extensions/dash-to-dock/ < ~/dotfiles/dashtdock-backup.ini
+dconf dump /org/gnome/shell/extensions/dash-to-dock/ > ~/.dotfiles/normal-dashtdock-backup.ini
+dconf load /org/gnome/shell/extensions/dash-to-dock/ < ~/.dotfiles/normal-dashtdock-backup.ini
 ```
 
 Configurações do **Blur my Shell**:
 
 ```bash
-dconf load /org/gnome/terminal/legacy/profiles:/:profile-id-123/ < ~/dotfiles/blur-my-shell-backup.ini
+dconf dump /org/gnome/shell/extensions/blur-my-shell/ > ~/.dotfiles/blur-my-shell-backup.ini
+dconf load /org/gnome/shell/extensions/blur-my-shell/ < ~/.dotfiles/blur-my-shell-backup.ini
 ```
 
 Configurações da extensão **Zorin Taskbar**:
 
 ```bash
-dconf load /org/gnome/shell/extensions/zorin-taskbar/ < ~/dotfiles/zorin-taskbar-backup.ini
+dconf dump /org/gnome/shell/extensions/zorin-taskbar/ > ~/.dotfiles/zorin-taskbar-backup.ini
+dconf load /org/gnome/shell/extensions/zorin-taskbar/ < ~/.dotfiles/zorin-taskbar-backup.ini
 ```
 
 Configurações da extensão **Forge** (css):
 
 ```bash
-dconf load /org/gnome/shell/extensions/forge/ < ~/dotfiles/forge-style-backup.ini
+dconf dump /org/gnome/shell/extensions/forge/ > ~/.dotfiles/forge-style-backup.ini
+dconf load /org/gnome/shell/extensions/forge/ < ~/.dotfiles/forge-style-backup.ini
 ```
 
 Configurações da extensão **Forge** (keybindings):
 
 ```bash
-dconf load/org/gnome/shell/extensions/forge/keybindings/ < ~/dotfiles/forge-keybindings-backup.ini
+dconf dump /org/gnome/shell/extensions/forge/keybindings/ > ~/.dotfiles/forge-keybindings-backup.ini
+dconf load /org/gnome/shell/extensions/forge/keybindings/ < ~/.dotfiles/forge-keybindings-backup.ini
 ```
 
 <br>
