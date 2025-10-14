@@ -29,23 +29,29 @@ Versionar minhas preferências de desenvolvimento, garantindo consistência e pr
 <br>
 
 <a name="prerequisites"></a>
-### 📦 Requisitos
+### 📦 Pré-Requisitos
 
-- Linux (testado em Zorin OS, mas deve funcionar em qualquer distribuição)
-- Git
-- [GNU stow](https://www.gnu.org/software/stow/) para gerenciar links simbólicos
-- [Dconf](https://wiki.gnome.org/Projects/dconf) e/ou [Dconf Editor](https://wiki.gnome.org/Apps(2f)DconfEditor.html)
+- **Linux** (testado em Zorin OS, mas deve funcionar em qualquer distribuição)
+- **Git**
+- [**GNU stow**](https://www.gnu.org/software/stow/) - para gerenciar links simbólicos
+- [**Dconf**](https://wiki.gnome.org/Projects/dconf) e/ou [**Dconf Editor**](https://wiki.gnome.org/Apps(2f)DconfEditor.html) -  para armazenar configurações de sistema e aplicativos em um banco de dados binário eficiente
 
 <br>
 
 <a name="cloning-repo"></a>
 ### 💻 Clonando Repositório
 
-No Terminal, certifique de que você está na **HOME** (~/)
+No Terminal, certifique de que você está no diretório **HOME** (~/)
 
 `~/usuario`
 ```bash
 git clone https://github.com/henrygoncalvess/dotfiles.git
+```
+
+Renomeie a pasta:
+
+```bash
+mv ~/dotfiles ~/.dotfiles
 ```
 
 <br>
@@ -53,13 +59,7 @@ git clone https://github.com/henrygoncalvess/dotfiles.git
 <a name="use1"></a>
 ### 📜 Instrução de uso ( Stow )
 
-1. Renomeie a pasta:
-
-```bash
-mv ~/dotfiles ~/.dotfiles
-```
-
-2. Entre na pasta
+1. Entre na pasta
 
 ```bash
 cd ~/.dotfiles
@@ -68,9 +68,13 @@ cd ~/.dotfiles
 
 > [!IMPORTANT]
 > #### Atenção antes de utilizar o Stow.
-> Mova os arquivos em que deseja criar os links simbólicos para as pastas correspondentes.  
-> _EXEMPLO:_ se quiser criar um link para `~/.config/oh_my_posh_config/theme.omp.json`  
+> Mova os arquivos em que deseja criar os links simbólicos para as pastas correspondentes.
+>  
+> _EXEMPLO 1:_ se quiser criar um link para `~/.config/oh_my_posh_config/theme.omp.json`  
 > Mova o arquivo para `~/.dotfiles/oh_my_posh/.config/oh_my_posh_config/`
+> 
+> _EXEMPLO 2:_ se quiser criar um link para `~/.config/Code/User/settings.json`  
+> Mova o arquivo para `~/.dotfiles/vscode/.config/Code/User/`
 
 <br>
 
@@ -78,7 +82,7 @@ cd ~/.dotfiles
 
 `~/.dotfiles`
 ```bash
-stow -v -t ~ oh_my_posh/ code/ d2da/
+stow -v -t ~ oh_my_posh/ vscode/ bash/ git/
 ```
 
 <br>
@@ -90,23 +94,23 @@ stow -v -t ~ oh_my_posh/ code/ d2da/
 
 `-t ~` → define o _target directory_ (`~/`, o diretório home do usuário). É para lá que os links simbólicos serão criados.
 
-`oh_my_posh/ code/ d2da/` → são os pacotes (pastas) que você quer "stowar". Cada pasta representa um conjunto de arquivos de configuração.
+`oh_my_posh/ vscode/ bash/ git/` → são os pacotes (pastas) que você quer "stowar". Cada pasta representa um conjunto de arquivos de configuração.
 
 Suponha que você tem a seguinte estrutura dentro de `~/.dotfiles/`:
 
 ```bash
 .dotfiles/
 ├── oh_my_posh/
-│   └── .config/oh-my-posh/config.json
-└── code/
+│   └── .config/oh_my_posh_config/theme.omp.json
+└── vscode/
     └── .config/Code/User/settings.json
 ```
 
 Ao rodar o comando, o Stow não copia os arquivos. Ele cria symlinks no diretório `~/`:
 
 ```bash
-~/.config/oh-my-posh/config.json  →  ~/.dotfiles/oh_my_posh/.config/oh-my-posh/config.json
-~/.config/Code/User/settings.json →  ~/.dotfiles/code/.config/Code/User/settings.json
+~/.config/oh_my_posh_config/theme.omp.json  →  ~/.dotfiles/oh_my_posh/.config/oh-my-posh/config.json
+~/.config/Code/User/settings.json →  ~/.dotfiles/vscode/.config/Code/User/settings.json
 ```
 
 <br>
@@ -129,43 +133,15 @@ Configurações do **GNOME Terminal**:
 
 ```bash
 dconf list /org/gnome/terminal/legacy/profiles:/
-dconf dump /org/gnome/terminal/legacy/profiles:/:profile-id-123/ > ~/.dotfiles/normal-gnome-terminal-backup.ini
-dconf load /org/gnome/terminal/legacy/profiles:/:profile-id-123/ < ~/.dotfiles/normal-gnome-terminal-backup.ini
+dconf dump /org/gnome/terminal/legacy/profiles:/:profile-id-123/ > ~/.dotfiles/gnome-terminal-backup.ini
+dconf load /org/gnome/terminal/legacy/profiles:/:profile-id-123/ < ~/.dotfiles/gnome-terminal-backup.ini
 ```
 
-Configurações da extensão **Dash to Dock**:
+Configurações das **Extensões**:
 
 ```bash
-dconf dump /org/gnome/shell/extensions/dash-to-dock/ > ~/.dotfiles/normal-dashtdock-backup.ini
-dconf load /org/gnome/shell/extensions/dash-to-dock/ < ~/.dotfiles/normal-dashtdock-backup.ini
-```
-
-Configurações do **Blur my Shell**:
-
-```bash
-dconf dump /org/gnome/shell/extensions/blur-my-shell/ > ~/.dotfiles/blur-my-shell-backup.ini
-dconf load /org/gnome/shell/extensions/blur-my-shell/ < ~/.dotfiles/blur-my-shell-backup.ini
-```
-
-Configurações da extensão **Zorin Taskbar**:
-
-```bash
-dconf dump /org/gnome/shell/extensions/zorin-taskbar/ > ~/.dotfiles/zorin-taskbar-backup.ini
-dconf load /org/gnome/shell/extensions/zorin-taskbar/ < ~/.dotfiles/zorin-taskbar-backup.ini
-```
-
-Configurações da extensão **Forge** (css):
-
-```bash
-dconf dump /org/gnome/shell/extensions/forge/ > ~/.dotfiles/forge-style-backup.ini
-dconf load /org/gnome/shell/extensions/forge/ < ~/.dotfiles/forge-style-backup.ini
-```
-
-Configurações da extensão **Forge** (keybindings):
-
-```bash
-dconf dump /org/gnome/shell/extensions/forge/keybindings/ > ~/.dotfiles/forge-keybindings-backup.ini
-dconf load /org/gnome/shell/extensions/forge/keybindings/ < ~/.dotfiles/forge-keybindings-backup.ini
+dconf dump /org/gnome/shell/extensions/ > ~/.dotfiles/extensions-backup.ini
+dconf load /org/gnome/shell/extensions/ < ~/.dotfiles/extensions-backup.ini
 ```
 
 <br>
