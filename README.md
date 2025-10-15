@@ -9,6 +9,7 @@
 - [Instrução de uso ( Stow )](#use1)
 - [Explicação](#explanation)
 - [Instrução de uso ( Dconf )](#use2)
+- [Import e Export das Configurações](#use3)
 - [Licença](#license)
 
 <br>
@@ -129,19 +130,16 @@ dconf load /org/gnome/path/example < ~/.dotfiles/my-backup.ini
 dconf reset -f /org/gnome/path/example
 ```
 
-Configurações do **GNOME Terminal**:
+<a name="use3"></a>
+### 📜 Import e Export das Configurações
 
+Execute um dos scripts:
 ```bash
-dconf list /org/gnome/terminal/legacy/profiles:/
-dconf dump /org/gnome/terminal/legacy/profiles:/:profile-id-123/ > ~/.dotfiles/gnome-terminal-backup.ini
-dconf load /org/gnome/terminal/legacy/profiles:/:profile-id-123/ < ~/.dotfiles/gnome-terminal-backup.ini
-```
+# Import
+~/.dotfiles/scripts/import.sh
 
-Configurações das **Extensões**:
-
-```bash
-dconf dump /org/gnome/shell/extensions/ > ~/.dotfiles/extensions-backup.ini
-dconf load /org/gnome/shell/extensions/ < ~/.dotfiles/extensions-backup.ini
+# Export
+~/.dotfiles/scripts/export.sh
 ```
 
 <br>
