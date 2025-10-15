@@ -1,0 +1,5 @@
+[/]
+mru-sources=[('xkb', 'us+intl'), ('xkb', 'br')]
+per-window=false
+sources=[('xkb', 'us+intl')]
+xkb-options=['lv3:ralt_switch', 'compose:rctrl']

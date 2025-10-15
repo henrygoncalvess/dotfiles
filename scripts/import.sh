@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Script para exportar configurações do GNOME (Zorin OS)
+# Autor: Henry
+
+prettyPrint(){
+    local action="$1"
+
+    echo -ne "\033[36m$action\033[0m"
+
+    for i in {1..4}; do
+        for string in '|' '/' '-' '\'; do
+            printf "\r\033[36m$action %s\033[0m" "$string"
+            sleep 0.1
+        done
+    done
+
+    printf "\r\033[36m$action  \033[0m"
+    echo -e "\n\033[3;32m\u2714 Importadas com sucesso!\033[0m\n"
+    sleep 0.1
+}
+
+mkdir -p ~/.dotfiles/gnome
+
+echo -e "\033[1;33m- - - - - - - - - - - - - - - - - - - -\033[0m\n"
+echo -e "\033[1;33mIMPORTANDO configurações do GNOME\033[0m\n"
+
+prettyPrint "Configurações de Extensões"
+dconf load /org/gnome/shell/extensions/ < ~/.dotfiles/gnome/extensions.dconf
+
+prettyPrint "Configurações de Atalhos do teclado"
+dconf load /org/gnome/settings-daemon/plugins/media-keys/ < ~/.dotfiles/gnome/gnome-keybindings.dconf
+
+prettyPrint "Configurações de Idioma e Região"
+dconf load /org/gnome/desktop/input-sources/ < ~/.dotfiles/gnome/input-sources.dconf
+
+prettyPrint "Configurações de Interface"
+dconf load /org/gnome/desktop/interface/ < ~/.dotfiles/gnome/interface.dconf
+
+prettyPrint "Configurações do Mouse"
+dconf load /org/gnome/desktop/peripherals/mouse/ < ~/.dotfiles/gnome/mouse.dconf
+
+echo -e "\033[36mConfigurações do Terminal\033[0m"
+sleep 0.2
+prettyPrint "Detectando Perfis do GNOME Terminal"
+
+PROFILE_ID=$(dconf list /org/gnome/terminal/legacy/profiles:/ | head -n 1)
+
+dconf load /org/gnome/terminal/legacy/profiles:/$PROFILE_ID < ~/.dotfiles/gnome/terminal.dconf
+echo -e "\033[1;33m- - - - - - - - - - - - - - - - - - - -\033[0m"

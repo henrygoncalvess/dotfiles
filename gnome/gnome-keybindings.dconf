@@ -1,0 +1,4 @@
+[/]
+on-screen-keyboard=@as []
+screensaver=['<Primary>Escape']
+terminal=['<Super>Return']
