@@ -1,19 +1,69 @@
+[arcmenu]
+apps-show-extra-details=false
+category-icon-type='Symbolic'
+custom-menu-button-icon-size=14.0
+dash-to-panel-standalone=true
+disable-scrollview-fade-effect=true
+disable-tooltips=true
+enable-standlone-runner-menu=false
+hide-overview-on-startup=false
+highlight-search-result-terms=true
+menu-background-color='rgba(2,0,25,0.95)'
+menu-border-color='rgba(190,85,85,0)'
+menu-border-radius=25
+menu-border-width=0
+menu-button-appearance='None'
+menu-button-fg-color=(false, 'rgb(242,242,242)')
+menu-button-hover-fg-color=(false, 'rgb(242,242,242)')
+menu-font-size=8
+menu-foreground-color='rgb(211,218,227)'
+menu-height=550
+menu-item-active-bg-color='rgba(228,228,226,0.15)'
+menu-item-active-fg-color='rgb(255,255,255)'
+menu-item-hover-bg-color='rgba(238,238,236,0.08)'
+menu-item-hover-fg-color='rgb(255,255,255)'
+menu-layout='Runner'
+menu-position-alignment=50
+menu-separator-color='rgba(255,255,255,0)'
+menu-themes=[['ArcMenu Style', 'rgba(48,48,49,0.98)', 'rgb(223,223,223)', 'rgb(60,60,60)', '1', '14', '11', 'rgba(255,255,255,0.1)', 'rgb(21,83,158)', 'rgb(255,255,255)', 'rgb(25,98,163)', 'rgb(255,255,255)'], ['Simply Dark', 'rgba(28,28,28,0.98)', 'rgb(211,218,227)', 'rgb(63,62,64)', '1', '14', '11', 'rgb(63,62,64)', 'rgba(238,238,236,0.08)', 'rgb(255,255,255)', 'rgba(228,228,226,0.15)', 'rgb(255,255,255)'], ['Dark Blue', 'rgb(30,37,41)', 'rgb(189,230,251)', 'rgb(41,50,55)', '1', '14', '11', 'rgba(99,99,98,0.56)', 'rgba(189,230,251,0.08)', 'rgb(189,230,251)', 'rgba(189,230,251,0.15)', 'rgb(189,230,251)'], ['Light Blue', 'rgb(245,247,250)', 'rgb(18,51,84)', 'rgba(18,51,84,0.2)', '1', '14', '11', 'rgba(18,51,84,0.15)', 'rgba(18,51,84,0.08)', 'rgb(18,51,84)', 'rgba(18,51,84,0.15)', 'rgb(18,51,84)'], ['Henry', 'rgba(2,0,25,0.95)', 'rgb(211,218,227)', 'rgba(190,85,85,0)', '0', '25', '8', 'rgba(255,255,255,0)', 'rgba(238,238,236,0.08)', 'rgb(255,255,255)', 'rgba(228,228,226,0.15)', 'rgb(255,255,255)']]
+multi-monitor=false
+override-menu-theme=true
+pop-folders-data={'Library Home': 'Library Home'}
+position-in-panel='Center'
+prefs-visible-page=0
+runner-menu-height=700
+runner-menu-width=700
+runner-position='Centered'
+runner-search-display-style='List'
+runner-show-frequent-apps=false
+search-entry-border-radius=(true, 25)
+search-provider-open-windows=true
+search-provider-recent-files=true
+show-activities-button=false
+show-hidden-recent-files=true
+show-search-result-details=false
+
 [auto-move-windows]
 application-list=['com.rtosta.zapzap.desktop:1', 'org.mozilla.firefox.desktop:2', 'code.desktop:3']
 
+[azclock]
+changed-data=@a{ss} {}
+widget-data=[[{'Name': 'Analog Clock Widget', 'Widget_Type': 'Widget_Box', 'Lock_Widget': 'false', 'Location_X': '545', 'Location_Y': '40', 'Box_BackgroundEnabled': 'false', 'Box_BackgroundColor': 'rgba(0, 0, 0, .2)', 'Box_BorderEnabled': 'false', 'Box_BorderWidth': '0', 'Box_BorderRadius': '20', 'Box_BorderColor': 'black', 'Box_Spacing': '0', 'Box_Padding': '30', 'Box_VerticalLayout': 'true', 'Box_AnchorPoint': '0'}, {'Name': 'Analog Clock', 'Element_Type': 'Analog_Clock', 'Element_Margin_Top': '0', 'Element_Margin_Left': '0', 'Element_Margin_Bottom': '0', 'Element_Margin_Right': '0', 'TimeZoneOverrideEnabled': 'false', 'TimeZoneOverride': 'UTC', 'Clock_Size': '200', 'ClockFace_Visible': 'true', 'ClockFace_Style': '1', 'ClockFace_ShadowEnabled': 'false', 'ClockFace_ShadowColor': 'rgba(55, 55, 55, 0.3)', 'ClockFace_ShadowX': '3', 'ClockFace_ShadowY': '3', 'ClockFace_ShadowSpread': '0', 'ClockFace_ShadowBlur': '3', 'ClockFace_BoxShadowEnabled': 'false', 'ClockFace_BoxShadowColor': 'rgba(0, 0, 0, 0.3)', 'ClockFace_BoxShadowX': '3', 'ClockFace_BoxShadowY': '5', 'ClockFace_BoxShadowSpread': '0', 'ClockFace_BoxShadowBlur': '4', 'ClockFace_Color': 'rgb(255,255,255)', 'ClockFace_BackgroundColor': 'rgba(0,0,0,0)', 'ClockFace_BorderEnabled': 'false', 'ClockFace_BorderWidth': '2', 'ClockFace_BorderRadius': '999', 'ClockFace_BorderColor': 'black', 'ClockButton_Visible': 'false', 'ClockButton_Style': '1', 'ClockButton_Color': 'rgba(0,0,0,0)', 'ClockButton_ShadowEnabled': 'false', 'ClockButton_ShadowColor': 'rgba(55, 55, 55, 0.3)', 'ClockButton_ShadowX': '3', 'ClockButton_ShadowY': '3', 'ClockButton_ShadowSpread': '0', 'ClockButton_ShadowBlur': '3', 'SecondHand_Visible': 'true', 'SecondHand_Style': '2', 'SecondHand_Color': 'rgb(153,193,241)', 'SecondHand_ShadowEnabled': 'false', 'SecondHand_ShadowColor': 'rgba(55, 55, 55, 0.3)', 'SecondHand_ShadowX': '3', 'SecondHand_ShadowY': '3', 'SecondHand_ShadowSpread': '0', 'SecondHand_ShadowBlur': '3', 'MinuteHand_Style': '1', 'MinuteHand_Color': 'rgb(153,193,241)', 'MinuteHand_ShadowEnabled': 'false', 'MinuteHand_ShadowColor': 'rgba(55, 55, 55, 0.3)', 'MinuteHand_ShadowX': '3', 'MinuteHand_ShadowY': '3', 'MinuteHand_ShadowSpread': '0', 'MinuteHand_ShadowBlur': '3', 'HourHand_Style': '1', 'HourHand_Color': 'rgb(153,193,241)', 'HourHand_ShadowEnabled': 'false', 'HourHand_ShadowColor': 'rgba(55, 55, 55, 0.3)', 'HourHand_ShadowX': '3', 'HourHand_ShadowY': '3', 'HourHand_ShadowSpread': '0', 'HourHand_ShadowBlur': '3'}]]
+
 [blur-my-shell]
 brightness=0.0
-color=(0.0, 0.0, 0.0, 0.15666666626930237)
-color-and-noise=false
+color=(1.0, 0.0, 0.0, 0.0)
+color-and-noise=true
 debug=false
-hacks-level=3
+hacks-level=0
 noise-amount=0.0
+noise-lightness=0.0
 sigma=0
 
 [blur-my-shell/appfolder]
 blur=false
 brightness=1.0
-customize=true
+customize=false
 sigma=200
 style-dialogs=3
 
@@ -28,6 +78,7 @@ sigma=0
 whitelist=['Terminal']
 
 [blur-my-shell/dash-to-dock]
+blur=false
 override-background=false
 
 [blur-my-shell/dash-to-panel]
@@ -41,9 +92,12 @@ blur=false
 
 [blur-my-shell/overview]
 blur=true
-brightness=1.0
+brightness=0.40000000000000002
+color=(0.0, 0.0, 0.0, 0.0)
 customize=true
-sigma=10
+noise-amount=0.0
+noise-lightness=0.0
+sigma=1
 style-components=0
 
 [blur-my-shell/panel]
@@ -59,37 +113,54 @@ unblur-in-overview=true
 
 [blur-my-shell/screenshot]
 blur=false
+brightness=1.0
+customize=true
+sigma=11
 
 [blur-my-shell/window-list]
 blur=false
 customize=false
 
+[clipboard-indicator]
+confirm-clear=false
+disable-down-arrow=true
+display-mode=2
+move-item-first=true
+notify-on-copy=false
+strip-text=true
+toggle-menu=['<Control>F9']
+topbar-preview-size=20
+
 [dash-to-dock]
+animation-time=0.15000000000000002
 apply-custom-theme=false
 apply-glossy-effect=false
+autohide-in-fullscreen=true
 background-opacity=0.5
 custom-theme-customize-running-dots=false
 custom-theme-running-dots-border-color='rgb(255,255,255)'
 custom-theme-running-dots-color='rgb(255,255,255)'
 custom-theme-shrink=true
 dance-urgent-applications=true
-dash-max-icon-size=16
+dash-max-icon-size=18
 disable-overview-on-startup=false
 dock-position='BOTTOM'
 extend-height=false
 height-fraction=1.0
+hide-delay=0.15000000000000002
 hide-tooltip=true
 hot-keys=false
 icon-size-fixed=false
-intellihide-mode='FOCUS_APPLICATION_WINDOWS'
+intellihide-mode='ALL_WINDOWS'
 isolate-locations=true
 isolate-workspaces=false
 max-alpha=0.80000000000000004
 middle-click-action='launch'
+multi-monitor=true
 preferred-monitor=-2
 preferred-monitor-by-connector='VGA-1'
-pressure-threshold=100.0
-preview-size-scale=0.40000000000000002
+pressure-threshold=0.0
+preview-size-scale=0.0
 running-indicator-dominant-color=true
 running-indicator-style='DASHES'
 scroll-to-focused-application=true
@@ -219,6 +290,49 @@ window-toggle-always-float=['<Super>f']
 window-toggle-float=@as []
 workspace-active-tile-toggle=['<Shift><Super>w']
 
+[just-perfection]
+accessibility-menu=true
+app-menu=true
+app-menu-icon=true
+background-menu=false
+controls-manager-spacing-size=22
+dash=false
+dash-icon-size=0
+double-super-to-appgrid=false
+osd=false
+panel=false
+panel-in-overview=false
+ripple-box=false
+search=false
+show-apps-button=true
+startup-status=0
+theme=true
+window-demands-attention-focus=true
+window-picker-icon=false
+window-preview-caption=false
+window-preview-close-button=false
+workspace=false
+workspace-background-corner-size=15
+workspace-popup=false
+workspaces-in-app-grid=false
+
+[search-light]
+background-color=(0.035294130444526672, 0.0, 0.098039217293262482, 0.51999998092651367)
+blur-background=false
+blur-brightness=0.0
+blur-sigma=0.0
+border-radius=7.0
+border-thickness=0
+entry-font-size=0
+font-size=0
+monitor-count=1
+popup-at-cursor-monitor=true
+scale-height=0.69999999999999996
+scale-width=0.20000000000000001
+shortcut-search=['<Control>space']
+show-panel-icon=false
+text-color=(0.035294130444526672, 0.0, 0.098039217293262482, 0.0)
+
 [tiling-assistant]
 activate-layout0=@as []
 activate-layout1=@as []
@@ -264,33 +378,37 @@ toggle-tiling-popup=@as []
 window-gap=2
 
 [tilingshell]
-enable-autotiling=true
+cycle-layouts=['']
+edge-tiling-offset=uint32 70
+enable-autotiling=false
 enable-blur-selected-tilepreview=false
 enable-blur-snap-assistant=false
 enable-screen-edges-windows-suggestions=false
-enable-smart-window-border-radius=true
-enable-snap-assist=false
+enable-smart-window-border-radius=false
+enable-snap-assist=true
 enable-snap-assistant-windows-suggestions=false
 enable-span-multiple-tiles=true
 enable-tiling-system-windows-suggestions=false
-enable-window-border=true
+enable-window-border=false
 highlight-current-window=['<Super>h']
-inner-gaps=uint32 2
-last-version-name-installed='16.4'
-layouts-json='[{"id":"Layout 1","tiles":[{"x":0,"y":0,"width":0.22,"height":0.5,"groups":[1,2]},{"x":0,"y":0.5,"width":0.22,"height":0.5,"groups":[1,2]},{"x":0.22,"y":0,"width":0.56,"height":1,"groups":[2,3]},{"x":0.78,"y":0,"width":0.22,"height":0.5,"groups":[3,4]},{"x":0.78,"y":0.5,"width":0.22,"height":0.5,"groups":[3,4]}]},{"id":"Layout 3","tiles":[{"x":0,"y":0,"width":0.33,"height":1,"groups":[1]},{"x":0.33,"y":0,"width":0.67,"height":1,"groups":[1]}]},{"id":"Layout 4","tiles":[{"x":0,"y":0,"width":0.67,"height":1,"groups":[1]},{"x":0.67,"y":0,"width":0.33,"height":1,"groups":[1]}]},{"id":"1535490","tiles":[{"x":0,"y":0,"width":0.5,"height":0.5,"groups":[1,2]},{"x":0.5,"y":0,"width":0.4999999999999997,"height":0.5,"groups":[3,1]},{"x":0,"y":0.5,"width":0.5,"height":0.5,"groups":[2,1]},{"x":0.5,"y":0.5,"width":0.4999999999999997,"height":0.5,"groups":[3,1]}]},{"id":"1979709","tiles":[{"x":0,"y":0,"width":1,"height":1,"groups":[]}]}]'
+inner-gaps=uint32 3
+last-version-name-installed='17.0'
+layouts-json='[{"id":"2626364","tiles":[{"x":0,"y":0,"width":0.5439238653001464,"height":1,"groups":[1]},{"x":0.5439238653001464,"y":0,"width":0.4560761346998538,"height":0.5,"groups":[2,1]},{"x":0.5439238653001464,"y":0.5,"width":0.4560761346998538,"height":0.49999999999999994,"groups":[2,1]}]}]'
 move-window-center=['<Super>c']
 move-window-down=['<Super>Down']
 move-window-left=['<Super>Left']
 move-window-right=['<Super>Right']
 move-window-up=['<Super>Up']
-outer-gaps=uint32 2
-overridden-settings='{}'
-override-window-menu=false
+outer-gaps=uint32 3
+overridden-settings="{\"org.gnome.mutter.keybindings\":{\"toggle-tiled-right\":\"['<Super>Right']\",\"toggle-tiled-left\":\"['<Super>Left']\"},\"org.gnome.desktop.wm.keybindings\":{\"maximize\":\"['<Super>Up']\",\"unmaximize\":\"@as []\"},\"org.gnome.mutter\":{\"edge-tiling\":\"true\"}}"
+override-window-menu=true
 quarter-tiling-threshold=uint32 40
-selected-layouts=[['1535490'], ['1535490']]
+restore-window-original-size=true
+selected-layouts=[['2626364'], ['2626364'], ['2626364'], ['2626364'], ['2626364']]
 show-indicator=true
 snap-assistant-animation-time=uint32 0
-snap-assistant-threshold=30
+snap-assistant-threshold=20
+span-window-all-tiles=['<Alt>Up']
 span-window-down=['<Control><Super>Down']
 span-window-left=['<Control><Super>Left']
 span-window-right=['<Control><Super>Right']
@@ -299,11 +417,30 @@ tile-preview-animation-time=uint32 0
 tiling-system-activation-key=['0']
 tiling-system-deactivation-key=['-1']
 top-edge-maximize=false
+untile-window=['']
 window-border-color='rgb(51,209,122)'
 window-border-width=uint32 1
 
 [user-theme]
 name='WhiteSur-Dark-blue'
+
+[vitals]
+hide-icons=false
+hide-zeros=true
+hot-sensors=['_processor_usage_', '_memory_usage_', '__network-rx_max__', '__network-tx_max__']
+include-static-info=false
+position-in-panel=1
+show-battery=true
+show-fan=true
+show-memory=true
+show-network=true
+show-processor=true
+show-storage=true
+show-system=true
+show-temperature=true
+show-voltage=true
+update-time=10
+use-higher-precision=false
 
 [window-list]
 grouping-mode='never'
@@ -388,12 +525,14 @@ intellihide=true
 intellihide-behaviour='ALL_WINDOWS'
 intellihide-floating-rounded-theme=false
 intellihide-hide-from-windows=true
+intellihide-key-toggle=@as []
+intellihide-key-toggle-text=''
 intellihide-use-pressure=true
 isolate-monitors=false
 isolate-workspaces=false
 multi-monitors=false
 panel-anchors='{"0":"MIDDLE"}'
-panel-element-positions='{"0":[{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"taskbar","visible":false,"position":"stackedTL"},{"element":"centerBox","visible":false,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"centerMonitor"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":false,"position":"stackedBR"}],"1":[{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":false,"position":"stackedBR"}]}'
+panel-element-positions='{"0":[{"element":"dateMenu","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"centerMonitor"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"taskbar","visible":false,"position":"stackedTL"},{"element":"desktopButton","visible":false,"position":"stackedBR"}],"1":[{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":false,"position":"stackedBR"}]}'
 panel-element-positions-monitors-sync=true
 panel-lengths='{"0":100}'
 panel-positions='{"0":"TOP"}'

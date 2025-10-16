@@ -2,3 +2,6 @@
 on-screen-keyboard=@as []
 screensaver=['<Primary>Escape']
 terminal=['<Super>Return']
+volume-down=['AudioLowerVolume']
+volume-mute=['AudioMute']
+volume-up=['AudioRaiseVolume']
