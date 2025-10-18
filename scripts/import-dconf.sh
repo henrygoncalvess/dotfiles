@@ -3,20 +3,27 @@
 # Autor: Henry
 
 prettyPrint(){
-    local action="$1"
+    local ACTION="$1"
+    local SILENCE="$2"
 
-    echo -ne "\033[36m$action\033[0m"
+    echo -ne "\033[36m$ACTION\033[0m"
 
     for i in {1..4}; do
         for string in '|' '/' '-' '\'; do
-            printf "\r\033[36m$action %s\033[0m" "$string"
+            printf "\r\033[36m$ACTION %s\033[0m" "$string"
             sleep 0.1
         done
     done
 
-    printf "\r\033[36m$action  \033[0m"
-    echo -e "\n\033[3;32m\u2714 Importadas com sucesso!\033[0m\n"
-    sleep 0.1
+    printf "\r\033[36m$ACTION  \033[0m"
+
+    if [[ "$SILENCE" != "-s" ]]; then
+        echo -e "\n\033[3;32m\u2714 Importadas com sucesso!\033[0m\n"
+        sleep 0.1
+    else
+        echo ""
+        sleep 0.1
+    fi
 }
 
 mkdir -p ~/.dotfiles/gnome
@@ -39,8 +46,7 @@ dconf load /org/gnome/desktop/interface/ < ~/.dotfiles/gnome/interface.dconf
 prettyPrint "Configurações do Mouse"
 dconf load /org/gnome/desktop/peripherals/mouse/ < ~/.dotfiles/gnome/mouse.dconf
 
-echo -e "\033[36mConfigurações do Terminal\033[0m"
-sleep 0.2
+prettyPrint "Configurações do Terminal" -s
 prettyPrint "Detectando Perfis do GNOME Terminal"
 
 PROFILE_ID=$(dconf list /org/gnome/terminal/legacy/profiles:/ | head -n 1)
