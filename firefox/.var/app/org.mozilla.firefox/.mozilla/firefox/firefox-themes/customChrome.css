@@ -10,26 +10,62 @@
     --transparent-bgcolor: var(--light-color);
 }
 
+/*================== TOOLBAR ==================*/
+#TabsToolbar,
+.table-widget-empty-text {
+    -moz-appearance: -moz-mac-source-list !important;
+}
+
+#TabsToolbar:-moz-lwtheme-brighttext,
+.table-widget-empty-text:-moz-lwtheme-brighttext {
+    -moz-appearance: -moz-mac-source-list !important;
+}
+
+#TabsToolbar,
+#nav-bar {
+    -moz-appearance: -moz-mac-vibrancy-dark !important;
+}
+
+/*================== TABS ==================*/
+.tabbrowser-tab {
+    margin-left: 3px !important;
+}
+
+.tabbrowser-tab > .tab-stack > .tab-background {
+    border-radius: 100px !important;
+}
+
 /*================== NAV BAR ==================*/
 toolbar#nav-bar {
     background: rgba(var(--accent-color), 1) !important;
     box-shadow: none !important;
 }
 
-toolbar#nav-bar toolbarbutton .toolbarbutton-icon,
-toolbar#nav-bar toolbarbutton #fxa-avatar-image {
-    transition: all 0.3s ease !important;
-    fill: rgba(var(--main-bgcolor), 1) !important;
-}
-
-:root:not([uidensity="compact"]) #back-button > .toolbarbutton-icon {
-    background-color: transparent !important;
+#navigator-toolbox {
+    background-color: rgba(20, 20, 20, 0.7) !important;
 }
 
 /*================== BOOKMARKS TOOLBAR ==================*/
 #PersonalToolbar {
     background-color: transparent !important;
-    color: rgba(var(--main-bgcolor), 1) !important;
+    color: white !important;
+    height: max-content;
+}
+
+/*================== BOOKMARKS ==================*/
+.bookmark-item{
+    background-color: transparent !important;
+}
+
+.bookmark-item > .toolbarbutton-icon {
+    border-radius: 100% !important;
+    height: 17px !important;
+    width: 17px !important;
+    padding: 2px;
+}
+
+.bookmark-item:hover > .toolbarbutton-icon {
+    background-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* ------------------------------------------------------- */
@@ -37,7 +73,8 @@ toolbar#nav-bar toolbarbutton #fxa-avatar-image {
 :root {
     --toolbar-field-focus-border-color: transparent !important; /*remove default focus ring of url bar */
     --organizer-outline-color: transparent !important; /*remove default focus ring of search box in library window */
-    --in-content-page-background: #101010 !important;
+    --tab-min-height: 0 !important;
+    --tab-max-height: 0 !important;
 }
 
 #urlbar:not([focused="true"]) {
@@ -76,75 +113,10 @@ toolbar#nav-bar toolbarbutton #fxa-avatar-image {
     background: transparent !important;
 }
 
-#TabsToolbar,
-.table-widget-empty-text {
-    -moz-appearance: -moz-mac-source-list !important;
-}
-
-#TabsToolbar:-moz-lwtheme-brighttext,
-.table-widget-empty-text:-moz-lwtheme-brighttext {
-    -moz-appearance: -moz-mac-source-list !important;
-}
-
-#navigator-toolbox {
-    background-color: rgba(20, 20, 20, 0.6) !important;
-}
-
-/* menubar + bookmarks */
-
-:root {
-    --tab-min-height: 0 !important;
-    --tab-max-height: 0 !important;
-}
-
-:root #nav-bar,
-#titlebar {
-    -moz-appearance: -moz-mac-source-list !important;
-    -moz-font-smoothing-background-color: -moz-mac-source-list !important;
-}
-
-#TabsToolbar,
-#nav-bar {
-    -moz-appearance: -moz-mac-vibrancy-dark !important;
-}
-
 /* simplify tabs */
 
 .titlebar-spacer[type="pre-tabs"] {
     display: none;
-}
-
-.tabbrowser-tab {
-    margin-left: 3px !important;
-}
-
-.tabbrowser-tab > .tab-stack > .tab-background {
-    border-radius: 100px !important;
-}
-
-.bookmark-item:hover {
-    background-color: transparent !important;
-}
-
-.bookmark-item > .toolbarbutton-icon {
-    display: flex !important;
-    justify-content: center !important;
-
-    border-radius: 100% !important;
-    height: 15px !important;
-    width: 15px !important;
-    color: #f9f9fb !important;
-}
-
-.bookmark-item:hover > .toolbarbutton-icon {
-    background-color: rgba(255, 255, 255, 0.5) !important;
-    padding: 1px;
-}
-
-#tabs-newtab-button .toolbarbutton-icon {
-    border-radius: 30px !important;
-
-    transition-property: background-color;
 }
 
 .tab-close-button {

@@ -125,18 +125,22 @@ customize=false
 confirm-clear=false
 disable-down-arrow=true
 display-mode=2
+history-size=15
 move-item-first=true
 notify-on-copy=false
+preview-size=45
 strip-text=true
 toggle-menu=['<Control>F9']
-topbar-preview-size=20
+topbar-preview-size=15
 
 [dash-to-dock]
 animation-time=0.15000000000000002
 apply-custom-theme=false
 apply-glossy-effect=false
 autohide-in-fullscreen=true
+background-color='rgb(36,31,49)'
 background-opacity=0.5
+custom-background-color=true
 custom-theme-customize-running-dots=false
 custom-theme-running-dots-border-color='rgb(255,255,255)'
 custom-theme-running-dots-color='rgb(255,255,255)'
@@ -317,7 +321,7 @@ workspace-popup=false
 workspaces-in-app-grid=false
 
 [search-light]
-background-color=(0.035294130444526672, 0.0, 0.098039217293262482, 0.51999998092651367)
+background-color=(0.035294130444526672, 0.0, 0.098039217293262482, 0.70333331823348999)
 blur-background=false
 blur-brightness=0.0
 blur-sigma=0.0
@@ -378,9 +382,9 @@ toggle-tiling-popup=@as []
 window-gap=2
 
 [tilingshell]
-cycle-layouts=['']
+cycle-layouts=['<Alt>Right']
 edge-tiling-offset=uint32 70
-enable-autotiling=false
+enable-autotiling=true
 enable-blur-selected-tilepreview=false
 enable-blur-snap-assistant=false
 enable-screen-edges-windows-suggestions=false
@@ -390,8 +394,9 @@ enable-snap-assistant-windows-suggestions=false
 enable-span-multiple-tiles=true
 enable-tiling-system-windows-suggestions=false
 enable-window-border=false
+enable-wraparound-focus=false
 highlight-current-window=['<Super>h']
-inner-gaps=uint32 3
+inner-gaps=uint32 4
 last-version-name-installed='17.0'
 layouts-json='[{"id":"2626364","tiles":[{"x":0,"y":0,"width":0.5439238653001464,"height":1,"groups":[1]},{"x":0.5439238653001464,"y":0,"width":0.4560761346998538,"height":0.5,"groups":[2,1]},{"x":0.5439238653001464,"y":0.5,"width":0.4560761346998538,"height":0.49999999999999994,"groups":[2,1]}]}]'
 move-window-center=['<Super>c']
@@ -399,7 +404,7 @@ move-window-down=['<Super>Down']
 move-window-left=['<Super>Left']
 move-window-right=['<Super>Right']
 move-window-up=['<Super>Up']
-outer-gaps=uint32 3
+outer-gaps=uint32 4
 overridden-settings="{\"org.gnome.mutter.keybindings\":{\"toggle-tiled-right\":\"['<Super>Right']\",\"toggle-tiled-left\":\"['<Super>Left']\"},\"org.gnome.desktop.wm.keybindings\":{\"maximize\":\"['<Super>Up']\",\"unmaximize\":\"@as []\"},\"org.gnome.mutter\":{\"edge-tiling\":\"true\"}}"
 override-window-menu=true
 quarter-tiling-threshold=uint32 40
@@ -408,7 +413,7 @@ selected-layouts=[['2626364'], ['2626364'], ['2626364'], ['2626364'], ['2626364'
 show-indicator=true
 snap-assistant-animation-time=uint32 0
 snap-assistant-threshold=20
-span-window-all-tiles=['<Alt>Up']
+span-window-all-tiles=['']
 span-window-down=['<Control><Super>Down']
 span-window-left=['<Control><Super>Left']
 span-window-right=['<Control><Super>Right']
@@ -418,7 +423,7 @@ tiling-system-activation-key=['0']
 tiling-system-deactivation-key=['-1']
 top-edge-maximize=false
 untile-window=['']
-window-border-color='rgb(51,209,122)'
+window-border-color='rgba(246,211,45,0.516667)'
 window-border-width=uint32 1
 
 [user-theme]

@@ -1,6 +1,6 @@
 [/]
 clock-format='12h'
-clock-show-seconds=true
+clock-show-seconds=false
 clock-show-weekday=true
 color-scheme='default'
 cursor-size=18
