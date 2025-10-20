@@ -7,6 +7,7 @@ set -euo pipefail
 DOWNLOAD_DIR="$HOME/Downloads"
 THEMES_DIR="$HOME/.themes"
 ICONS_DIR="$HOME/.icons"
+CONFIG_DIR="$HOME/.config"
 
 PROGRAMS=(git neovim python3 python3-pip)
 
@@ -14,7 +15,10 @@ NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 WHITESUR_URL="https://github.com/vinceliuice/WhiteSur-gtk-theme.git"
 BIBATA_URL="https://github.com/ful1e5/Bibata_Cursor/releases/download/v2.0.7/Bibata-Modern-Ice.tar.xz"
 
-mkdir -p "$DOWNLOAD_DIR" "$ICONS_DIR" "$THEMES_DIR"
+NVIM_CONFIG_FILE="$CONFIG_DIR/nvim/init.lua"
+GIT_CONFIG_FILE="$HOME/.gitconfig"
+
+mkdir -p "$DOWNLOAD_DIR" "$ICONS_DIR" "$THEMES_DIR" "$CONFIG_DIR"
 
 pretty_log() {
   local TYPE=$1
@@ -40,7 +44,7 @@ pretty_log() {
       echo -e "\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[3;32m$MESSAGE!\033[0m"
       ;;
     info)
-      echo -e "\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE...\033[0m"
+      echo -e "\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE...\033[0m\n"
       ;;
     error)
       echo -e "\033[1;31m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE\033[0m" >&2
@@ -209,24 +213,24 @@ install_bibata() {
     return 0
   fi
 
-  pretty_log -c "${LOG}" "Baixando arquivo em: $DEST_FILE" info
+  pretty_log -c "$LOG" "Baixando arquivo em: $DEST_FILE" info
 
   curl -fL --retry 3 --retry-delay 5 --progress-bar "$BIBATA_URL" -o "$DEST_FILE"
-  pretty_log -c "${LOG}" "Download concluído" success
-  pretty_log -c "${LOG}" "Extraindo conteúdo para: $DEST_DIR" info
+  pretty_log -c "$LOG" "Download concluído" success
+  pretty_log -c "$LOG" "Extraindo conteúdo para: $DEST_DIR" info
 
   tar -xf "$DEST_FILE" -C "$ICONS_DIR"
 
-  pretty_log -c "${LOG}" "Arquivo extraído! Cursor Instalado com sucesso" success
-  pretty_log -c "${LOG}" "Removendo $DEST_FILE" info
+  pretty_log -c "$LOG" "Arquivo extraído! Cursor Instalado com sucesso" success
+  pretty_log -c "$LOG" "Removendo $DEST_FILE" info
   rm -f "$DEST_FILE"
-  pretty_log -c "${LOG}" "Arquivo removido" success
+  pretty_log -c "$LOG" "Arquivo removido" success
 }
 
 echo -e "\n\033[1;33m[INFO] ---Iniciando instalação de PROGRAMAS---\033[0m\n"
 
 echo -e "\n\033[1;33m[apt-get update]\033[0m\n"
-sudo apt-get update
+#sudo apt-get update
 echo -e "\n"
 
 install_docker
@@ -234,18 +238,61 @@ echo -e "\n"
 
 for prog in "${PROGRAMS[@]}"; do
   case "$prog" in
+    git)
+      if check -f -f "[$prog-download]" "$GIT_CONFIG_FILE"; then
+        echo -e "\n"
+        continue
+      fi
+
+      pretty_log -f "[$prog-download]" "Já instalado" success
+      echo -e "\n"
+      pretty_log -f "[$prog-config]" "Configurando $prog: $GIT_CONFIG_FILE  " info
+
+      cat > "$GIT_CONFIG_FILE" << EOF
+[user]
+  name = henrygoncalvess
+  email = octanebt@gmail.com
+
+[init]
+  defaultBranch = main
+
+[core]
+  editor = code --wait
+EOF
+      pretty_log -f "[$prog-config]" "Configurado com sucesso" success
+      echo -e "\n"                        
+      continue
+      ;;
+
     neovim)
-      if check_command "nvim" "[$prog-download]"; then                
+      if check_command "nvim" "[$prog-download]"; then
+        if [[ -f "$NVIM_CONFIG_FILE" ]]; then
+          echo -e "\n"
+          continue
+        fi
+
+        echo -e "\n"
+        pretty_log -f "[$prog-config]" "Configurando $prog: $NVIM_CONFIG_FILE  " info
+
+        cat > "$NVIM_CONFIG_FILE" << EOF
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
+vim.opt.smartindent = true
+EOF
+	      pretty_log -f "[$prog-config]" "Configurado com sucesso" success
         echo -e "\n"
         continue
       fi   
       ;;
+
     python3-pip)
       if check_command "pip" "[$prog-download]"; then
         echo -e "\n"
         continue
       fi
       ;;
+
     *)
       install_program_apt "$prog"
       echo -e "\n"
