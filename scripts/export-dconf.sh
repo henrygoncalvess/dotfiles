@@ -7,7 +7,7 @@ prettyPrint(){
 
     echo -ne "\033[33m$action\033[0m"
 
-    for i in {1..3}; do
+    for i in {1..2}; do
         for string in '|' '/' '-' '\'; do
             printf "\r\033[33m$action %s\033[0m" "$string"
             sleep 0.1
