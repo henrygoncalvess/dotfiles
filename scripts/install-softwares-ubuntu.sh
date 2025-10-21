@@ -10,7 +10,7 @@ ICONS_DIR="$HOME/.icons"
 CONFIG_DIR="$HOME/.config"
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
 
-PROGRAMS=(git neovim python3 python3-pip wget)
+PROGRAMS=(git python3 python3-pip wget make ripgrep)
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 WHITESUR_URL="https://github.com/vinceliuice/WhiteSur-gtk-theme.git"
@@ -48,13 +48,13 @@ pretty_log() {
   
   case "$STATUS" in
     success)
-      echo -e "\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[3;32m$MESSAGE!\033[0m\n"
+      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[3;32m$MESSAGE!\033[0m"
       ;;
     info)
-      echo -e "\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE...\033[0m\n"
+      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE...\033[0m"
       ;;
     error)
-      echo -e "\033[1;31m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE\033[0m\n" >&2
+      echo -e "\n\033[1;31m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE\033[0m" >&2
       ;;
   esac
 }
@@ -84,12 +84,21 @@ check() {
 }
 
 check_command() {
-  local COMMAND=$1
+  local NAME=$1
   local LOG=$2
+  local COMMAND=""
+
+  case "$NAME" in
+    ripgrep) COMMAND="rg" ;;
+    python3-pip) COMMAND="pip3" ;;
+    *) COMMAND="$NAME" ;;
+  esac
 
   if command -v "$COMMAND" &> /dev/null; then
     pretty_log -f "$LOG" "Já instalado" success
     return 0
+  else
+    return 1
   fi
 }
 
@@ -242,6 +251,64 @@ install_node() {
   pretty_log -f "$LOG" "Abra um novo terminal para instalar o node com nvm." info
 }
 
+install_cargo() {
+  local LOG="[Cargo-download]"
+
+  if check_command cargo "$LOG"; then
+    return 0
+  fi
+  
+  pretty_log -f "$LOG" "Instalando Cargo" info
+  curl https://sh.rustup.rs -sSf | sh
+  \. "$HOME/.cargo/env"
+
+  pretty_log -f "$LOG" "Instalado com sucesso. Abra um novo terminal para aplicar as modificações" success
+}
+
+install_nvim() {
+  local LOG="[Neovim-download]"
+  
+  if check_command nvim "$LOG"; then
+    #if [[ -f "$NVIM_CONFIG_FILE" ]]; then
+    #  pretty_log -f "[$prog-config]" "Configurado com sucesso" success
+    #  return 0
+    #fi
+
+    #pretty_log -f "[$prog-config]" "Configurando $prog: $NVIM_CONFIG_FILE  " info
+    #cat > "$NVIM_CONFIG_FILE" << EOF
+#vim.opt.tabstop = 2
+#vim.opt.shiftwidth = 2
+#vim.opt.expandtab = true
+#vim.opt.smartindent = true
+#EOF
+
+	  #pretty_log -f "[$prog-config]" "Configurado com sucesso" success
+    return 0
+  fi
+
+  pretty_log -f "$LOG" "Adicionando repositório" info
+  sudo add-apt-repository ppa:neovim-ppa/stable -y
+
+  pretty_log -f "$LOG" "Atualizando pacotes e instalando Neovim" info
+  sudo apt update
+  sudo apt install neovim -y
+
+  pretty_log -f "$LOG" "Instalado com sucesso." success
+}
+
+install_lunarvim() {
+  local LOG="[LunarVim-download]"
+  
+  if check_command lvim "$LOG"; then
+    return 0
+  fi
+
+  pretty_log -f "$LOG" "Instalando Lunar Vim" info
+  LV_BRANCH='release-1.4/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.4/neovim-0.9/utils/installer/install.sh)
+
+  pretty_log -f "$LOG" "Instalado com sucesso" success
+}
+
 install_whitesur() {
   local LOG="[WhiteSur-download]"
   local DEST_DIR="$THEMES_DIR/WhiteSur-gtk-theme"
@@ -294,9 +361,8 @@ install_bibata() {
 
 echo -e "\n\033[1;33m[INFO] ---Iniciando instalação de PROGRAMAS---\033[0m\n"
 
-echo -e "\n\033[1;33m[apt-get update]\033[0m\n"
+echo -e "\033[1;33m[apt-get update]\033[0m\n"
 #sudo apt-get update
-echo -e "\n"
 
 for prog in "${PROGRAMS[@]}"; do
   case "$prog" in
@@ -324,53 +390,32 @@ EOF
       pretty_log -f "[$prog-config]" "Configurado com sucesso" success
       continue
       ;;
-
-    neovim)
-      if check_command "nvim" "[$prog-download]"; then
-        if [[ -f "$NVIM_CONFIG_FILE" ]]; then
-          pretty_log -f "[$prog-config]" "Configurado com sucesso" success
-          continue
-        fi
-
-        echo -e "\n"
-        pretty_log -f "[$prog-config]" "Configurando $prog: $NVIM_CONFIG_FILE  " info
-        cat > "$NVIM_CONFIG_FILE" << EOF
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
-vim.opt.expandtab = true
-vim.opt.smartindent = true
-EOF
-
-	      pretty_log -f "[$prog-config]" "Configurado com sucesso" success
-        echo -e "\n"
-        continue
-      fi   
-      ;;
-
-    python3-pip)
-      if check_command "pip" "[$prog-download]"; then
-        continue
-      fi
-      ;;
-
     *)
       install_program_apt "$prog"
       ;;
   esac
 done
 
-install_firefox
-
-install_docker
-
 install_nvm
 
 install_node
 
-echo -e "\033[1;33m[INFO] ---Iniciando instalação de TEMAS E ÍCONES---\033[0m\n"
+install_cargo
+
+install_nvim
+
+install_lunarvim
+
+install_firefox
+
+install_docker
+echo -e "\n"
+
+echo -e "\033[1;33m[INFO] ---Iniciando instalação de TEMAS E ÍCONES---\033[0m"
 
 install_whitesur
 
 install_bibata
+echo -e "\n"
 
 exit 0
