@@ -9,7 +9,7 @@
 - [Instrução de uso ( Stow )](#use1)
 - [Explicação](#explanation)
 - [Instrução de uso ( Dconf )](#use2)
-- [Import e Export das Configurações](#use3)
+- [Uso dos scripts e Import\Export das Configurações](#use3)
 - [Licença](#license)
 
 <br>
@@ -60,6 +60,8 @@ mv ~/dotfiles ~/.dotfiles
 <a name="use1"></a>
 ### 📜 Instrução de uso ( Stow )
 
+(passos opcionais, pois o script `import-dconf.sh` já cria Symlinks automaticamente)
+
 1. Entre na pasta
 
 ```bash
@@ -69,13 +71,14 @@ cd ~/.dotfiles
 
 > [!IMPORTANT]
 > #### Atenção antes de utilizar o Stow.
-> Mova os arquivos em que deseja criar os links simbólicos para as pastas correspondentes.
+> Mova os arquivos em que deseja criar os links simbólicos para as pastas correspondentes.  
+> Estrutura "espelhada" (modo tradicional)
 >  
 > _EXEMPLO 1:_ se quiser criar um link para `~/.config/oh_my_posh_config/theme.omp.json`  
-> Mova o arquivo para `~/.dotfiles/oh_my_posh/.config/oh_my_posh_config/`
+> Mova o arquivo para `~/.dotfiles/conf_posh/.config/oh_my_posh_config/theme.omp.json`
 > 
 > _EXEMPLO 2:_ se quiser criar um link para `~/.config/Code/User/settings.json`  
-> Mova o arquivo para `~/.dotfiles/vscode/.config/Code/User/`
+> Mova o arquivo para `~/.dotfiles/conf_code/.config/Code/User/settings.json`
 
 <br>
 
@@ -83,7 +86,7 @@ cd ~/.dotfiles
 
 `~/.dotfiles`
 ```bash
-stow -v -t ~ oh_my_posh/ vscode/ bash/ git/
+stow -v -t ~ conf_posh/ conf_code/ conf_bash/ conf_git/
 ```
 
 <br>
@@ -91,27 +94,36 @@ stow -v -t ~ oh_my_posh/ vscode/ bash/ git/
 <a name="explanation"></a>
 ### 💡 Explicação
 
+**Sintaxe:** `stow [opções] -t <destino> <pacote>`
+
 `-v` → verbose, ou seja, vai mostrar na saída o que ele está fazendo.
 
 `-t ~` → define o _target directory_ (`~/`, o diretório home do usuário). É para lá que os links simbólicos serão criados.
 
-`oh_my_posh/ vscode/ bash/ git/` → são os pacotes (pastas) que você quer "stowar". Cada pasta representa um conjunto de arquivos de configuração.
+`conf_posh/ conf_code/ conf_bash/ conf_git/` → são os pacotes (pastas) que você quer "stowar". Cada pasta representa um conjunto de arquivos de configuração.
 
 Suponha que você tem a seguinte estrutura dentro de `~/.dotfiles/`:
 
 ```bash
 .dotfiles/
-├── oh_my_posh/
+├── conf_posh/
 │   └── .config/oh_my_posh_config/theme.omp.json
-└── vscode/
+└── conf_code/
     └── .config/Code/User/settings.json
 ```
 
-Ao rodar o comando, o Stow não copia os arquivos. Ele cria symlinks no diretório `~/`:
+Ao rodar o comando, O Stow cria Symlinks dentro de `~/` que apontam  
+para os arquivos dentro de `~/.dotfiles/conf_posh`:
 
 ```bash
-~/.config/oh_my_posh_config/theme.omp.json  →  ~/.dotfiles/oh_my_posh/.config/oh-my-posh/config.json
-~/.config/Code/User/settings.json →  ~/.dotfiles/vscode/.config/Code/User/settings.json
+~/.dotfiles/conf_posh/.config/oh_my_posh_config/theme.omp.json
+ ↓
+~/.config/oh_my_posh_config/theme.omp.json
+```
+```bash
+~/.dotfiles/conf_code/.config/Code/User/settings.json
+ ↓
+~/.config/Code/User/settings.json
 ```
 
 <br>
@@ -131,15 +143,32 @@ dconf reset -f /org/gnome/path/example
 ```
 
 <a name="use3"></a>
-### 📜 Import e Export das Configurações
+### 📜 Uso dos scripts e Import\Export das Configurações
 
-Execute um dos scripts:
+_para executar um script: `./script.sh` ou bash `script.sh`_
+
+Execute este script para instalar todos os programas, temas, icons, configurações etc.:
+
+`~/.dotfiles/scripts`
 ```bash
-# Import
-~/.dotfiles/scripts/import.sh
+./install-softwares-ubuntu.sh
+```
 
-# Export
-~/.dotfiles/scripts/export.sh
+E em seguida:
+
+```bash
+./import-dconf.sh
+```
+
+Execute um dos scripts para manipular as configurações do Dconf:
+
+`~/.dotfiles/scripts`
+```bash
+# Aplicar configurações
+./import-dconf.sh
+
+# Salvar configurações
+./export-dconf.sh
 ```
 
 <br>
