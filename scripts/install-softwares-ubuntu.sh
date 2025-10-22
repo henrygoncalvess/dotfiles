@@ -10,7 +10,7 @@ ICONS_DIR="$HOME/.icons"
 CONFIG_DIR="$HOME/.config"
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
 
-PROGRAMS=(git python3 python3-pip wget make ripgrep)
+PROGRAMS=(git python3 python3-pip wget make ripgrep stow)
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 WHITESUR_URL="https://github.com/vinceliuice/WhiteSur-gtk-theme.git"
@@ -23,7 +23,7 @@ mkdir -p "$DOWNLOAD_DIR" "$ICONS_DIR" "$THEMES_DIR" "$CONFIG_DIR" "$PROFILE_DIR"
 
 on_error() {
   local code=$?
-  echo -e "\033[1;31m[ERRO]\033[0m \033[33mFalha na execução (exit code: $code)\033[0m" >&2
+  echo -e "\n\033[1;31m[ERRO]\033[0m \033[33mFalha na execução (exit code: $code)\033[0m" >&2
 }
 trap 'on_error' ERR
 
@@ -121,6 +121,32 @@ install_program_apt() {
   fi
 }
 
+install_ohmyposh() {
+  local LOG="[Oh_My_Posh-download]"
+
+  if check_command oh-my-posh "$LOG"; then
+    return 0
+  fi
+
+  pretty_log -f "$LOG" "Instalando Oh My Posh" info
+  curl -s https://ohmyposh.dev/install.sh | bash -s
+  
+  if fc-list | grep -qi "Nerd Font" | grep -qi "Hasklig"; then
+   pretty_log -f "$LOG" "Nerd Font Hasklug já instalada" success
+  fi
+
+  pretty_log -f "$LOG" "Instalando Nerd Font Hasklug" info
+  oh-my-posh font install Hasklig
+
+  pretty_log -f "$LOG" "Configurando Shell para utilizar o Oh My Posh" info
+
+  if ! grep -q "oh-my-posh init bash" "$HOME/.bashrc"; then
+    echo 'eval "$(oh-my-posh init bash --config $HOME/.dotfiles/oh_my_posh/.config/oh_my_posh_config/my-theme.omp.json)"' >> "$HOME/.bashrc"
+  fi
+
+  pretty_log -f "$LOG" "Instalado com sucesso! Abra um novo terminal para aplicar as configurações do perfil" success
+}
+
 install_firefox() {
   local LOG="[Firefox-download]"
 
@@ -131,7 +157,7 @@ install_firefox() {
 
     cp -r ~/.dotfiles/firefox/theme/. "$CHROME_DIR"
     cat > "$PROFILE_DIR/user.js" <<EOF
-/* Habilitar customização via CSS (userChrome/userContent) */
+/* Customização via CSS (userChrome/userContent) */
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 
 /* Ativar tema escuro */
@@ -143,16 +169,36 @@ user_pref("font.name.monospace.x-western,	"Hasklug Nerd Font Propo");
 user_pref("font.minimum-size.th", 13);
 user_pref("font.size.variable.x-western", 13);
 user_pref("font.size.fixed.x-western", 13);
+user_pref("browser.display.use_document_fonts", 1);
+
+/* Preferências gerais */
+user_pref("browser.download.useDownloadDir", false);
+user_pref("browser.download.deletePrivate", true);
+user_pref("browser.download.deletePrivate.chosen", true);
+user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
+user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
+user_pref("browser.ctrlTab.sortByRecentlyUsed", true);
+user_pref("general.autoScroll", true);
+user_pref("general.smoothScroll", true);
+user_pref("signon.rememberSignons", false);
+user_pref("privacy.globalprivacycontrol.enabled", true);
+user_pref("privacy.globalprivacycontrol.was_ever_enabled", true);
+user_pref("extensions.formautofill.addresses.enabled", false);
+user_pref("extensions.formautofill.creditCards.enabled", false);
 
 /* Restaurar abas da sessão anterior */
 user_pref("browser.startup.page", 3);
 
-/* Desativar tela de “novo usuário” */
-user_pref("browser.aboutwelcome.enabled", false);
-
 /* Desativar recomendações */
 user_pref("browser.newtabpage.activity-stream.feeds.recommendationprovider", false);
 user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", false);
+user_pref("browser.aboutwelcome.enabled", false);
+user_pref("browser.newtabpage.activity-stream.showSearch", false);
+user_pref("browser.newtabpage.activity-stream.showSponsoredCheckboxes", false);
+user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
+user_pref("browser.search.suggest.enabled", false);
+user_pref("browser.urlbar.suggest.bookmark", false);
+user_pref("browser.urlbar.suggest.searches", false);
 EOF
 
     pretty_log -f "[Firefox-config]" "Firefox configurado com sucesso" success
@@ -192,7 +238,7 @@ Pin-Priority: 1000
 install_docker() {
   local LOG="[Docker-download]"
 
-  if check_command "docker" "$LOG"; then                
+  if check_command docker "$LOG"; then                
     return 0
   fi
 
@@ -236,7 +282,7 @@ install_nvm() {
 install_node() {
   local LOG="[Node-download]"
 
-  if check_command "node" "$LOG"; then
+  if check_command node "$LOG"; then
     return 0
   fi
 
@@ -269,20 +315,6 @@ install_nvim() {
   local LOG="[Neovim-download]"
   
   if check_command nvim "$LOG"; then
-    #if [[ -f "$NVIM_CONFIG_FILE" ]]; then
-    #  pretty_log -f "[$prog-config]" "Configurado com sucesso" success
-    #  return 0
-    #fi
-
-    #pretty_log -f "[$prog-config]" "Configurando $prog: $NVIM_CONFIG_FILE  " info
-    #cat > "$NVIM_CONFIG_FILE" << EOF
-#vim.opt.tabstop = 2
-#vim.opt.shiftwidth = 2
-#vim.opt.expandtab = true
-#vim.opt.smartindent = true
-#EOF
-
-	  #pretty_log -f "[$prog-config]" "Configurado com sucesso" success
     return 0
   fi
 
@@ -293,7 +325,7 @@ install_nvim() {
   sudo apt update
   sudo apt install neovim -y
 
-  pretty_log -f "$LOG" "Instalado com sucesso." success
+  pretty_log -f "$LOG" "Instalado com sucesso" success
 }
 
 install_lunarvim() {
@@ -364,6 +396,10 @@ echo -e "\n\033[1;33m[INFO] ---Iniciando instalação de PROGRAMAS---\033[0m\n"
 echo -e "\033[1;33m[apt-get update]\033[0m\n"
 #sudo apt-get update
 
+install_ohmyposh
+
+install_firefox
+
 for prog in "${PROGRAMS[@]}"; do
   case "$prog" in
     git)
@@ -405,8 +441,6 @@ install_cargo
 install_nvim
 
 install_lunarvim
-
-install_firefox
 
 install_docker
 echo -e "\n"
