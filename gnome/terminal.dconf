@@ -1,7 +1,7 @@
 [/]
 audible-bell=false
-background-color='rgb(9,0,25)'
-background-transparency-percent=13
+background-color='rgb(15,10,25)'
+background-transparency-percent=10
 bold-color='rgb(0,0,0)'
 bold-color-same-as-fg=true
 bold-is-bright=true

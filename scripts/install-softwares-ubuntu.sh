@@ -16,7 +16,6 @@ NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 WHITESUR_URL="https://github.com/vinceliuice/WhiteSur-gtk-theme.git"
 BIBATA_URL="https://github.com/ful1e5/Bibata_Cursor/releases/download/v2.0.7/Bibata-Modern-Ice.tar.xz"
 
-NVIM_CONFIG_FILE="$CONFIG_DIR/nvim/init.lua"
 GIT_CONFIG_FILE="$HOME/.gitconfig"
 
 mkdir -p "$DOWNLOAD_DIR" "$ICONS_DIR" "$THEMES_DIR" "$CONFIG_DIR" "$PROFILE_DIR"
@@ -124,7 +123,14 @@ install_program_apt() {
 install_ohmyposh() {
   local LOG="[Oh_My_Posh-download]"
 
+  config_shell() {
+    if ! grep -q "oh-my-posh init bash" "$HOME/.bashrc"; then
+      echo 'eval "$(oh-my-posh init bash --config $HOME/.dotfiles/conf_posh/.config/oh_my_posh_config/my-theme.omp.json)"' >> "$HOME/.bashrc"
+    fi
+  }
+
   if check_command oh-my-posh "$LOG"; then
+    config_shell
     return 0
   fi
 
@@ -139,11 +145,8 @@ install_ohmyposh() {
   oh-my-posh font install Hasklig
 
   pretty_log -f "$LOG" "Configurando Shell para utilizar o Oh My Posh" info
-
-  if ! grep -q "oh-my-posh init bash" "$HOME/.bashrc"; then
-    echo 'eval "$(oh-my-posh init bash --config $HOME/.dotfiles/oh_my_posh/.config/oh_my_posh_config/my-theme.omp.json)"' >> "$HOME/.bashrc"
-  fi
-
+  config_shell
+ 
   pretty_log -f "$LOG" "Instalado com sucesso! Abra um novo terminal para aplicar as configurações do perfil" success
 }
 
@@ -151,11 +154,8 @@ install_firefox() {
   local LOG="[Firefox-download]"
 
   config_firefox() {
-    CHROME_DIR="$PROFILE_DIR/chrome"
-   
-    mkdir -p "$CHROME_DIR"
+    mkdir -p "$PROFILE_DIR/chrome"
 
-    cp -r ~/.dotfiles/firefox/theme/. "$CHROME_DIR"
     cat > "$PROFILE_DIR/user.js" <<EOF
 /* Customização via CSS (userChrome/userContent) */
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
@@ -175,6 +175,9 @@ user_pref("browser.display.use_document_fonts", 1);
 user_pref("browser.download.useDownloadDir", false);
 user_pref("browser.download.deletePrivate", true);
 user_pref("browser.download.deletePrivate.chosen", true);
+user_pref("browser.tabs.groups.smart.userEnabled", false);
+user_pref("browser.tabs.hoverPreview.showThumbnails", false);
+user_pref("accessibility.typeaheadfind", true);
 user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
 user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
 user_pref("browser.ctrlTab.sortByRecentlyUsed", true);
