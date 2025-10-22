@@ -1,7 +1,0 @@
-[user]
-	name = henrygoncalvess
-	email = octanebt@gmail.com
-[init]
-	defaultBranch = main
-[core]
-	editor = code --wait

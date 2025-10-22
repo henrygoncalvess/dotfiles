@@ -2,6 +2,8 @@
 # Script para exportar configurações do GNOME (Zorin OS)
 # Autor: Henry
 
+PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
+
 prettyPrint(){
     local ACTION="$1"
     local SILENCE="$2"
@@ -29,6 +31,15 @@ prettyPrint(){
 mkdir -p ~/.dotfiles/gnome
 
 echo -e "\033[1;33m- - - - - - - - - - - - - - - - - - - -\033[0m\n"
+
+echo -e "\033[1;33mCriando Symlinks com GNU Stow\033[0m\n"
+
+cd ~/.dotfiles
+stow -v -t ~ conf_posh/ conf_code/ conf_git/
+stow -v -t "$PROFILE_DIR/chrome" conf_firefox/
+
+echo -e "\n\033[3;32m\u2714 Symlinks criados com sucesso!\033[0m\n"
+
 echo -e "\033[1;33mIMPORTANDO configurações do GNOME\033[0m\n"
 
 prettyPrint "Configurações de Extensões"
