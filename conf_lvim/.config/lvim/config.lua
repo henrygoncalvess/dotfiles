@@ -21,7 +21,7 @@ vim.opt.showmode = true
 vim.opt.showtabline = 2
 
 -- window
-vim.opt.titlestring = "%<%F%=%l/%L - nvim"
+vim.opt.titlestring = "%{fnamemodify(getcwd(), ':t')} (%{get(b:,'gitsigns_head','')}) | %f%{&modified?' ●':''}"
 
 -- ========================================
 -- SYSTEM
@@ -53,6 +53,46 @@ lvim.builtin.lir.show_hidden_files = true
 -- ADDITIONAL PLUGINS
 -- ========================================
 lvim.plugins = {
-  "Mofiqul/dracula.nvim",
+  { "Mofiqul/dracula.nvim" },
+  {
+    "mrjones2014/nvim-ts-rainbow",
+  },
+  {
+    "kevinhwang91/nvim-bqf",
+    event = { "BufRead", "BufNew" },
+    config = function()
+      require("bqf").setup({
+        auto_enable = true,
+        preview = {
+          win_height = 12,
+          win_vheight = 12,
+          delay_syntax = 80,
+          border_chars = { "┃", "┃", "━", "━", "┏", "┓", "┗", "┛", "█" },
+        },
+        func_map = {
+          vsplit = "",
+          ptogglemode = "z,",
+          stoggleup = "",
+        },
+        filter = {
+          fzf = {
+            action_for = { ["ctrl-s"] = "split" },
+            extra_opts = { "--bind", "ctrl-o:toggle-all", "--prompt", "> " },
+          },
+        },
+      })
+    end,
+  },
 }
 
+-- ========================================
+-- FORMATTERS AND LINTERS
+-- ========================================
+-- install via :Mason -> (linter) -> press i
+lvim.format_on_save.enabled = true
+
+local formatters = require "lvim.lsp.null-ls.formatters"
+formatters.setup {
+  { name = "black" },
+  { name = "prettier" },
+}
