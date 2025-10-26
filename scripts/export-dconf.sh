@@ -39,11 +39,4 @@ dconf dump /org/gnome/desktop/interface/ > ~/.dotfiles/gnome/interface.dconf
 prettyPrint "Configurações do Mouse"
 dconf dump /org/gnome/desktop/peripherals/mouse/ > ~/.dotfiles/gnome/mouse.dconf
 
-echo -e "\033[33mConfigurações do Terminal\033[0m"
-sleep 0.2
-prettyPrint "Detectando Perfis do GNOME Terminal"
-
-PROFILE_ID=$(dconf list /org/gnome/terminal/legacy/profiles:/ | head -n 1)
-
-dconf dump /org/gnome/terminal/legacy/profiles:/$PROFILE_ID > ~/.dotfiles/gnome/terminal.dconf
 echo -e "\033[1;36m- - - - - - - - - - - - - - - - - - - -\033[0m"

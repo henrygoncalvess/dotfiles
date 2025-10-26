@@ -10,7 +10,7 @@ ICONS_DIR="$HOME/.icons"
 CONFIG_DIR="$HOME/.config"
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
 
-PROGRAMS=(git python3 python3-pip wget make ripgrep stow)
+PROGRAMS=(git python3 python3-pip python3-venv wget make ripgrep stow xclip)
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 WHITESUR_URL="https://github.com/vinceliuice/WhiteSur-gtk-theme.git"
@@ -35,8 +35,8 @@ pretty_log() {
 
   case "$TYPE" in
     "-f") TAG="SOFTWARE" ;;
+    "-p") TAG="PACOTE" ;;
     "-t") TAG="TEMA    " ;;
-    "-i") TAG="ICON    " ;;
     "-c") TAG="CURSOR  " ;;
     "-e") TAG="ERRO    " ;;
   esac
@@ -123,14 +123,7 @@ install_program_apt() {
 install_ohmyposh() {
   local LOG="[Oh_My_Posh-download]"
 
-  config_shell() {
-    if ! grep -q "oh-my-posh init bash" "$HOME/.bashrc"; then
-      echo 'eval "$(oh-my-posh init bash --config $HOME/.dotfiles/conf_posh/.config/oh_my_posh_config/my-theme.omp.json)"' >> "$HOME/.bashrc"
-    fi
-  }
-
   if check_command oh-my-posh "$LOG"; then
-    config_shell
     return 0
   fi
 
@@ -144,9 +137,6 @@ install_ohmyposh() {
   pretty_log -f "$LOG" "Instalando Nerd Font Hasklug" info
   oh-my-posh font install Hasklig
 
-  pretty_log -f "$LOG" "Configurando Shell para utilizar o Oh My Posh" info
-  config_shell
- 
   pretty_log -f "$LOG" "Instalado com sucesso! Abra um novo terminal para aplicar as configurações do perfil" success
 }
 
@@ -164,8 +154,8 @@ user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 user_pref("ui.systemUsesDarkTheme", 1);
 
 /* Fonte */
-user_pref("font.name.sans-serif.x-western, "Hasklug Nerd Font Propo");
-user_pref("font.name.monospace.x-western,	"Hasklug Nerd Font Propo");
+user_pref("font.name.sans-serif.x-western", "Hasklug Nerd Font Propo");
+user_pref("font.name.monospace.x-western", "Hasklug Nerd Font Propo");
 user_pref("font.minimum-size.th", 13);
 user_pref("font.size.variable.x-western", 13);
 user_pref("font.size.fixed.x-western", 13);
@@ -222,7 +212,10 @@ EOF
   gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
 
   pretty_log -f "$LOG" "Adicionando repositório oficial da Mozilla" info
-  echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+
+  if ! grep -q "packages.mozilla.org" /etc/apt/sources.list.d/mozilla.list 2>/dev/null; then
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+  fi
 
   pretty_log -f "$LOG" "Configurando APT para dar prioridade aos pacotes da Mozilla" info
   echo '
@@ -232,9 +225,15 @@ Pin-Priority: 1000
 ' | sudo tee /etc/apt/preferences.d/mozilla
 
   pretty_log -f "$LOG" "Atualizando pacotes e instalando Firefox" info
-  sudo apt-get update && sudo apt-get install firefox
+  sudo apt-get install firefox
 
   pretty_log -f "$LOG" "Firefox instalado com sucesso" success
+
+  if [[ -z "$PROFILE_DIR" ]]; then
+    pretty_log -f "$LOG" "Abra o Firefox uma vez antes de rodar o script de configuração" error
+    return 1
+  fi
+
   config_firefox
 }
 
@@ -254,10 +253,13 @@ install_docker() {
   sudo chmod a+r /etc/apt/keyrings/docker.asc
 
   pretty_log -f "$LOG" "Adicionando repositório oficial do Docker" info
-  echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+  if ! grep -q "docker" /etc/apt/sources.list.d/docker.list 2>/dev/null; then
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  fi
 
   pretty_log -f "$LOG" "Atualizando pacotes e instalando Docker" info
   sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -314,6 +316,22 @@ install_cargo() {
   pretty_log -f "$LOG" "Instalado com sucesso. Abra um novo terminal para aplicar as modificações" success
 }
 
+install_packages(){
+  local NPM=(prettier)
+
+  if ! command -v npm &>/dev/null; then
+    pretty_log -p "[Node.js]" "npm não encontrado. Abra um novo terminal e execute o script novamente" error
+    return 1
+  fi
+
+  pretty_log -p "[Node.js]" "Instalando dependências" info
+  for package in "${NPM[@]}"; do
+    pretty_log -p "[$package-download]" "" info
+    npm install -g "$package"
+    pretty_log -p "[$package-download]" "Dependência instalada" success
+  done
+}
+
 install_nvim() {
   local LOG="[Neovim-download]"
   
@@ -342,6 +360,31 @@ install_lunarvim() {
   LV_BRANCH='release-1.4/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.4/neovim-0.9/utils/installer/install.sh)
 
   pretty_log -f "$LOG" "Instalado com sucesso" success
+}
+
+install_kitty() {
+  local LOG="[Kitty-download]"
+
+  config_kitty() {
+    if ! grep -q 'add_to_path "$HOME/.local/kitty.app/bin"' "$HOME/.bashrc"; then
+      pretty_log -f "$LOG" "Adicionando Kitty ao PATH" info
+      sed '0,/add_to_path .*/s//&\
+      add_to_path "$HOME/.local/kitty.app/bin"' .bashrc
+
+      pretty_log -f "$LOG" "Adiocionado com sucesso" info
+    fi
+  }
+  
+  if check_command kitty "$LOG"; then
+    config_kitty
+    return 0
+  fi
+
+  pretty_log -f "$LOG" "Instalando Kitty" info
+  curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+
+  pretty_log -f "$LOG" "Instalado com sucesso" success
+  config_kitty
 }
 
 install_whitesur() {
@@ -397,7 +440,7 @@ install_bibata() {
 echo -e "\n\033[1;33m[INFO] ---Iniciando instalação de PROGRAMAS---\033[0m\n"
 
 echo -e "\033[1;33m[apt-get update]\033[0m\n"
-#sudo apt-get update
+sudo apt-get update
 
 install_ohmyposh
 
@@ -441,14 +484,18 @@ install_node
 
 install_cargo
 
+install_packages
+
 install_nvim
 
 install_lunarvim
 
+install_kitty
+
 install_docker
 echo -e "\n"
 
-echo -e "\033[1;33m[INFO] ---Iniciando instalação de TEMAS E ÍCONES---\033[0m"
+echo -e "\033[1;33m[INFO] ---Iniciando instalação de TEMAS E CURSORES---\033[0m"
 
 install_whitesur
 

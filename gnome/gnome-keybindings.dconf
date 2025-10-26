@@ -1,4 +1,6 @@
 [/]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+help=@as []
 logout=@as []
 magnifier=@as []
 magnifier-zoom-in=@as []
@@ -6,7 +8,12 @@ magnifier-zoom-out=@as []
 on-screen-keyboard=@as []
 screenreader=@as []
 screensaver=['<Super>l']
-terminal=['<Super>Return']
+terminal=@as []
 volume-down=['<Primary>comma']
 volume-mute=['<Primary>m']
 volume-up=['<Primary>period']
+
+[custom-keybindings/custom0]
+binding='<Super>Return'
+command='/home/henry/.local/kitty.app/bin/kitty'
+name='Launch Kitty Terminal'

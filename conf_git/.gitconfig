@@ -6,4 +6,4 @@
   defaultBranch = main
 
 [core]
-  editor = code --wait
+  editor = lvim
