@@ -1,3 +1,5 @@
+include /etc/sway/config-vars.d/*
+
 set $mod Mod4
 
 set $left h
@@ -7,12 +9,13 @@ set $right l
 
 set $term "$HOME/.local/kitty.app/bin/kitty"
 
-set $menu wofi --show drun --allow-images
+set $menu wofi
 
-include /etc/sway/config-vars.d/*
+# exec always
+# exec_always --no-startup-id waybar -b way  
 
 ### Output configuration
-output * bg "$HOME/Documents/wallpapers/external_house.jpg" fill
+output * bg "$HOME/Documents/wallpapers/ExternalHimitsuHouse/ExternalHimitsuHouse-1.jpg" fill
 
 output LVDS-1 {
   disable
@@ -41,29 +44,23 @@ input * {
   xkb_variant intl
 }
 
+# clipboard
+exec_always wl-paste -t text --watch clipman store
+
 # fonts, borders, gaps, theme, bar, window
 font pango: Hasklug Nerd Font Propo 9
 
 # borders
 gaps inner 2
-gaps outer 2
+gaps top 0
 default_border pixel 2
-
-# theme
-set $gnome-schema org.gnome.desktop.interface
+client.focused #37a191 #1a1a1a #ffffff #2E9EF4 #59ffe6
 
 bar {
-  position top
-  font pango: Hasklug Nerd Font Propo 8
-  status_command while date +'%Y-%m-%d %I:%M:%S %p'; do sleep 1; done
-  height 0
+  id way
+  swaybar_command waybar
   hidden_state hide
   mode hide
-
-  colors {
-    statusline #ffffff
-    background #32323200 
-  }
 }
 
 ### Key bindings
@@ -85,6 +82,8 @@ bindsym alt+f4 kill
 
 # Start your launcher
 bindsym $mod+space exec $menu
+
+bindsym $mod+Shift+v exec clipman pick -t wofi
 
 # Drag floating windows by holding down $mod and left mouse button.
 # Resize them with right mouse button + $mod.
@@ -122,6 +121,22 @@ bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. 
     bindsym $mod+Shift+Right move right
 #
 # Workspaces:
+    # Move focused container to workspace
+    bindsym ctrl+alt+Shift+$left move container to workspace prev
+    bindsym ctrl+alt+Shift+$right move container to workspace next
+
+    # with arrow keys
+    bindsym ctrl+alt+Shift+Left move container to workspace prev
+    bindsym ctrl+alt+Shift+Right move container to workspace next
+
+    # Switch to workspace
+    bindsym ctrl+alt+$left workspace prev
+    bindsym ctrl+alt+$right workspace next
+
+    # with arrow keys
+    bindsym ctrl+alt+Left workspace prev
+    bindsym ctrl+alt+Right workspace next
+
     # Switch to workspace
     bindsym $mod+1 workspace number 1
     bindsym $mod+2 workspace number 2

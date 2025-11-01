@@ -89,10 +89,15 @@ lvim.plugins = {
 -- FORMATTERS AND LINTERS
 -- ========================================
 -- install via :Mason -> (linter) -> press i
+lvim.lsp.installer.setup.automatic_installation = false
 lvim.format_on_save.enabled = true
+
+local opts = {}
+require("lvim.lsp.manager").setup("biome", opts)
 
 local formatters = require "lvim.lsp.null-ls.formatters"
 formatters.setup {
   { name = "black" },
+  { name = "biome" },
   { name = "prettier" },
 }

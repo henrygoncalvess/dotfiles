@@ -4,13 +4,20 @@
 
 set -euo pipefail
 
+if [[ "${1:-}" == "-s" ]]; then
+  SILENT=true
+else
+  SILENT=false
+fi
+
+
 DOWNLOAD_DIR="$HOME/Downloads"
 THEMES_DIR="$HOME/.themes"
 ICONS_DIR="$HOME/.icons"
 CONFIG_DIR="$HOME/.config"
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
 
-PROGRAMS=(git python3 python3-pip python3-venv wget make ripgrep stow xclip)
+PROGRAMS=(git python3 python3-pip python3-venv wget make ripgrep stow xclip wl-clipboard clipman tar steam waybar brightnessctl network-manager cheese mako-notifier libnotify-bin)
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 WHITESUR_URL="https://github.com/vinceliuice/WhiteSur-gtk-theme.git"
@@ -34,11 +41,12 @@ pretty_log() {
   local TAG=""
 
   case "$TYPE" in
-    "-f") TAG="SOFTWARE" ;;
-    "-p") TAG="PACOTE" ;;
-    "-t") TAG="TEMA    " ;;
-    "-c") TAG="CURSOR  " ;;
-    "-e") TAG="ERRO    " ;;
+    "-f") TAG="SOFTWARE  " ;;
+    "-p") TAG="PACOTE    " ;;
+    "-t") TAG="TEMA      " ;;
+    "-c") TAG="CURSOR    " ;;
+    "-e") TAG="ERRO      " ;;
+    *) TAG="$TYPE" ;;
   esac
 
   if [[ "$TAG" == "[ERRO]" ]]; then
@@ -47,13 +55,13 @@ pretty_log() {
   
   case "$STATUS" in
     success)
-      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[3;32m$MESSAGE!\033[0m"
+      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t     \033[3;32m$MESSAGE!\033[0m"
       ;;
     info)
-      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE...\033[0m"
+      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t     \033[33m$MESSAGE...\033[0m"
       ;;
     error)
-      echo -e "\n\033[1;31m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t   \033[33m$MESSAGE\033[0m" >&2
+      echo -e "\n\033[1;31m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t     \033[33m$MESSAGE\033[0m" >&2
       ;;
   esac
 }
@@ -90,6 +98,9 @@ check_command() {
   case "$NAME" in
     ripgrep) COMMAND="rg" ;;
     python3-pip) COMMAND="pip3" ;;
+    network-manager) COMMAND="nmcli" ;;
+    mako-notifier) COMMAND="mako" ;;
+    libnotify-bin) COMMAND="notify-send" ;;
     *) COMMAND="$NAME" ;;
   esac
 
@@ -167,7 +178,7 @@ user_pref("browser.download.deletePrivate", true);
 user_pref("browser.download.deletePrivate.chosen", true);
 user_pref("browser.tabs.groups.smart.userEnabled", false);
 user_pref("browser.tabs.hoverPreview.showThumbnails", false);
-user_pref("accessibility.typeaheadfind", true);
+user_pref("accessibility.typeaheadfind", false);
 user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
 user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
 user_pref("browser.ctrlTab.sortByRecentlyUsed", true);
@@ -318,9 +329,15 @@ install_cargo() {
 
 install_packages(){
   local NPM=(prettier)
+  local PIP=(swayipc)
 
   if ! command -v npm &>/dev/null; then
     pretty_log -p "[Node.js]" "npm não encontrado. Abra um novo terminal e execute o script novamente" error
+    return 1
+  fi
+
+  if ! command -v pip3 &>/dev/null; then
+    pretty_log -p "[Pip]" "Pip não instalado" error
     return 1
   fi
 
@@ -328,6 +345,13 @@ install_packages(){
   for package in "${NPM[@]}"; do
     pretty_log -p "[$package-download]" "" info
     npm install -g "$package"
+    pretty_log -p "[$package-download]" "Dependência instalada" success
+  done
+
+  pretty_log -p "[Pip]" "Instalando dependências" info
+  for package in "${PIP[@]}"; do
+    pretty_log -p "[$package-download]" "" info
+    pip install "$package" --user --isolated
     pretty_log -p "[$package-download]" "Dependência instalada" success
   done
 }
@@ -339,12 +363,9 @@ install_nvim() {
     return 0
   fi
 
-  pretty_log -f "$LOG" "Adicionando repositório" info
-  sudo add-apt-repository ppa:neovim-ppa/stable -y
-
   pretty_log -f "$LOG" "Atualizando pacotes e instalando Neovim" info
-  sudo apt update
-  sudo apt install neovim -y
+  sudo apt-get update
+  sudo apt-get install neovim -y
 
   pretty_log -f "$LOG" "Instalado com sucesso" success
 }
@@ -385,6 +406,20 @@ install_kitty() {
 
   pretty_log -f "$LOG" "Instalado com sucesso" success
   config_kitty
+}
+
+install_sway() {
+  local LOG="[Sway-download]" 
+
+  if apt list --installed | grep sway; then
+    pretty_log "DESKTOP EN" "$LOG" "Instalado com sucesso" success
+    return 0
+  fi
+
+  pretty_log "DESKTOP EN" "$LOG" "Instalando Sway" info 
+  sudo apt-get install -y sway swaybg swayidle swaylock wofi xdg-desktop-portal-wlr pavucontrol
+
+  pretty_log "DESKTOP EN" "$LOG" "Instalado com sucesso" success 
 }
 
 install_whitesur() {
@@ -437,10 +472,56 @@ install_bibata() {
   pretty_log -c "$LOG" "Arquivo removido" success
 }
 
-echo -e "\n\033[1;33m[INFO] ---Iniciando instalação de PROGRAMAS---\033[0m\n"
+add_repo_if_missing() {
+  local REPO=$1
+  local LOG="[Repositório-checagem]"
 
-echo -e "\033[1;33m[apt-get update]\033[0m\n"
-sudo apt-get update
+  if [[ "$REPO" == "ppa:"* ]]; then
+    local NAME=$(echo "$REPO" | cut -d':' -f2 | tr '/' '-')
+
+    if apt policy | grep -q "${NAME}"; then
+      pretty_log -p "$LOG" "$REPO já adicionado" success
+      return 0
+    fi
+
+    pretty_log -p "$LOG" "Adicionando $REPO" info
+    sudo add-apt-repository -y "$REPO"
+
+    pretty_log -p "$LOG" "$REPO adicionado com sucesso" success
+    return 0
+  fi
+
+  if [[ "$REPO" == "multiverse" ]]; then
+    if grep -Rq "^deb .*multiverse" /etc/apt/sources.list; then
+      pretty_log -p "$LOG" "$REPO já habilitado" success
+      return 0
+    fi
+
+    pretty_log -p "$LOG" "Habilitando repositório $REPO" info
+    sudo add-apt-repository -y "$REPO"
+
+    pretty_log -p "$log" "$repo habilitado com sucesso" success
+    return 0
+  fi
+}
+
+echo -e "\n\033[1;33m[info] ---iniciando instalação de programas---\033[0m\n"
+
+if ! $SILENT; then
+  echo -e "\033[1;33m[apt-get update]\033[0m"
+  sudo apt-get update
+fi
+
+if ! $SILENT; then
+  echo -e "\n\033[1;33m[apt-get upgrade]\033[0m"
+  sudo apt-get upgrade
+fi
+
+echo -e "\n\033[1;33m[add-apt-repository ppa:neovim-ppa/stable]\033[0m"
+add_repo_if_missing "ppa:neovim-ppa/stable"
+
+echo -e "\n\033[1;33m[add-apt-repository multiverse]\033[0m"
+add_repo_if_missing "multiverse"
 
 install_ohmyposh
 
@@ -493,6 +574,8 @@ install_lunarvim
 install_kitty
 
 install_docker
+
+install_sway
 echo -e "\n"
 
 echo -e "\033[1;33m[INFO] ---Iniciando instalação de TEMAS E CURSORES---\033[0m"

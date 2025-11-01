@@ -1,0 +1,14 @@
+print_command=true
+mode=drun
+allow_images=true
+image_size=24
+location=center
+width=700
+height=450
+term=kitty
+exec_search=true
+matching=contains
+
+key_up=K
+key_down=J
+key_expand=O

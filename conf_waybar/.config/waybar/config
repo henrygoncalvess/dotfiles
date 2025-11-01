@@ -1,0 +1,26 @@
+{
+  "ipc": true,
+  
+  "layer": "top",
+  "position": "top",
+  "height": 0,
+  "spacing": 2,
+  "mode": "hide",
+  "margin": "0,0,0,0",
+  "modules-left": [
+    "backlight",
+    "sway/workspaces"
+  ],
+  "modules-center": [
+    "clock",
+    "tray"
+  ],
+  "modules-right": [
+    "cpu",
+    "memory",
+    "pulseaudio",
+    "network",
+    "custom/power"
+  ],
+  "include": ["~/.config/waybar/modules.json"]
+}
