@@ -1,5 +1,4 @@
 print_command=true
-mode=drun
 allow_images=true
 image_size=24
 location=center
@@ -9,6 +8,8 @@ term=kitty
 exec_search=true
 matching=contains
 
-key_up=K
-key_down=J
-key_expand=O
+key_up=Up
+key_down=Down
+key_left=Left
+key_right=Right
+key_expand=Tab

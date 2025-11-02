@@ -9,10 +9,14 @@ set $right l
 
 set $term "$HOME/.local/kitty.app/bin/kitty"
 
-set $menu wofi
+set $menud wofi --show drun
+set $menur wofi --show run
 
 # exec always
-# exec_always --no-startup-id waybar -b way  
+# clipboard
+exec_always wl-paste -t text --watch clipman store
+exec_always --no-startup-id dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+exec_always --no-startup-id mako
 
 ### Output configuration
 output * bg "$HOME/Documents/wallpapers/ExternalHimitsuHouse/ExternalHimitsuHouse-1.jpg" fill
@@ -29,10 +33,10 @@ output eDP-1 {
 }
 
 ### Idle configuration
-exec swayidle -w \
-  timeout 300 'swaylock -f -c 000000' \
-  timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
-  before-sleep 'swaylock -f -c 000000'
+# exec swayidle -w \
+#   timeout 300 'swaylock -f -c 000000' \
+#   timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
+#   before-sleep 'swaylock -f -c 000000'
 
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
@@ -43,9 +47,6 @@ input * {
   xkb_layout us
   xkb_variant intl
 }
-
-# clipboard
-exec_always wl-paste -t text --watch clipman store
 
 # fonts, borders, gaps, theme, bar, window
 font pango: Hasklug Nerd Font Propo 9
@@ -81,7 +82,8 @@ bindsym $mod+Return exec $term
 bindsym alt+f4 kill
 
 # Start your launcher
-bindsym $mod+space exec $menu
+bindsym $mod+space exec $menud
+bindsym alt+space exec $menur
 
 bindsym $mod+Shift+v exec clipman pick -t wofi
 
@@ -213,5 +215,3 @@ mode "resize" {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
-
-include /etc/sway/config.d/*

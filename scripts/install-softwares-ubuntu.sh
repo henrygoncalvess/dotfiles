@@ -17,11 +17,9 @@ ICONS_DIR="$HOME/.icons"
 CONFIG_DIR="$HOME/.config"
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
 
-PROGRAMS=(git python3 python3-pip python3-venv wget make ripgrep stow xclip wl-clipboard clipman tar steam waybar brightnessctl network-manager cheese mako-notifier libnotify-bin)
+PROGRAMS=(git python3 python3-pip python3-venv wget make ripgrep stow xclip wl-clipboard clipman tar steam waybar brightnessctl network-manager cheese mako-notifier libnotify-bin gparted unzip)
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
-WHITESUR_URL="https://github.com/vinceliuice/WhiteSur-gtk-theme.git"
-BIBATA_URL="https://github.com/ful1e5/Bibata_Cursor/releases/download/v2.0.7/Bibata-Modern-Ice.tar.xz"
 
 GIT_CONFIG_FILE="$HOME/.gitconfig"
 
@@ -422,56 +420,6 @@ install_sway() {
   pretty_log "DESKTOP EN" "$LOG" "Instalado com sucesso" success 
 }
 
-install_whitesur() {
-  local LOG="[WhiteSur-download]"
-  local DEST_DIR="$THEMES_DIR/WhiteSur-gtk-theme"
-
-  if [[ ! -f "$DEST_DIR/install.sh" ]]; then
-    pretty_log -t "$LOG" "Clonando repositório" info
-    git clone --filter=blob:none --no-checkout https://github.com/vinceliuice/WhiteSur-gtk-theme.git "$DEST_DIR"
-    cd "$DEST_DIR"
-    git sparse-checkout init --cone
-    git sparse-checkout set libs src other
-    git checkout 
-  fi
-
-  if check -d -t "$LOG" "$THEMES_DIR/WhiteSur-Dark-blue/gnome-shell"; then
-    return 0
-  fi
-
-  if [[ "$(pwd)" != "$DEST_DIR" ]]; then
-    cd "$DEST_DIR"
-  fi
-
-  pretty_log -t "$LOG" "Instalando Tema" info
-  ./install.sh -o normal -c dark -t blue -m -HD --shell -i apple -h smaller --round
-
-  pretty_log -t "$LOG" "Instalado com sucesso" success
-}
-
-install_bibata() {
-  local LOG="[Bibata-download]"
-  local DEST_FILE="$DOWNLOAD_DIR/Bibata-Modern-Ice.tar.xz"
-  local DEST_DIR="$ICONS_DIR/Bibata-Modern-Ice"
-
-  if check -d -c "$LOG" "$DEST_DIR"; then
-    return 0
-  fi
-
-  pretty_log -c "$LOG" "Baixando arquivo em: $DEST_FILE" info
-  curl -fL --retry 3 --retry-delay 5 --progress-bar "$BIBATA_URL" -o "$DEST_FILE"
-
-  pretty_log -c "$LOG" "Download concluído" success
-  pretty_log -c "$LOG" "Extraindo conteúdo para: $DEST_DIR" info
-  tar -xf "$DEST_FILE" -C "$ICONS_DIR"
-
-  pretty_log -c "$LOG" "Arquivo extraído! Cursor Instalado com sucesso" success
-  pretty_log -c "$LOG" "Removendo $DEST_FILE" info
-  rm -f "$DEST_FILE"
-
-  pretty_log -c "$LOG" "Arquivo removido" success
-}
-
 add_repo_if_missing() {
   local REPO=$1
   local LOG="[Repositório-checagem]"
@@ -576,13 +524,6 @@ install_kitty
 install_docker
 
 install_sway
-echo -e "\n"
-
-echo -e "\033[1;33m[INFO] ---Iniciando instalação de TEMAS E CURSORES---\033[0m"
-
-install_whitesur
-
-install_bibata
 echo -e "\n"
 
 exit 0
