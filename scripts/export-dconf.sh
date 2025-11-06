@@ -27,6 +27,9 @@ echo -e "\033[1;36mEXPORTANDO configurações do GNOME\033[0m\n"
 prettyPrint "Configurações de Extensões"
 dconf dump /org/gnome/shell/extensions/ > ~/.dotfiles/gnome/extensions.dconf
 
+prettyPrint "Configurações de Preferências"
+dconf dump /org/gnome/desktop/wm/preferences/ > ~/.dotfiles/gnome/preferences.dconf
+
 prettyPrint "Configurações de Atalhos do teclado"
 dconf dump /org/gnome/settings-daemon/plugins/media-keys/ > ~/.dotfiles/gnome/gnome-keybindings.dconf
 
