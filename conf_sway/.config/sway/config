@@ -8,39 +8,37 @@ set $up k
 set $right l
 
 set $term "$HOME/.local/kitty.app/bin/kitty"
+set $lockbg "$HOME/Documents/wallpapers/astronaut-cat.jpg"
 
 set $menud wofi --show drun
 set $menur wofi --show run
 
+set $polkit which lxpolkit
+
 # exec always
 # clipboard
-exec_always wl-paste -t text --watch clipman store
+exec_always --no-startup-id wl-paste -t text --watch clipman store
+
 exec_always --no-startup-id dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec_always --no-startup-id mako
+exec_always --no-startup-id $polkit
 
-### Output configuration
-output * bg "$HOME/Documents/wallpapers/ExternalHimitsuHouse/ExternalHimitsuHouse-1.jpg" fill
-
-output LVDS-1 {
-  disable
-}
-
-output eDP-1 {
-  enable
-  mode 1366x768@60Hz
-  position 0,0
-  scale 1
-}
-
-### Idle configuration
-# exec swayidle -w \
-#   timeout 300 'swaylock -f -c 000000' \
-#   timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
-#   before-sleep 'swaylock -f -c 000000'
+## Idle configuration
+exec swayidle -w \
+  timeout 300 'swaylock -i $lockbg -s fill' \
+  timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
+  before-sleep 'swaylock -i $lockbg -s fill'
 
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
 # resumed. It will also lock your screen before your computer goes to sleep.
+
+### Output configuration
+output * bg "$HOME/Documents/wallpapers/snake.jpg" fill
+
+output LVDS-1 {
+  disable
+}
 
 ### Input configuration
 input * {
@@ -65,6 +63,12 @@ bar {
 }
 
 ### Key bindings
+# lock screen
+bindsym $mod+Shift+alt+l exec swaylock -i $lockbg -s fill
+
+# screen recorder
+bindsym $mod+Shift+s exec flatpak run io.github.seadve.Kooha
+
 # Sound
 # MUTE
 bindsym ctrl+m exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
@@ -85,6 +89,7 @@ bindsym alt+f4 kill
 bindsym $mod+space exec $menud
 bindsym alt+space exec $menur
 
+# clipboard
 bindsym $mod+Shift+v exec clipman pick -t wofi
 
 # Drag floating windows by holding down $mod and left mouse button.

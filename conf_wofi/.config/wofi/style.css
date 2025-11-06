@@ -8,13 +8,13 @@
 }
 
 #entry:selected {
-  color: #FFFFFF;
+  color: #ffffff;
   background-color: #332b45;
 }
 
 window {
   background-color: rgba(0, 0, 0, 0);
-  color: #FFFFFF;
+  color: #ffffff;
   font-family: "Hasklug Nerd Font";
   font-size: 8.5pt;
   border: none;
@@ -38,4 +38,3 @@ window {
 #img {
   margin-right: 3px;
 }
-

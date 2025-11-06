@@ -1,6 +1,7 @@
 [/]
 custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
 help=@as []
+home=['<Super>e']
 logout=@as []
 magnifier=@as []
 magnifier-zoom-in=@as []
@@ -15,5 +16,5 @@ volume-up=['<Primary>period']
 
 [custom-keybindings/custom0]
 binding='<Super>Return'
-command='/home/henry/.local/kitty.app/bin/kitty'
+command='/home/henrygoncalvess/.local/kitty.app/bin/kitty'
 name='Launch Kitty Terminal'
