@@ -65,10 +65,10 @@ if ! shopt -oq posix; then
 fi
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"       # Carrega NVM
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # Autocompletar NVM
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-export PATH="$PATH:$HOME/.local/bin:/opt/gradle/gradle-8.14.3/bin:$HOME/.local/kitty.app/bin"
+export PATH="$PATH:$HOME/.local/bin:$HOME/.local/kitty.app/bin"
 
 [ -s "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 

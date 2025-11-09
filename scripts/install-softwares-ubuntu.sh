@@ -15,9 +15,11 @@ DOWNLOAD_DIR="$HOME/Downloads"
 THEMES_DIR="$HOME/.themes"
 ICONS_DIR="$HOME/.icons"
 CONFIG_DIR="$HOME/.config"
+
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
 
-PROGRAMS=(git python3 python3-pip python3-venv wget make ripgrep stow xclip wl-clipboard clipman tar steam waybar brightnessctl network-manager cheese mako-notifier libnotify-bin gparted unzip)
+# lxpolkit, lxsession or lxsession-default-apps
+PROGRAMS=(curl git python3 python3-pip python3-venv wget make ripgrep stow xclip wl-clipboard clipman tar waybar brightnessctl network-manager cheese mako-notifier libnotify-bin gparted unzip flameshot lxpolkit xdg-desktop-portal-gtk flatpak zsh)
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 
@@ -53,10 +55,10 @@ pretty_log() {
   
   case "$STATUS" in
     success)
-      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t     \033[3;32m$MESSAGE!\033[0m"
+      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t     \033[3;32m$MESSAGE ✓\033[0m"
       ;;
     info)
-      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t     \033[33m$MESSAGE...\033[0m"
+      echo -e "\n\033[1;36m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t     \033[33m$MESSAGE...\033[0m\n"
       ;;
     error)
       echo -e "\n\033[1;31m$TAG\033[0m  \033[1m$LOG_NAME\033[0m\n\t     \033[33m$MESSAGE\033[0m" >&2
@@ -147,6 +149,19 @@ install_ohmyposh() {
   oh-my-posh font install Hasklig
 
   pretty_log -f "$LOG" "Instalado com sucesso! Abra um novo terminal para aplicar as configurações do perfil" success
+}
+
+install_ohmyzsh() {
+  local LOG="[Oh-My-Zsh-download]"
+
+  if check -d -f "$LOG" ".oh-my-zsh"; then
+    return 0
+  fi
+
+  pretty_log -f "$LOG" "Instalando Oh My Zsh" info
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  
+  pretty_log -f "$LOG" "Instalado com sucesso" success
 }
 
 install_firefox() {
@@ -349,7 +364,7 @@ install_packages(){
   pretty_log -p "[Pip]" "Instalando dependências" info
   for package in "${PIP[@]}"; do
     pretty_log -p "[$package-download]" "" info
-    pip install "$package" --user --isolated
+    pip install "$package" --user --isolated --break-system-packages
     pretty_log -p "[$package-download]" "Dependência instalada" success
   done
 }
@@ -384,18 +399,7 @@ install_lunarvim() {
 install_kitty() {
   local LOG="[Kitty-download]"
 
-  config_kitty() {
-    if ! grep -q 'add_to_path "$HOME/.local/kitty.app/bin"' "$HOME/.bashrc"; then
-      pretty_log -f "$LOG" "Adicionando Kitty ao PATH" info
-      sed '0,/add_to_path .*/s//&\
-      add_to_path "$HOME/.local/kitty.app/bin"' .bashrc
-
-      pretty_log -f "$LOG" "Adiocionado com sucesso" info
-    fi
-  }
-  
   if check_command kitty "$LOG"; then
-    config_kitty
     return 0
   fi
 
@@ -403,7 +407,6 @@ install_kitty() {
   curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
 
   pretty_log -f "$LOG" "Instalado com sucesso" success
-  config_kitty
 }
 
 install_sway() {
@@ -440,7 +443,7 @@ add_repo_if_missing() {
   fi
 
   if [[ "$REPO" == "multiverse" ]]; then
-    if grep -Rq "^deb .*multiverse" /etc/apt/sources.list; then
+    if grep -Rq ".*multiverse" /etc/apt/sources.list.d/ubuntu.sources; then
       pretty_log -p "$LOG" "$REPO já habilitado" success
       return 0
     fi
@@ -448,7 +451,7 @@ add_repo_if_missing() {
     pretty_log -p "$LOG" "Habilitando repositório $REPO" info
     sudo add-apt-repository -y "$REPO"
 
-    pretty_log -p "$log" "$repo habilitado com sucesso" success
+    pretty_log -p "$LOG" "$REPO habilitado com sucesso" success
     return 0
   fi
 }
@@ -470,10 +473,6 @@ add_repo_if_missing "ppa:neovim-ppa/stable"
 
 echo -e "\n\033[1;33m[add-apt-repository multiverse]\033[0m"
 add_repo_if_missing "multiverse"
-
-install_ohmyposh
-
-install_firefox
 
 for prog in "${PROGRAMS[@]}"; do
   case "$prog" in
@@ -501,11 +500,58 @@ EOF
       pretty_log -f "[$prog-config]" "Configurado com sucesso" success
       continue
       ;;
+    zsh)
+      install_program_apt "$prog"
+
+      if [[ $(echo "$SHELL") == "/usr/bin/zsh" ]]; then
+        pretty_log -f "[$prog-config]" "zsh já é o seu shell padrão" success
+        continue
+      fi
+
+      pretty_log -f "[$prog-config]" "Definindo zsh como o shell padrão" info
+      chsh -s $(which zsh)
+
+      pretty_log -f "[$prog-config]" "zsh foi definido como o shell padrão com sucesso\n\t     Saia da sessão atual e volte para aplicar as configurações" success
+      continue
+      ;;
+    flatpak)
+      install_flatpak_progs() {
+        sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+        pretty_log -f "[Flatpak]" "Instalando Programas" info
+
+        if flatpak list | grep Kooha; then
+          pretty_log -f "[Kooha-download]" "Já instalado" success
+          return 0
+        fi
+
+        pretty_log -f "[Kooha-download]" "Instalando Kooha via flathub" info
+        sudo flatpak install -y flathub io.github.seadve.Kooha
+
+        pretty_log -f "[Kooha-download]" "Kooha instalado com sucesso" success
+      }
+
+      if check_command "$prog" "[$prog-download]"; then
+        install_flatpak_progs
+        continue
+      fi
+
+      install_program_apt "$prog"
+      install_flatpak_progs
+
+      continue
+      ;;
     *)
       install_program_apt "$prog"
       ;;
   esac
 done
+
+install_firefox
+
+install_ohmyposh
+
+install_ohmyzsh
 
 install_nvm
 
@@ -524,6 +570,5 @@ install_kitty
 install_docker
 
 install_sway
-echo -e "\n"
 
 exit 0

@@ -33,7 +33,7 @@ echo -e "\033[1;33mCriando Symlinks com GNU Stow\033[0m\n"
 CONF_DIRS=("$PROFILE_DIR/chrome" .config/Code/User .config/kitty .config/lvim .config/oh_my_posh_config .config/sway .config/waybar .config/wofi .config/pip)
 
 echo -e "\033[1;33mDesfazendo links\033[0m\n"
-stow -v -D -t ~ conf_posh conf_code conf_git conf_lvim conf_bash conf_kitty conf_sway conf_waybar conf_wofi conf_pip
+stow -v -D -t ~ conf_posh conf_code conf_git conf_lvim conf_shell conf_kitty conf_sway conf_waybar conf_wofi conf_pip
 stow -v -D -t "$PROFILE_DIR/chrome" conf_firefox
 
 echo -e "\033[1;33mRemovendo arquivos\033[0m\n"
@@ -44,7 +44,7 @@ for dir in "${CONF_DIRS[@]}"; do
 done
 
 cd ~/.dotfiles
-stow -v -t ~ conf_posh conf_code conf_git conf_lvim conf_bash conf_kitty conf_sway conf_waybar conf_wofi conf_pip
+stow -v -t ~ conf_posh conf_code conf_git conf_lvim conf_shell conf_kitty conf_sway conf_waybar conf_wofi conf_pip
 stow -v -t "$PROFILE_DIR/chrome" conf_firefox
 
 echo -e "\n\033[3;32m\u2714 Symlinks criados com sucesso!\033[0m\n"
