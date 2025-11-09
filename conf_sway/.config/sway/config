@@ -15,13 +15,17 @@ set $menur wofi --show run
 
 set $polkit which lxpolkit
 
-# exec always
+# exec always (when reload sway)
 # clipboard
 exec_always --no-startup-id wl-paste -t text --watch clipman store
 
 exec_always --no-startup-id dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec_always --no-startup-id mako
 exec_always --no-startup-id $polkit
+
+# exec once
+# The "&" sign forces the script to run in the background.
+exec --no-startup-id bash -c 'sleep 1 && "$HOME/.dotfiles/conf_sway/.config/sway/random-paper.sh"' &
 
 ## Idle configuration
 exec swayidle -w \
@@ -34,8 +38,6 @@ exec swayidle -w \
 # resumed. It will also lock your screen before your computer goes to sleep.
 
 ### Output configuration
-output * bg "$HOME/Documents/wallpapers/snake.jpg" fill
-
 output LVDS-1 {
   disable
 }
