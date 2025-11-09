@@ -1,173 +1,159 @@
 @import "colors.css";
 
 * {
-    color: @lavender;
-    border: 0;
-    padding: 0 0;
-    font-family: "Fira Sans Semibold", "Font Awesome 6 Free", FontAwesome, Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+  border: 0;
+  padding: 0;
+  font-family: "Hasklig Nerd Font";
+  font-weight: bold;
+  letter-spacing: 0;
 }
 
 window#waybar {
-    border: 0px solid rgba(0, 0, 0, 0);
-    background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0, 0);
+}
+
+#mode {
+  color: #ebcb8b;
 }
 
 #workspaces button {
-    color: @base;
-    border-radius: 50%;
-    margin: 0;
-}
-
-#workspaces button:hover {
-    color: @mauve;
-    box-shadow: none;
-    text-shadow: none;
-    border: 0px;
-    background: none;
-}
-
-#workspaces button:hover * {
-    color: @mauve;
-    background-color: @base;
+  color: @base;
+  border-radius: 50%;
 }
 
 #workspaces * {
-    color: whitesmoke;
-}
-
-#workspaces {
-    border-style: solid;
-    background-color: @base;
-    opacity: 1;
-    border-radius: 15px;
-    margin: 1px 0 0;
-    padding: 0px 5px;
-}
-
-#workspaces button.focused {
-    color: @mauve;
-    border-radius: 20px;
+  color: whitesmoke;
 }
 
 #workspaces button.focused * {
-    color: @mauve;
+  color: @mauve;
 }
 
+#mode,
+#workspaces,
+#backlight,
+#custom-recorder,
+#tray,
 #clock,
 #cpu,
 #memory,
-#disk,
-#backlight,
-#network,
 #pulseaudio,
-#tray,
+#network,
 #custom-power,
+#disk,
+#battery,
 #custom-pacman {
-    font-weight: bold;
-    padding: 5px 8px;
-    border-style: solid;
-    border-radius: 15px;
-    background-color: shade(@base, 1);
-    opacity: 1;
-    margin: 1px 0 0;
+  font-size: 13px;
+  margin-top: 1px;
+  padding: 0 5px;
+  font-weight: bold;
+  border-style: solid;
+  border-radius: 15px;
+  background-color: shade(@base, 1);
 }
 
-/* -----------------------------------------------------------------------------
-  * Module styles
-  * -------------------------------------------------------------------------- */
+#custom-power,
+#custom-recorder {
+  font-size: 15px;
+}
+
 #window {
-    color: @base;
-    background-color: #fff;
+  color: @base;
+  background-color: #fff;
 }
 
 window#waybar.empty #window {
-    background-color:transparent;
+  background-color: transparent;
 }
 
 #backlight {
-    color: @yellow;
-    margin-left: 3px;
+  color: @yellow;
 }
 
 #network {
-    color: @green;
+  color: @green;
+  padding: 0 6px;
 }
 
 #network.disabled {
-    color: #bf616a;
+  color: #bf616a;
 }
 
 #network.disconnected {
-    color: #bf616a;
+  color: #bf616a;
 }
 
 #custom-power {
-    color: @red;
-    background-color: shade(@base, 1);
-    margin: 2px 3px 0 8px;
-    padding: 0 9px;
-    border-radius: 50%;
-    font-size: 16px;
+  color: @red;
+  background-color: shade(@base, 1);
+  padding: 0 10px 0 7px;
 }
 
 #clock {
-    color: @sky;
-}
-
-#tray {
-    color: #ffffff;
-}
-
-#battery {
-    color: @green;
-}
-
-#battery.charging {
-    color: #81a1c1;
-}
-
-@keyframes blink {
-    to {
-        color: @red;
-    }
-}
-
-#battery.warning:not(.charging) {
-    color: @yellow;
-}
-
-
-#battery.critical:not(.charging) {
-    color: #bf616a;
-    animation-name: blink;
-    animation-duration: 0.5s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
+  color: @sky;
+  padding: 0 7px;
 }
 
 #cpu {
-    color: @sky;
+  padding: 0 4px 0 0;
+}
+
+#custom-recorder {
+  color: @red;
+}
+
+#tray {
+  color: #ffffff;
+  padding: 0 4.8px 0;
+}
+
+#battery {
+  color: @green;
+}
+
+#battery.charging {
+  color: #81a1c1;
+}
+
+@keyframes blink {
+  to {
+    color: @red;
+  }
+}
+
+#battery.warning:not(.charging) {
+  color: @yellow;
+}
+
+#battery.critical:not(.charging) {
+  color: #bf616a;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#cpu {
+  color: @sky;
 }
 
 #cpu #cpu-icon {
-    color: @sky;
+  color: @sky;
 }
 
 #memory {
-    color: @sky;
+  color: @sky;
 }
 
 #disk {
-    color: @sky;
+  color: @sky;
 }
 
-
 #pulseaudio {
-    color: @flamingo;
+  color: @flamingo;
 }
 
 #pulseaudio.muted {
-    color: #3b4252;
+  color: #3b4252;
 }

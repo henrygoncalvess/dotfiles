@@ -1,23 +1,25 @@
 {
   "ipc": true,
-  
   "layer": "top",
   "position": "top",
-  "height": 0,
+  "height": 1,
   "spacing": 2,
   "mode": "hide",
   "margin": "0,0,0,0",
   "modules-left": [
     "backlight",
-    "sway/workspaces"
-  ],
-  "modules-center": [
     "clock",
+    "custom/recorder",
     "tray"
   ],
+  "modules-center": [
+    "sway/mode",
+    "sway/workspaces"
+  ],
   "modules-right": [
-    "cpu",
+    "disk",
     "memory",
+    "cpu",
     "pulseaudio",
     "network",
     "custom/power"

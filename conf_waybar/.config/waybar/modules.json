@@ -1,30 +1,79 @@
 {
-  "sway/workspaces": {
-    "disable-scroll": true,
-    "all-outputs": true,
-    "format": "{name}"
-  },
-  "tray": {
-    "spacing": 5,
-  },
-  "clock": {
-    "format": "{:%A %d %B  |  %I:%M:%S %p}",
-    "interval": 1
-  },
-  "cpu": {
-    "format": "C {usage: >3}%",
-    "on-click": "ghostty -e htop"
-  },
-  "memory": {
-    "format": "M {: >3}%",
-    "on-click": "ghostty -e htop"
-  },
   "backlight": {
     "format": "{icon} {percent: >3}%",
     "format-icons": ["", "", "", "", "", "", "", ""],
     "on-scroll-down": "brightnessctl --class backlight set -5%",
     "on-scroll-up": "brightnessctl --class backlight set +5%",
     "on-click": ""
+  },
+  "sway/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "format": "{index}"
+  },
+  "sway/mode": {
+    "format": "<span style=\"italic\">{}</span>"
+  },
+  "custom/recorder": {
+    "format": "{icon}",
+    "format-icons": {
+      "stop": " ",
+      "default": " "
+    },
+    "return-type": "json",
+    "exec": "~/.config/waybar/scripts/kooha-activate.sh",
+    "on-click": "~/.config/waybar/scripts/kooha-toggle.sh",
+    "interval": 1,
+    "tooltip": false
+  },
+  "tray": {
+    "spacing": 5
+  },
+  "clock": {
+    "format": "{:%A %d %B 󱋱 %I:%M:%S %p}",
+    "interval": 1
+  },
+  "disk": {
+    "format": "{specific_used:.2f}G/{specific_total:.2f}G 󰨅",
+    "unit": "GiB",
+    "path": "/"
+  },
+  "cpu": {
+    "format": "{usage: >3}%  ",
+    "on-click": "ghostty -e htop"
+  },
+  "memory": {
+    "format": "{used:0.1f}G/{total:0.1f}G  ",
+    "on-click": "ghostty -e htop"
+  },
+  "pulseaudio": {
+    "format": "{volume}% {icon}",
+    "format-bluetooth": "{volume}% {icon} {format_source}",
+    "format-bluetooth-muted": "{icon} {format_source}",
+    "format-muted": "{format_source}",
+    "format-source": "{volume}% ",
+    "format-source-muted": " ",
+    "format-icons": {
+      "headphone": " ",
+      "phone": " ",
+      "portable": " ",
+      "car": " ",
+      "default": ["", " ", " "]
+    },
+    "on-click": "pavucontrol"
+  },
+  "network": {
+    "format": "⚠  Disabled",
+    "format-wifi": "{essid} {signalStrength}%  ",
+    "format-ethernet": "  {ifname} ({ipaddr}/{cidr}) Wired",
+    "format-disconnected": "⚠  Disconnected",
+    "on-click": "~/.config/wofi/scripts/wifi.sh",
+    "tooltip": false
+  },
+  "custom/power": {
+    "format": "⏻",
+    "on-click": "~/.config/wofi/scripts/power.sh",
+    "tooltip": false
   },
   "battery": {
     "states": {
@@ -37,43 +86,12 @@
     "format-alt": "{icon}  {time}",
     "format-icons": ["", "", "", "", ""]
   },
-  "network": {
-    "format": "⚠  Disabled",
-    "format-wifi": "   {essid} ({signalStrength}%)",
-    "format-ethernet": "  {ifname} ({ipaddr}/{cidr}) Wired",
-    "format-disconnected": "⚠  Disconnected",
-    "on-click": "~/.config/wofi/scripts/wifi.sh",
-    "tooltip": false
-  },
-    "pulseaudio": {
-        "format": "{volume}% {icon} {format_source}",
-        "format-bluetooth": "{volume}% {icon} {format_source}",
-        "format-bluetooth-muted": " {icon} {format_source}",
-        "format-muted": " {format_source}",
-        "format-source": "{volume}% ",
-        "format-source-muted": " ",
-        "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
-        },
-        "on-click": "pavucontrol"
-    },
   "custom/pacman": {
     "format": " {}",
     "interval": 7200,
-    "exec": "i=$(checkupdates); echo \"$i\" |wc -l; echo \"$i\" |column -t |tr '\n' '\r'", 
+    "exec": "i=$(checkupdates); echo \"$i\" |wc -l; echo \"$i\" |column -t |tr '\n' '\r'",
     "exec-if": "exit 0",
     "on-click": "ghostty -e sudo pacman -Syu",
     "signal": 8
-  },
-  "custom/power": {
-    "format": "⏻",
-    "on-click": "~/.config/wofi/scripts/power.sh",
-    "tooltip": false
   }
 }
