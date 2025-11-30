@@ -58,6 +58,10 @@ lvim.plugins = {
     "mrjones2014/nvim-ts-rainbow",
   },
   {
+    "folke/trouble.nvim",
+    cmd = "TroubleToggle",
+  },
+  {
     "kevinhwang91/nvim-bqf",
     event = { "BufRead", "BufNew" },
     config = function()
@@ -83,12 +87,20 @@ lvim.plugins = {
       })
     end,
   },
+  {
+    "andymass/vim-matchup",
+    event = "CursorMoved",
+    config = function()
+      vim.g.matchup_matchparen_offscreen = { method = "popup" }
+    end,
+  },
 }
 
 -- ========================================
 -- FORMATTERS AND LINTERS
 -- ========================================
 -- install via :Mason -> (linter) -> press i
+lvim.builtin.treesitter.matchup.enable = true
 lvim.lsp.installer.setup.automatic_installation = false
 lvim.format_on_save = {
   timeout = 1000,

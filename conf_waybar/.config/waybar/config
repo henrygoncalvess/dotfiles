@@ -1,28 +1,221 @@
 {
-  "ipc": true,
   "layer": "top",
   "position": "top",
   "height": 1,
-  "spacing": 2,
-  "mode": "hide",
-  "margin": "0,0,0,0",
+  "spacing": 1,
+
   "modules-left": [
-    "backlight",
-    "clock",
-    "custom/recorder",
-    "tray"
+    "hyprland/submap",
+    "hyprland/workspaces",
+    "mpd",
+    "custom/cava",
+    "mpris"
   ],
+
   "modules-center": [
-    "sway/mode",
-    "sway/workspaces"
+    "hyprland/window"
   ],
+
   "modules-right": [
-    "disk",
-    "memory",
-    "cpu",
+    "backlight",
+    "idle_inhibitor",
+    "tray",
     "pulseaudio",
+    "bluetooth",
     "network",
-    "custom/power"
+    "battery",
+    "battery#bat2",
+    "clock"
   ],
-  "include": ["~/.config/waybar/modules.json"]
+
+
+  "hyprland/submap": {
+    "format": "{}",
+    "max-length": 8,
+    "tooltip": false
+  },
+  
+  "hyprland/workspaces": {
+     "format": "{icon}",
+     "on-scroll-up": "hyprctl dispatch workspace e+1",
+     "on-scroll-down": "hyprctl dispatch workspace e-1"
+  },
+
+  "mpd": {
+    "format": "  {title} - {artist} {stateIcon} [{elapsedTime:%M:%S}/{totalTime:%M:%S}] {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}[{songPosition}/{queueLength}] [{volume}%]",
+    "format-disconnected": " Disconnected",
+    "format-stopped": " {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped",
+    "unknown-tag": "N/A",
+    "interval": 2,
+    "consume-icons": {
+      "on": " "
+    },
+    "random-icons": {
+      "on": " "
+    },
+    "repeat-icons": {
+      "on": " "
+    },
+    "single-icons": {
+      "on": "1 "
+    },
+    "state-icons": {
+      "paused": "",
+      "playing": ""
+    },
+    "tooltip-format": "MPD (connected)",
+    "tooltip-format-disconnected": "MPD (disconnected)",
+    "on-click": "mpc toggle",
+    "on-click-right": "foot -a ncmpcpp ncmpcpp",
+    "on-scroll-up": "mpc volume +2",
+    "on-scroll-down": "mpc volume -2"
+  },
+
+  "custom/cava": {
+    "exec": "~/.config/waybar/scripts/cava.sh",
+    "format": "{}",
+  },
+
+  "mpris": {
+    "interval": 1,
+    "format": "{status_icon} <i>[{position}]{title}</i>",
+    "format-paused": "{status_icon} <i>[{position}]{title}</i>",
+    "max-length": 25,
+    "status-icons": {
+      "playing": "",
+      "paused": "",
+      "stopped": ""
+    },
+  },
+
+  "hyprland/window": {
+    "format": "{}",
+    "max-length": 48,
+    "rewrite": {
+        "(.*) — Mozilla Firefox": "$1",
+    },
+    "separate-outputs": true
+  },
+
+  "backlight": {
+    "format": "{icon} {percent}%",
+    "format-icons": [ 
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "",
+      "deactivated": ""
+    }
+  },
+
+  "tray": {
+    "icon-size": 17,
+    "spacing": 5,
+    "icons": {
+
+    }
+  },
+
+  "pulseaudio": {
+    "scroll-step": 10,
+    "format": "{volume}% {icon} {format_source}",
+    "format-bluetooth": " {icon} {volume}% {format_source}",
+    "format-bluetooth-muted": "  {icon} {format_source}",
+    "format-muted": " {format_source}",
+    "format-source": "{volume}% ",
+    "format-source-muted": "",
+    "format-icons": {
+      "default": [
+        "",
+        "",
+        ""
+      ]
+    },
+    "on-click": "pavucontrol",
+    "on-click-right": "foot -a pw-top pw-top"
+  },
+
+  "bluetooth": {
+    "format": " {status}",
+    "max-length": 15,
+    "format-connected": " {num_connections} {device_alias}",
+    "format-connected-battery": " {num_connections} {device_battery_percentage}% {device_alias}",
+    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
+    "on-click": "~/.config/waybar/scripts/bluetooth-toggle.sh",
+  },
+
+  "network": {
+    "format": "⚠ Disabled",
+    "format-wifi": "{essid} ",
+    "format-ethernet": "  {ifname} ({ipaddr}/{cidr}) Wired",
+    "format-disconnected": "⚠ Disconnected",
+    "on-click": "~/.config/rofi/scripts/wifi/wifi.sh",
+    "tooltip": false
+  },
+
+  "battery": {
+    "states": {
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "format-alt": "{icon} {time}",
+    "format-icons": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+
+  "battery#bat2": {
+    "bat": "BAT2"
+  },
+
+  "clock": {
+    "format": "{:%I:%M%p}",
+    "format-alt": "{:%I:%M%p / %a %b %d}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode"          : "year",
+      "mode-mon-col"  : 3,
+      "weeks-pos"     : "right",
+      "on-scroll"     : 1,
+      "format": {
+        "months":     "<span color='#ffead3'><b>{}</b></span>",
+        "days":       "<span color='#ecc6d9'><b>{}</b></span>",
+        "weeks":      "<span color='#99ffdd'><b>W{}</b></span>",
+        "weekdays":   "<span color='#ffcc66'><b>{}</b></span>",
+        "today":      "<span color='#ff6699'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions":  {
+      "on-click-right": "mode",
+      "on-scroll-up": "tz_up",
+      "on-scroll-down": "tz_down",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    },
+    "timezones": [
+      "America/Sao_Paulo"
+    ]
+  },
 }

@@ -7,3 +7,5 @@
 
 [core]
   editor = lvim
+[safe]
+	directory = /home/henrygoncalvess/build

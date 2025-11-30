@@ -1,129 +1,129 @@
 /*================ GLOBAL COLORS ================*/
 :root {
-    --accent-color: 0, 0, 0, 0;
-    --light-color: 255, 255, 255;
+  --accent-color: 0, 0, 0, 0;
+  --light-color: 255, 255, 255;
 }
 
 /*================ LIGHT THEME ================*/
 :root {
-    --main-bgcolor: var(--light-color);
-    --transparent-bgcolor: var(--light-color);
+  --main-bgcolor: var(--light-color);
+  --transparent-bgcolor: var(--light-color);
 }
 
 /*================== TOOLBAR ==================*/
 #TabsToolbar,
 .table-widget-empty-text {
-    -moz-appearance: -moz-mac-source-list !important;
+  -moz-appearance: -moz-mac-source-list !important;
 }
 
 #TabsToolbar:-moz-lwtheme-brighttext,
 .table-widget-empty-text:-moz-lwtheme-brighttext {
-    -moz-appearance: -moz-mac-source-list !important;
+  -moz-appearance: -moz-mac-source-list !important;
 }
 
 #TabsToolbar,
 #nav-bar {
-    -moz-appearance: -moz-mac-vibrancy-dark !important;
+  -moz-appearance: -moz-mac-vibrancy-dark !important;
 }
 
 /*================== TABS ==================*/
 .tabbrowser-tab {
-    margin-left: 3px !important;
+  margin-left: 3px !important;
 }
 
 .tabbrowser-tab > .tab-stack > .tab-background {
-    border-radius: 100px !important;
+  border-radius: 100px !important;
 }
 
 /*================== NAV BAR ==================*/
 toolbar#nav-bar {
-    background: rgba(var(--accent-color), 1) !important;
-    box-shadow: none !important;
+  background: rgba(var(--accent-color), 1) !important;
+  box-shadow: none !important;
 }
 
 #navigator-toolbox {
-    background-color: rgba(20, 20, 20, 0.7) !important;
+  background-color: rgba(20, 20, 20, 0.65) !important;
 }
 
 /*================== BOOKMARKS TOOLBAR ==================*/
 #PersonalToolbar {
-    background-color: transparent !important;
-    color: white !important;
-    height: max-content;
+  background-color: transparent !important;
+  color: white !important;
+  height: max-content;
 }
 
 /*================== BOOKMARKS ==================*/
-.bookmark-item{
-    background-color: transparent !important;
+.bookmark-item {
+  background-color: transparent !important;
 }
 
 .bookmark-item > .toolbarbutton-icon {
-    border-radius: 100% !important;
-    height: 17px !important;
-    width: 17px !important;
-    padding: 2px;
+  border-radius: 100% !important;
+  height: 17px !important;
+  width: 17px !important;
+  padding: 2px;
 }
 
 .bookmark-item:hover > .toolbarbutton-icon {
-    background-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* ------------------------------------------------------- */
 
 :root {
-    --toolbar-field-focus-border-color: transparent !important; /*remove default focus ring of url bar */
-    --organizer-outline-color: transparent !important; /*remove default focus ring of search box in library window */
-    --tab-min-height: 0 !important;
-    --tab-max-height: 0 !important;
+  --toolbar-field-focus-border-color: transparent !important; /*remove default focus ring of url bar */
+  --organizer-outline-color: transparent !important; /*remove default focus ring of search box in library window */
+  --tab-min-height: 0 !important;
+  --tab-max-height: 0 !important;
 }
 
 #urlbar:not([focused="true"]) {
-    background-image: linear-gradient(
-        to right,
-        rgb(255, 81, 65) 0%,
-        rgb(255, 205, 0) 50%,
-        rgb(47, 255, 75) 100%
-    ) !important;
-    background-size: auto 4px !important;
-    background-repeat: no-repeat !important;
-    background-position: bottom !important;
+  background-image: linear-gradient(
+    to right,
+    rgb(255, 81, 65) 0%,
+    rgb(255, 205, 0) 50%,
+    rgb(47, 255, 75) 100%
+  ) !important;
+  background-size: auto 4px !important;
+  background-repeat: no-repeat !important;
+  background-position: bottom !important;
 }
 
 #urlbar[focused="true"] {
-    background-image: linear-gradient(
-        to right,
-        rgb(255, 81, 65) 0%,
-        rgb(255, 205, 0) 50%,
-        rgb(47, 255, 75) 100%
-    ) !important;
+  background-image: linear-gradient(
+    to right,
+    rgb(255, 81, 65) 0%,
+    rgb(255, 205, 0) 50%,
+    rgb(47, 255, 75) 100%
+  ) !important;
 }
 
 #urlbar[open="true"] {
-    background-image: linear-gradient(
-        to right,
-        rgb(255, 81, 65) 0%,
-        rgb(255, 205, 0) 50%,
-        rgb(47, 255, 75) 100%
-    ) !important;
+  background-image: linear-gradient(
+    to right,
+    rgb(255, 81, 65) 0%,
+    rgb(255, 205, 0) 50%,
+    rgb(47, 255, 75) 100%
+  ) !important;
 }
 
 /* ------------------------------------------------------- */
 
 #main-window {
-    background: transparent !important;
+  background: transparent !important;
 }
 
 /* simplify tabs */
 
 .titlebar-spacer[type="pre-tabs"] {
-    display: none;
+  display: none;
 }
 
 .tab-close-button {
-    height: 15px !important;
-    width: 15px !important;
-    padding: 1px !important;
-    margin-left: 5px;
+  height: 15px !important;
+  width: 15px !important;
+  padding: 1px !important;
+  margin-left: 5px;
 }
 
 .tab-throbber-tabslist,
@@ -132,6 +132,6 @@ toolbar#nav-bar {
 .tab-icon-image,
 .tab-sharing-icon-overlay,
 .tab-icon-overlay {
-    height: 14px !important;
-    width: 14px !important;
+  height: 14px !important;
+  width: 14px !important;
 }

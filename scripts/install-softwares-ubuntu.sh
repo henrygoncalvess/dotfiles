@@ -10,7 +10,6 @@ else
   SILENT=false
 fi
 
-
 DOWNLOAD_DIR="$HOME/Downloads"
 THEMES_DIR="$HOME/.themes"
 ICONS_DIR="$HOME/.icons"
@@ -19,7 +18,11 @@ CONFIG_DIR="$HOME/.config"
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
 
 # lxpolkit, lxsession or lxsession-default-apps
-PROGRAMS=(curl git python3 python3-pip python3-venv wget make ripgrep stow xclip wl-clipboard clipman tar waybar brightnessctl network-manager cheese mako-notifier libnotify-bin gparted unzip flameshot lxpolkit xdg-desktop-portal-gtk flatpak zsh)
+PROGRAMS=(curl git python3 python3-pip fastfetch python3-venv wget make cmake ripgrep stow wl-clipboard cliphist grim slurp mpd mpc tar waybar cava brightnessctl network-manager cheese dunst libnotify-bin gparted pkg-config unzip ntfs-3g exfatprogs libqalculate-dev swaybg swaylock swayidle sway pavucontrol thunar lxpolkit xdg-desktop-portal software-properties-common xdg-desktop-portal-gtk flatpak zsh fzf blueman v4l-utils bluez dkms v4l2loopback-dkms dkms v4l2loopback-dkms  libbluetooth-dev gawk libdisplay-info-dev libgulkan-dev libliftoff-dev libsystemd-dev libtomlplusplus-dev libvulkan-volk-dev libxcb-cursor-dev libxcb-util-dev libxxhash-dev nm-tray python3-pyquery scdoc vulkan-validationlayers inxi imagemagick playerctl wlogout yad hypridle hyprlock btop loupe mpv mpv-mpris nvtop pamixer qalculate-gtk bat perl golang gcc clang libdrm-dev libgbm-dev meson build-essential flex bison ninja-build cmake-extras gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxkbcommon-x11-dev libxkbregistry-dev libxkbcommon-dev libudev-dev libseat-dev seatd libegl-dev glslang-tools libinput-bin libinput-dev libavutil-dev libavcodec-dev libavformat-dev libxcb-ewmh-dev libxcb-present-dev libxcb-xinput-dev libwayland-dev wayland-protocols libstdc++6 qt6-base-dev qt6-wayland-dev )
+
+DYNAMIC_PROG=(libgtk-3-dev libxml2-dev libpixman-1-dev libxcb-dri3-dev libgles2 libegl1-mesa-dev libxcb-composite0-dev libxcb-ewmh2 libspa-0.2 libxcb-icccm4-dev libxcb-render-util0-dev libxcb-res0-dev libtomlplusplus3t64 libre2-dev libdisplay-info1 libpipewire-0.3-dev)
+
+PROGRAMS+=("${DYNAMIC_PROG[@]}")
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 
@@ -97,6 +100,7 @@ check_command() {
 
   case "$NAME" in
     ripgrep) COMMAND="rg" ;;
+    bat) COMMAND="batcat" ;;
     python3-pip) COMMAND="pip3" ;;
     network-manager) COMMAND="nmcli" ;;
     mako-notifier) COMMAND="mako" ;;
@@ -104,7 +108,7 @@ check_command() {
     *) COMMAND="$NAME" ;;
   esac
 
-  if command -v "$COMMAND" &> /dev/null; then
+  if command -v "$COMMAND" &> /dev/null || dpkg -s "$COMMAND" | grep -q "Status: install ok installed"; then
     pretty_log -f "$LOG" "Já instalado" success
     return 0
   else
@@ -342,7 +346,7 @@ install_cargo() {
 
 install_packages(){
   local NPM=(prettier)
-  local PIP=(swayipc)
+  local PIP=()
 
   if ! command -v npm &>/dev/null; then
     pretty_log -p "[Node.js]" "npm não encontrado. Abra um novo terminal e execute o script novamente" error
@@ -363,8 +367,12 @@ install_packages(){
 
   pretty_log -p "[Pip]" "Instalando dependências" info
   for package in "${PIP[@]}"; do
+    if pip3 show "$package" &> /dev/null; then
+      pretty_log -p "[$package-download]" "Dependência instalada" success
+      continue
+    fi
     pretty_log -p "[$package-download]" "" info
-    pip install "$package" --user --isolated --break-system-packages
+    pip3 install "$package" --user --isolated --break-system-packages
     pretty_log -p "[$package-download]" "Dependência instalada" success
   done
 }
@@ -409,18 +417,69 @@ install_kitty() {
   pretty_log -f "$LOG" "Instalado com sucesso" success
 }
 
-install_sway() {
-  local LOG="[Sway-download]" 
+install_rofi_wayland() {
+    local LOG="[Rofi-Wayland-download]"
+    local BUILD_DIR="$DOWNLOAD_DIR/rofi"
 
-  if apt list --installed | grep sway; then
-    pretty_log "DESKTOP EN" "$LOG" "Instalado com sucesso" success
+    if check_command rofi "$LOG"; then
+      return 0
+    fi
+
+    pretty_log -f "$LOG" "Clonando repositório do Rofi" info
+    if [[ -d "$BUILD_DIR" ]]; then
+        rm -rf "$BUILD_DIR"
+    fi
+    git clone --depth 1 https://github.com/davatorium/rofi.git "$BUILD_DIR"
+
+    pretty_log -f "$LOG" "Compilando Rofi (Meson/Ninja)" info
+    cd "$BUILD_DIR" || exit 1
+    meson setup build
+    ninja -C build
+    
+    pretty_log -f "$LOG" "Instalando Rofi" info
+    sudo ninja -C build install
+    cd "$HOME"
+    rm -rf "$BUILD_DIR"
+    
+    pretty_log -f "$LOG" "Rofi (com suporte Wayland) instalado com sucesso" success
+    pretty_log -f "$LOG" "Instalando temas" info
+    git clone --depth=1 https://github.com/adi1090x/rofi.git
+    cd rofi
+    chmod +x setup.sh
+    ./setup.sh
+
+    pretty_log -f "$LOG" "Temas instalados com sucesso" success
+}
+
+install_hyprland() {
+  local LOG="[Hyprland-download]"
+  local REPO_URL="https://github.com/JaKooLit/Ubuntu-Hyprland.git"
+  local TARGET_DIR="$HOME/Ubuntu-Hyprland-24.04"
+
+  if [ -d "$TARGET_DIR" ]; then
+    pretty_log "    WM    " "$LOG" "Repositório $TARGET_DIR já clonado" success
     return 0
   fi
+  
+  pretty_log "    WM    " "$LOG" "Clonando repositório $REPO_URL" info
+  git clone -b 24.04 --depth=1  https://github.com/JaKooLit/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-24.04
+  cd ~/Ubuntu-Hyprland-24.04
 
-  pretty_log "DESKTOP EN" "$LOG" "Instalando Sway" info 
-  sudo apt-get install -y sway swaybg swayidle swaylock wofi xdg-desktop-portal-wlr pavucontrol
+  pretty_log "    WM    " "$LOG" "Executando script de instalação" info
+  chmod +x install.sh
+  ./install.sh
+}
 
-  pretty_log "DESKTOP EN" "$LOG" "Instalado com sucesso" success 
+install_jupyter() {
+  local LOG="[JupyterLab-download]" 
+
+  if pip show jupyterlab &> /dev/null; then
+    pretty_log -p "$LOG" "Já instalado" success
+    return
+  fi
+  pretty_log -p "$LOG" "" info
+  pip install jupyterlab
+  pretty_log -p "$LOG" "Instalado com sucesso" success
 }
 
 add_repo_if_missing() {
@@ -468,8 +527,14 @@ if ! $SILENT; then
   sudo apt-get upgrade
 fi
 
+echo -e "\n\033[1;33m[add-apt-repository ppa:zhangsongcui3371/fastfetch]\033[0m"
+add_repo_if_missing "ppa:zhangsongcui3371/fastfetch"
+
 echo -e "\n\033[1;33m[add-apt-repository ppa:neovim-ppa/stable]\033[0m"
 add_repo_if_missing "ppa:neovim-ppa/stable"
+
+echo -e "\n\033[1;33m[add-apt-repository ppa:cppiber/hyprland]\033[0m"
+add_repo_if_missing "ppa:cppiber/hyprland"
 
 echo -e "\n\033[1;33m[add-apt-repository multiverse]\033[0m"
 add_repo_if_missing "multiverse"
@@ -516,29 +581,59 @@ EOF
       ;;
     flatpak)
       install_flatpak_progs() {
-        sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        local NAME=$1
+        local SOURCE=$2
 
-        pretty_log -f "[Flatpak]" "Instalando Programas" info
-
-        if flatpak list | grep Kooha; then
-          pretty_log -f "[Kooha-download]" "Já instalado" success
+        if flatpak list | grep -q "$NAME"; then
+          pretty_log -f "[$NAME-download]" "Já instalado" success
           return 0
         fi
 
-        pretty_log -f "[Kooha-download]" "Instalando Kooha via flathub" info
-        sudo flatpak install -y flathub io.github.seadve.Kooha
+        pretty_log -f "[$NAME-download]" "Instalando $NAME via flathub" info
+        sudo flatpak install -y flathub "$SOURCE"
 
-        pretty_log -f "[Kooha-download]" "Kooha instalado com sucesso" success
+        pretty_log -f "[$NAME-download]" "$NAME instalado com sucesso" success
       }
+        
+      sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+      pretty_log -f "[Flatpak]" "Instalando Programas" info
 
       if check_command "$prog" "[$prog-download]"; then
-        install_flatpak_progs
+        install_flatpak_progs "OBS Studio" com.obsproject.Studio
+        install_flatpak_progs "Kdenlive" org.kde.kdenlive
         continue
       fi
 
       install_program_apt "$prog"
       install_flatpak_progs
+      continue
+      ;;
+    python3-venv)
+      if dpkg -l | grep python3-venv; then
+        pretty_log -f "[python3-venv-download]" "Já instalado" success
+        continue
+      fi
 
+      install_program_apt "$prog"
+      continue
+      ;;
+    xdg-desktop-portal-gtk)
+      if dpkg -l | grep xdg-desktop-portal-gtk; then
+        pretty_log -f "[xdg-desktop-portal-gtk-download]" "Já instalado" success
+        continue
+      fi
+
+      install_program_apt "$prog"
+      continue
+      ;;
+    wl-clipboard)
+      if wl-paste --version; then
+        pretty_log -f "[wl-clipboard-download]" "Já instalado" success
+        continue
+      fi
+
+      install_program_apt "$prog"
       continue
       ;;
     *)
@@ -567,8 +662,12 @@ install_lunarvim
 
 install_kitty
 
+install_rofi_wayland
+
+install_hyprland
+
 install_docker
 
-install_sway
+install_jupyter
 
 exit 0
