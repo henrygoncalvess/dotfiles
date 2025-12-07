@@ -25,7 +25,8 @@
     "network",
     "battery",
     "battery#bat2",
-    "clock"
+    "clock",
+    "custom/wallpapers"
   ],
 
 
@@ -80,7 +81,7 @@
     "interval": 1,
     "format": "{status_icon} <i>[{position}]{title}</i>",
     "format-paused": "{status_icon} <i>[{position}]{title}</i>",
-    "max-length": 25,
+    "max-length": 35,
     "status-icons": {
       "playing": "",
       "paused": "",
@@ -90,7 +91,7 @@
 
   "hyprland/window": {
     "format": "{}",
-    "max-length": 48,
+    "max-length": 90,
     "rewrite": {
         "(.*) — Mozilla Firefox": "$1",
     },
@@ -121,15 +122,16 @@
   },
 
   "tray": {
-    "icon-size": 17,
+    "icon-size": 19,
     "spacing": 5,
     "icons": {
-
     }
   },
 
   "pulseaudio": {
     "scroll-step": 10,
+    "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 10%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 10%-",
     "format": "{volume}% {icon} {format_source}",
     "format-bluetooth": " {icon} {volume}% {format_source}",
     "format-bluetooth-muted": "  {icon} {format_source}",
@@ -157,6 +159,7 @@
     "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
     "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
     "on-click": "~/.config/waybar/scripts/bluetooth-toggle.sh",
+    "interval": 1
   },
 
   "network": {
@@ -191,8 +194,9 @@
   },
 
   "clock": {
+    "interval": 1,
     "format": "{:%I:%M%p}",
-    "format-alt": "{:%I:%M%p / %a %b %d}",
+    "format-alt": "{:%I:%M:%S%p / %d %A %B}",
     "tooltip-format": "<tt><small>{calendar}</small></tt>",
     "calendar": {
       "mode"          : "year",
@@ -218,4 +222,12 @@
       "America/Sao_Paulo"
     ]
   },
+
+  "custom/wallpapers": {
+    "exec": "~/.config/waybar/scripts/hide-module.sh",
+    "on-click": "~/.config/hypr/scripts/toggle-wallpaper-hypr.sh",
+    "format": "{}",
+    "interval": 5,
+    "tooltip": false
+  }
 }

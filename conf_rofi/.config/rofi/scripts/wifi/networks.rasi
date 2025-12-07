@@ -37,15 +37,7 @@
     alternate-active-foreground: var(background);
 
     /* For Screens with 1920x1080 resolution */
-    screen-margin:               275px 400px;
-    box-spacing:                 20px;
-    list-padding:                8px;
-    element-padding:             15px;
-    element-radius:              8px;
-    element-spacing:             15px;
-
-    /* For Screens with 1366x768 resolution */
-    screen-margin:               200px 430px;
+    screen-margin:               350px 700px;
     box-spacing:                 5px;
     list-padding:                4px;
     element-padding:             3px 5px;
@@ -95,7 +87,7 @@ inputbar {
     enabled:                     true;
     spacing:                     0px;
     margin:                      0px;
-    padding:                     0px;
+    padding:                     0 0 1px 0;
     border:                      0px solid;
     border-radius:               @element-radius;
     border-color:                @border-colour;

@@ -28,14 +28,6 @@
     alternate-active-foreground: var(background);
 
     /* For Screens with 1920x1080 resolution */
-    screen-margin:               275px 400px;
-    box-spacing:                 20px;
-    list-padding:                8px;
-    element-padding:             15px;
-    element-radius:              8px;
-    element-spacing:             15px;
-
-    /* For Screens with 1366x768 resolution */
     screen-margin:               130px 300px;
     box-spacing:                 5px;
     list-padding:                4px;
@@ -86,7 +78,7 @@ inputbar {
     enabled:                     true;
     spacing:                     0px;
     margin:                      0px;
-    padding:                     0px;
+    padding:                     0 0 1px 0;
     border:                      0px solid;
     border-radius:               @element-radius;
     border-color:                @border-colour;
@@ -106,7 +98,7 @@ textbox-prompt-colon {
     expand:                      false;
     padding:                     @element-padding;
     str:                         "";
-    border:                      0px solid;
+    border:                      1px solid;
     border-radius:               @element-radius;
     border-color:                @border-colour;
     background-color:            @alternate-background;
@@ -183,7 +175,7 @@ element {
     spacing:                     @element-spacing;
     margin:                      0px;
     padding:                     @list-padding;
-    border:                      0px solid;
+    border:                      1px solid;
     border-radius:               @element-radius;
     border-color:                @border-colour;
     background-color:            transparent;
@@ -204,15 +196,15 @@ element normal.active {
 }
 element selected.normal {
     background-color:            var(selected-normal-background);
-    text-color:                  var(selected-normal-foreground);
+    text-color:                  var(foreground-colour);
 }
 element selected.urgent {
     background-color:            var(selected-urgent-background);
-    text-color:                  var(selected-urgent-foreground);
+    text-color:                  var(foreground-colour);
 }
 element selected.active {
     background-color:            var(selected-active-background);
-    text-color:                  var(selected-active-foreground);
+    text-color:                  var(foreground-colour);
 }
 element alternate.normal {
     background-color:            var(alternate-normal-background);

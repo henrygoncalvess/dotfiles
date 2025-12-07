@@ -1,6 +1,6 @@
 * {
   font-family: "Hasklug Nerd Font Propo";
-  font-size: 13px;
+  font-size: 13.5px;
   min-height: 0;
 }
 
@@ -23,7 +23,7 @@ window#waybar.hidden {
   margin: 0 2;
   padding-left: 8;
   padding-right: 8;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.01);
   font-weight: bold;
 }
 
@@ -40,7 +40,7 @@ button:hover {
 
 #workspaces button {
   padding: 0 4px;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.01);
 }
 
 #workspaces button:hover {
@@ -79,11 +79,12 @@ button:hover {
 #tray,
 #idle_inhibitor,
 #scratchpad,
+#custom-wallpapers,
 #mpd {
   margin: 0 1px;
   padding-left: 4px;
   padding-right: 4px;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.01);
   color: #ffffff;
 }
 

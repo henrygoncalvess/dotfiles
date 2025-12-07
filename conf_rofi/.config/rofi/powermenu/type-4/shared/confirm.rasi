@@ -16,6 +16,10 @@ configuration {
 @import                          "colors.rasi"
 @import                          "fonts.rasi"
 
+* {
+    border-colour:               var(selected);
+}
+
 /*****----- Main Window -----*****/
 window {
     location:                    center;
@@ -39,12 +43,14 @@ mainbox {
 message {
     margin:                      0px;
     padding:                     20px;
+    border:                      1px solid;
+    border-color:                @border-colour;
     border-radius:               20px;
     background-color:            @background-alt;
     text-color:                  @foreground;
 }
 textbox {
-    background-color:            inherit;
+    background-color:            transparent;
     text-color:                  inherit;
     vertical-align:              0.5;
     horizontal-align:            0.5;
@@ -73,7 +79,9 @@ listview {
 
 /*****----- Elements -----*****/
 element {
-    padding:                     60px 10px;
+    padding:                     50px 10px 70px;
+    border:                      1px solid;
+    border-color:                @border-colour;
     border-radius:               20px;
     background-color:            @background-alt;
     text-color:                  @foreground;
@@ -89,5 +97,5 @@ element-text {
 }
 element selected.normal {
     background-color:            var(selected);
-    text-color:                  var(background);
+    text-color:                  @foreground;
 }

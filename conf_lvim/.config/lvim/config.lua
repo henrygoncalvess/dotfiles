@@ -61,6 +61,13 @@ lvim.plugins = {
     "folke/trouble.nvim",
     cmd = "TroubleToggle",
   },
+  { 'mg979/vim-visual-multi' },
+  {
+    "tzachar/cmp-tabnine",
+    build = "./install.sh",
+    dependencies = "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
+  },
   {
     "kevinhwang91/nvim-bqf",
     event = { "BufRead", "BufNew" },
@@ -88,12 +95,41 @@ lvim.plugins = {
     end,
   },
   {
+    "itchyny/vim-cursorword",
+    event = { "BufEnter", "BufNewFile" },
+    config = function()
+      vim.api.nvim_command("augroup user_plugin_cursorword")
+      vim.api.nvim_command("autocmd!")
+      vim.api.nvim_command("autocmd FileType NvimTree,lspsagafinder,dashboard,vista let b:cursorword = 0")
+      vim.api.nvim_command("autocmd WinEnter * if &diff || &pvw | let b:cursorword = 0 | endif")
+      vim.api.nvim_command("autocmd InsertEnter * let b:cursorword = 0")
+      vim.api.nvim_command("autocmd InsertLeave * let b:cursorword = 1")
+      vim.api.nvim_command("augroup END")
+    end
+  },
+  {
     "andymass/vim-matchup",
     event = "CursorMoved",
     config = function()
       vim.g.matchup_matchparen_offscreen = { method = "popup" }
     end,
   },
+  {
+    "folke/persistence.nvim",
+    event = "BufReadPre", -- this will only start session saving when an actual file was opened
+    lazy = true,
+    config = function()
+      require("persistence").setup {
+        dir = vim.fn.expand(vim.fn.stdpath "config" .. "/session/"),
+        options = { "buffers", "curdir", "tabpages", "winsize" },
+      }
+    end,
+  },
+  {
+    "turbio/bracey.vim",
+    cmd = {"Bracey", "BracyStop", "BraceyReload", "BraceyEval"},
+    build = "npm install --prefix server",
+  }
 }
 
 -- ========================================

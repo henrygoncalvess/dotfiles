@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 
-ps aux | grep "random-paper-hypr.sh" | grep -v "$$" | awk '{print $2}' | xargs kill -9 2>/dev/null
-sleep 0.5 
+WALLPAPERS_DIR="$HOME/wallpapers/desktop/normal"
 
-PIC=$(find "$HOME/wallpapers/desktop" -type f | shuf -n 1 --random-source=/dev/random)
-pkill -9 -f "swaybg"
+ps aux | grep "hidden-random-paper-hypr.sh" | grep -v "$$" | awk '{print $2}' | xargs kill -9 2>/dev/null
+sleep 0.3
+ps aux | grep "random-paper-hypr.sh" | grep -v "$$" | awk '{print $2}' | xargs kill -9 2>/dev/null
+sleep 0.3
+pkill -f "swaybg"
+
+PIC=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1 --random-source=/dev/random)
 swaybg -m fill -i "$PIC" &
 
 while true
 do
-  sleep 45m
+  sleep 20m
   
-  PIC=$(find "$HOME/wallpapers/desktop" -type f | shuf -n 1 --random-source=/dev/random)
+  PIC=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1 --random-source=/dev/random)
 
-  pkill -9 -f "swaybg"
+  pkill -f "swaybg"
   swaybg -m fill -i "$PIC" &
 done
