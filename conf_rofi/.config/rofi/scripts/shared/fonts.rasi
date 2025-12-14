@@ -8,9 +8,5 @@
  **/
 
 * {
-<<<<<<< HEAD
     font: "Hasklug Nerd Font Propo 10";
-=======
-    font: "JetBrains Mono Nerd Font 10";
->>>>>>> 4b27128 (chore: review later)
 }

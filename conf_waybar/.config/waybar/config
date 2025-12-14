@@ -7,7 +7,6 @@
   "modules-left": [
     "hyprland/submap",
     "hyprland/workspaces",
-    "mpd",
     "custom/cava",
     "mpris"
   ],
@@ -40,36 +39,6 @@
      "format": "{icon}",
      "on-scroll-up": "hyprctl dispatch workspace e+1",
      "on-scroll-down": "hyprctl dispatch workspace e-1"
-  },
-
-  "mpd": {
-    "format": "  {title} - {artist} {stateIcon} [{elapsedTime:%M:%S}/{totalTime:%M:%S}] {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}[{songPosition}/{queueLength}] [{volume}%]",
-    "format-disconnected": " Disconnected",
-    "format-stopped": " {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped",
-    "unknown-tag": "N/A",
-    "interval": 2,
-    "consume-icons": {
-      "on": " "
-    },
-    "random-icons": {
-      "on": " "
-    },
-    "repeat-icons": {
-      "on": " "
-    },
-    "single-icons": {
-      "on": "1 "
-    },
-    "state-icons": {
-      "paused": "",
-      "playing": ""
-    },
-    "tooltip-format": "MPD (connected)",
-    "tooltip-format-disconnected": "MPD (disconnected)",
-    "on-click": "mpc toggle",
-    "on-click-right": "foot -a ncmpcpp ncmpcpp",
-    "on-scroll-up": "mpc volume +2",
-    "on-scroll-down": "mpc volume -2"
   },
 
   "custom/cava": {
@@ -132,11 +101,11 @@
     "scroll-step": 10,
     "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 10%+",
     "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 10%-",
-    "format": "{volume}% {icon} {format_source}",
+    "format": "{icon} {volume}% {format_source}",
     "format-bluetooth": " {icon} {volume}% {format_source}",
     "format-bluetooth-muted": "  {icon} {format_source}",
     "format-muted": " {format_source}",
-    "format-source": "{volume}% ",
+    "format-source": " {volume}%",
     "format-source-muted": "",
     "format-icons": {
       "default": [
@@ -164,7 +133,7 @@
 
   "network": {
     "format": "⚠ Disabled",
-    "format-wifi": "{essid} ",
+    "format-wifi": " {essid}",
     "format-ethernet": "  {ifname} ({ipaddr}/{cidr}) Wired",
     "format-disconnected": "⚠ Disconnected",
     "on-click": "~/.config/rofi/scripts/wifi/wifi.sh",
@@ -227,7 +196,7 @@
     "exec": "~/.config/waybar/scripts/hide-module.sh",
     "on-click": "~/.config/hypr/scripts/toggle-wallpaper-hypr.sh",
     "format": "{}",
-    "interval": 5,
+    "interval": 7,
     "tooltip": false
   }
 }

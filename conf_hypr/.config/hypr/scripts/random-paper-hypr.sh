@@ -6,17 +6,41 @@ ps aux | grep "hidden-random-paper-hypr.sh" | grep -v "$$" | awk '{print $2}' | 
 sleep 0.3
 ps aux | grep "random-paper-hypr.sh" | grep -v "$$" | awk '{print $2}' | xargs kill -9 2>/dev/null
 sleep 0.3
-pkill -f "swaybg"
+
+random_transition() {
+  local PIC="$1"
+  local STEP=$(shuf -i 10-90 -n 1)
+  effects=(
+    "wipe"
+    "any"
+  )
+  chosen_effect=$(printf "%s\n" "${effects[@]}" | shuf -n 1)
+
+  case "$chosen_effect" in
+    wipe)
+      ANGLE=$(shuf -i 0-365 -n 1)
+      COMMAND="swww img \"$PIC\" --transition-duration 8 --transition-fps 60 --transition-type wipe --transition-step $STEP --transition-angle $ANGLE"
+      ;;
+
+    any)
+      COMMAND="swww img \"$PIC\" --transition-duration 8 --transition-fps 60 --transition-type any --transition-step $STEP"
+      ;;
+  esac
+
+  eval "$COMMAND"
+}
 
 PIC=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1 --random-source=/dev/random)
-swaybg -m fill -i "$PIC" &
+random_transition "$PIC"
+
+NUM_WALLS=$(ls "$WALLPAPERS_DIR" | wc -l)
+TIME=$((1440 / "$NUM_WALLS"))
 
 while true
 do
-  sleep 20m
+  sleep "$TIME"m
   
   PIC=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1 --random-source=/dev/random)
 
-  pkill -f "swaybg"
-  swaybg -m fill -i "$PIC" &
+  random_transition "$PIC"
 done
