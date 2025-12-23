@@ -9,7 +9,7 @@ sleep 0.3
 
 random_transition() {
   local PIC="$1"
-  local STEP=$(shuf -i 10-90 -n 1)
+  local STEP=$(shuf -i 1-90 -n 1)
   effects=(
     "wipe"
     "any"
@@ -19,11 +19,11 @@ random_transition() {
   case "$chosen_effect" in
     wipe)
       ANGLE=$(shuf -i 0-365 -n 1)
-      COMMAND="swww img \"$PIC\" --transition-duration 8 --transition-fps 60 --transition-type wipe --transition-step $STEP --transition-angle $ANGLE"
+      COMMAND="swww img \"$PIC\" --transition-duration 15 --transition-fps 60 --transition-type wipe --transition-step $STEP --transition-angle $ANGLE"
       ;;
 
     any)
-      COMMAND="swww img \"$PIC\" --transition-duration 8 --transition-fps 60 --transition-type any --transition-step $STEP"
+      COMMAND="swww img \"$PIC\" --transition-duration 15 --transition-fps 60 --transition-type any --transition-step $STEP"
       ;;
   esac
 

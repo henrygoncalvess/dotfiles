@@ -99,8 +99,8 @@
 
   "pulseaudio": {
     "scroll-step": 10,
-    "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 10%+",
-    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 10%-",
+    "on-scroll-up": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SOURCE@ 10%+",
+    "on-scroll-down": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SOURCE@ 10%-",
     "format": "{icon} {volume}% {format_source}",
     "format-bluetooth": " {icon} {volume}% {format_source}",
     "format-bluetooth-muted": "  {icon} {format_source}",

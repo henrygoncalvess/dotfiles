@@ -20,6 +20,7 @@ window#waybar.hidden {
 }
 
 #window {
+  border-radius: 3px;
   margin: 0 2;
   padding-left: 8;
   padding-right: 8;
@@ -39,12 +40,14 @@ button:hover {
 }
 
 #workspaces button {
+  border-radius: 3px;
+  margin: 0 1px;
   padding: 0 4px;
   background-color: rgba(0, 0, 0, 0.01);
 }
 
 #workspaces button:hover {
-  border-top: 2px solid white;
+  border-bottom: 2px solid white;
 }
 
 #workspaces button.focused {
@@ -85,24 +88,12 @@ button:hover {
   padding-left: 4px;
   padding-right: 4px;
   background-color: rgba(0, 0, 0, 0.01);
+  border-radius: 3px;
   color: #ffffff;
 }
 
 #clock {
   font-weight: bold;
-}
-
-window#waybar.empty #window {
-  background-color: transparent;
-}
-
-#backlight {
-  color: @yellow;
-}
-
-#network {
-  color: @green;
-  padding: 0 6px;
 }
 
 #network.disabled {
@@ -113,54 +104,9 @@ window#waybar.empty #window {
   color: #bf616a;
 }
 
-#custom-power {
-  color: @red;
-  background-color: shade(@base, 1);
-  padding: 0 10px 0 7px;
-}
-
-#clock {
-  color: @sky;
-  padding: 0 7px;
-}
-
-#cpu {
-  padding: 0 4px 0 0;
-}
-
-#custom-recorder {
-  color: @red;
-}
-
 #tray {
   color: #ffffff;
   padding: 0 4.8px 0;
-}
-
-#clock,
-#battery {
-  padding: 0 10px;
-}
-
-#clock,
-#battery,
-#backlight,
-#network,
-#pulseaudio,
-#tray,
-#scratchpad,
-#mpd {
-  margin: 0 2px;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-.modules-left > widget:first-child > #workspaces {
-  margin-left: 0;
-}
-
-.modules-right > widget:last-child > #workspaces {
-  margin-right: 0;
 }
 
 #battery icon {
@@ -202,11 +148,6 @@ window#waybar.empty #window {
 
 label:focus {
   background-color: #000000;
-}
-
-#idle_inhibitor.activated {
-  background-color: #ecf0f1;
-  color: #2d3436;
 }
 
 #idle_inhibitor.activated {
