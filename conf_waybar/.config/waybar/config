@@ -1,4 +1,5 @@
 {
+  "reload_style_on_change": true,
   "layer": "top",
   "position": "top",
   "height": 1,
@@ -25,9 +26,9 @@
     "battery",
     "battery#bat2",
     "clock",
+    "custom/multi",
     "custom/wallpapers"
   ],
-
 
   "hyprland/submap": {
     "format": "{}",
@@ -99,8 +100,8 @@
 
   "pulseaudio": {
     "scroll-step": 10,
-    "on-scroll-up": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SOURCE@ 10%+",
-    "on-scroll-down": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SOURCE@ 10%-",
+    "on-scroll-up": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 10%+",
+    "on-scroll-down": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 10%-",
     "format": "{icon} {volume}% {format_source}",
     "format-bluetooth": " {icon} {volume}% {format_source}",
     "format-bluetooth-muted": "  {icon} {format_source}",
@@ -192,9 +193,17 @@
     ]
   },
 
+  "custom/multi": {
+    "on-click": "~/.config/rofi/launchers/type-1/launcher.sh",
+    "on-click-middle": "hyprctl dispatch killactive",
+    "on-click-right": "pkill wvkbd || wvkbd-mobintl -L 220 --bg 0E1319A9 --alpha 200",
+    "format": "",
+    "tooltip": false
+  },
+
   "custom/wallpapers": {
     "exec": "~/.config/waybar/scripts/hide-module.sh",
-    "on-click": "~/.config/hypr/scripts/toggle-wallpaper-hypr.sh",
+    "on-triple-click-middle": "~/.config/hypr/scripts/toggle-wallpaper-hypr.sh",
     "format": "{}",
     "interval": 7,
     "tooltip": false

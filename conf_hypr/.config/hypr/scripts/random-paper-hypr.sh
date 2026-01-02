@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WALLPAPERS_DIR="$HOME/wallpapers/desktop/normal"
+WALLPAPERS_DIR="$HOME/wallpapers/desktop/SPKyjw9HRTImK90/8mWeerfxH3HwuPa/jOsyc1nZGsaPUXw"
 
 ps aux | grep "hidden-random-paper-hypr.sh" | grep -v "$$" | awk '{print $2}' | xargs kill -9 2>/dev/null
 sleep 0.3
