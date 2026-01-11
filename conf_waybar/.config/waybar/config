@@ -20,8 +20,8 @@
     "backlight",
     "idle_inhibitor",
     "tray",
-    "pulseaudio",
     "bluetooth",
+    "pulseaudio",
     "network",
     "battery",
     "battery#bat2",
@@ -98,6 +98,20 @@
     }
   },
 
+  "bluetooth": {
+    "max-length": 15,
+    "format-on": "󰂯",
+    "format-off": "󰂲",
+    "format-connected": " {num_connections} {device_alias}",
+    "format-connected-battery": " {num_connections} {device_battery_percentage}% {device_alias}",
+    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
+    "on-click": "~/.config/waybar/scripts/bluetooth-toggle.sh",
+    "interval": 1
+  },
+
   "pulseaudio": {
     "scroll-step": 10,
     "on-scroll-up": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 10%+",
@@ -117,19 +131,6 @@
     },
     "on-click": "pavucontrol",
     "on-click-right": "foot -a pw-top pw-top"
-  },
-
-  "bluetooth": {
-    "format": " {status}",
-    "max-length": 15,
-    "format-connected": " {num_connections} {device_alias}",
-    "format-connected-battery": " {num_connections} {device_battery_percentage}% {device_alias}",
-    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
-    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
-    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
-    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
-    "on-click": "~/.config/waybar/scripts/bluetooth-toggle.sh",
-    "interval": 1
   },
 
   "network": {

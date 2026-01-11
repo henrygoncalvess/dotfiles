@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
 
-dir="$HOME/.config/rofi/scripts/bluetooth"
+dir="$HOME/.config/rofi/powermenu/type-4"
+theme='style-1'
 
 status=$(bluetoothctl show | grep 'Powered:' | \
 awk '{
-  if ($2=="no") $2="on"
-  if ($2=="yes") $2="off"
+  if ($2=="no") $2="󰂯"
+  if ($2=="yes") $2="󰂲"
   print $2
 }')
 
-action=$(echo -e "Turn $status 󰂲\nSearch Devices " | rofi -dmenu -p 'Bluetooth Action' -theme "$dir/action.rasi")
+action=$(echo -e "$status\n" | rofi -dmenu -mesg 'Bluetooth action' -theme "$dir/shared/confirm.rasi")
 
-if echo "$action" | grep 'Turn'; then
-  bluetoothctl power "$status"
+if echo "$action" | grep '󰂯'; then
+  bluetoothctl power on
 fi
 
-if echo "$action" | grep 'Search'; then
+if echo "$action" | grep '󰂲'; then
+  bluetoothctl power off
+fi
+
+if echo "$action" | grep ''; then
   bluetoothctl power on
   blueman-manager &
 fi
