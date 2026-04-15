@@ -3,8 +3,9 @@
     "terminal.integrated.fontSize": 13,
     "terminal.integrated.scrollback": 500,
     "terminal.integrated.shellIntegration.history": 15,
-    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.defaultProfile.linux": "zsh",
     "terminal.integrated.inheritEnv": true,
+    "terminal.integrated.defaultLocation": "view",
     "workbench.colorCustomizations": {
         "terminal.ansiBlack": "#171421",
         "terminal.ansiBrightBlack": "#5e5c64",
@@ -21,12 +22,12 @@
         "terminal.ansiCyan": "#8be9fd",
         "terminal.ansiBrightCyan": "#a4ffff",
         "terminal.ansiWhite": "#d0cfcc",
-        "terminal.ansiBrightWhite": "#ffffff"
+        "terminal.ansiBrightWhite": "#ffffff",
     },
     "workbench.editorAssociations": {
         "*.js": "default",
         "*.sql": "default",
-        "*.db": "default"
+        "*.db": "default",
     },
     "workbench.editor.tabSizingFixedMaxWidth": 110,
     "workbench.editor.wrapTabs": true,
@@ -38,7 +39,7 @@
     "workbench.navigationControl.enabled": false,
     // or JetBrainsMonoNL Nerd Font
     "editor.fontFamily": "Hasklug Nerd Font Propo",
-    "editor.rulers": [108],
+    "editor.rulers": [112],
     "editor.wordWrap": "on",
     "editor.fontSize": 14,
     "editor.lineHeight": 1.48,
@@ -49,10 +50,10 @@
     "editor.guides.bracketPairs": "active",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "explorer.confirmDelete": false,
     "explorer.confirmDragAndDrop": false,
@@ -62,40 +63,25 @@
     "window.customMenuBarAltFocus": false,
     "window.menuStyle": "custom",
     "window.zoomPerWindow": false,
-    "window.commandCenter": false,
     "window.title": "${rootName} (${activeRepositoryBranchName})${separator}${activeEditorMedium} ${dirty}${separator}${profileName}",
     "window.titleSeparator": " | ",
     "symbols.hidesExplorerArrows": false,
-    "symbols.folders.associations": {
-        "controllers": "folder-auth"
-    },
-    "codesnap-plus.containerPadding": "1em",
-    "codesnap-plus.showLineNumbers": false,
-    "codesnap-plus.showWindowControls": false,
     "breadcrumbs.enabled": false,
     "git.confirmSync": false,
     "javascript.updateImportsOnFileMove.enabled": "always",
-    "liveServer.settings.donotShowInfoMsg": true,
     "security.workspace.trust.untrustedFiles": "open",
     "typescript.updateImportsOnFileMove.enabled": "always",
     "prettier.tabWidth": 4,
     "diffEditor.ignoreTrimWhitespace": true,
     "files.autoSave": "off",
-    "python.defaultInterpreterPath": "/usr/bin/python3",
-    "chat.commandCenter.enabled": false,
-    "workbench.layoutControl.enabled": false,
     "workbench.editor.enablePreview": false,
     "git.openRepositoryInParentFolders": "never",
     "files.eol": "\n",
     "files.insertFinalNewline": true,
     "workbench.activityBar.iconClickBehavior": "focus",
     "workbench.secondarySideBar.defaultVisibility": "hidden",
-    // "window.zoomLevel": 0.3,
-    "window.zoomLevel": -1,
     "workbench.editor.empty.hint": "hidden",
     "editor.inlineSuggest.enabled": false,
-    "inlineChat.lineNaturalLanguageHint": false,
-    "editor.formatOnSave": true,
     "explorer.fileNesting.patterns": {
         "*.ts": "${capture}.js",
         "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
@@ -108,10 +94,18 @@
         "*.sqlite3": "${capture}.${extname}-*",
         "*.db3": "${capture}.${extname}-*",
         "*.sdb": "${capture}.${extname}-*",
-        "*.s3db": "${capture}.${extname}-*"
+        "*.s3db": "${capture}.${extname}-*",
     },
     "explorer.confirmPasteNative": false,
-    "terminal.integrated.tabs.enabled": false,
     "terminal.integrated.stickyScroll.enabled": false,
-    "window.menuBarVisibility": "compact"
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+    },
+    "editor.formatOnSave": true,
+    "window.menuBarVisibility": "compact",
+    "workbench.layoutControl.enabled": false,
+    "chat.viewSessions.orientation": "stacked",
+    "window.commandCenter": false,
+    "window.zoomLevel": -1,
+    "terminal.integrated.tabs.enabled": false,
 }

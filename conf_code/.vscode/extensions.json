@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "miguelsolorio.symbols",
+    "dracula-theme.theme-dracula",
+    "TGOSystems.togglebracketguides",
+    "EditorConfig.EditorConfig",
+    "rangav.vscode-thunder-client",
+    "dbaeumer.vscode-eslint",
+    "ms-azuretools.vscode-containers"
+  ]
+}

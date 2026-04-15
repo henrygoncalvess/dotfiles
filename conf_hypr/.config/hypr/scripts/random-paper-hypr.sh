@@ -34,11 +34,10 @@ PIC=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1 --random-source=/dev/random)
 random_transition "$PIC"
 
 NUM_WALLS=$(ls "$WALLPAPERS_DIR" | wc -l)
-TIME=$((1440 / "$NUM_WALLS"))
 
 while true
 do
-  sleep "$TIME"m
+  sleep 30m
   
   PIC=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1 --random-source=/dev/random)
 
