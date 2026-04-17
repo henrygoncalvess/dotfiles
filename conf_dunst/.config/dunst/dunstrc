@@ -1,0 +1,83 @@
+[global]
+
+follow = mouse
+
+# LAYER
+origin = top-right
+offset = 10x10
+scale = 0
+notification_limit = 5
+indicate_hidden = true
+separator_height = 0
+separator_color = auto
+gap_size = 2
+sort = true
+layer = top
+
+# FRAME
+width = (150, 300)
+height = 300
+padding = 5
+text_icon_padding = 0
+frame_width = 2
+font = Hasklug Nerd Font Propo
+line_height = 0
+vertical_alignment = center
+ignore_newline = false
+stack_duplicates = true
+hide_duplicate_count = false
+show_indicators = true
+show_age_threshold = 60
+corner_radius = 10
+
+# PROGRESS
+progress_bar = true
+progress_bar_horizontal_alignment = left
+progress_bar_height = 10
+progress_bar_min_width = 150
+progress_bar_max_width = 300
+progress_bar_frame_width = 1
+progress_bar_corner_radius = 4
+
+# ICON
+icon_corner_radius = 10
+
+# OTHER
+enable_posix_regex = true
+force_xwayland = false
+enable_recursive_icon_lookup = true
+sticky_history = true
+history_length = 100
+title = dunst
+class = dunst
+force_xinerama = false
+
+# ACTIONS
+always_run_script = true
+mouse_left_click = do_action
+mouse_middle_click = close_all
+mouse_right_click = close_current
+browser = "/usr/bin/xdg-open"
+ignore_dbusclose = false
+background = "#222222"
+frame_color = "#ff0000"
+
+[urgency_low]
+  background = "#1c1c1ca0"
+  foreground = "#ffffff"
+  frame_color = "#008fc7f0"
+  timeout = 0
+
+[urgency_normal]
+  background = "#1c1c1ca0"
+  foreground = "#ffffff"
+  frame_color = "#008fc7f0"
+  timeout = 0
+
+[urgency_critical]
+  background = "#1c1c1ca0"
+  foreground = "#ffffff"
+  frame_color = "#ff0000"
+  timeout = 0
+
+

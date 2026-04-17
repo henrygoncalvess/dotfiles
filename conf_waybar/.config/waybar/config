@@ -9,7 +9,8 @@
     "hyprland/submap",
     "hyprland/workspaces",
     "custom/cava",
-    "mpris"
+    "mpris",
+    "backlight"
   ],
 
   "modules-center": [
@@ -17,15 +18,14 @@
   ],
 
   "modules-right": [
-    "backlight",
     "idle_inhibitor",
     "tray",
     "bluetooth",
     "pulseaudio",
     "network",
+    "clock",
     "battery",
     "battery#bat2",
-    "clock",
     "custom/multi",
     "custom/wallpapers"
   ],

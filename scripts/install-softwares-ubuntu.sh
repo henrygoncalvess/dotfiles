@@ -137,6 +137,8 @@ install_program_apt() {
 
 install_ohmyposh() {
   local LOG="[Oh_My_Posh-download]"
+  
+  export PATH=$PATH:/home/henrygoncalves/.local/bin
 
   if check_command oh-my-posh "$LOG"; then
     return 0
@@ -158,7 +160,7 @@ install_ohmyposh() {
 install_ohmyzsh() {
   local LOG="[Oh-My-Zsh-download]"
 
-  if check -d -f "$LOG" ".oh-my-zsh"; then
+  if check -d -f "$LOG" "$HOME/.oh-my-zsh"; then
     return 0
   fi
 
@@ -329,6 +331,8 @@ install_node() {
 
 install_cargo() {
   local LOG="[Cargo-download]"
+  
+  \. "$HOME/.cargo/env"
 
   if check_command cargo "$LOG"; then
     return 0
@@ -591,6 +595,8 @@ EOF
 
         pretty_log -f "[$NAME-download]" "$NAME instalado com sucesso" success
       }
+      
+      install_program_apt "$prog"
         
       sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
@@ -602,7 +608,6 @@ EOF
         continue
       fi
 
-      install_program_apt "$prog"
       install_flatpak_progs
       continue
       ;;
@@ -661,9 +666,9 @@ install_kitty
 
 install_rofi_wayland
 
-install_hyprland
-
 install_docker
+
+install_hyprland
 
 install_jupyter
 
