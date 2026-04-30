@@ -1,4 +1,6 @@
 {
+  "ipc": true,
+  "mode": "hide",
   "reload_style_on_change": true,
   "layer": "top",
   "position": "top",
@@ -8,9 +10,9 @@
   "modules-left": [
     "hyprland/submap",
     "hyprland/workspaces",
-    "custom/cava",
     "mpris",
-    "backlight"
+    "backlight",
+    "tray"
   ],
 
   "modules-center": [
@@ -19,7 +21,6 @@
 
   "modules-right": [
     "idle_inhibitor",
-    "tray",
     "bluetooth",
     "pulseaudio",
     "network",
@@ -40,11 +41,6 @@
      "format": "{icon}",
      "on-scroll-up": "hyprctl dispatch workspace e+1",
      "on-scroll-down": "hyprctl dispatch workspace e-1"
-  },
-
-  "custom/cava": {
-    "exec": "~/.config/waybar/scripts/cava.sh",
-    "format": "{}",
   },
 
   "mpris": {

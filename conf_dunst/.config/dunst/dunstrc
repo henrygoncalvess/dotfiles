@@ -15,7 +15,7 @@ sort = true
 layer = top
 
 # FRAME
-width = (150, 300)
+width = (300, 500)
 height = 300
 padding = 5
 text_icon_padding = 0
