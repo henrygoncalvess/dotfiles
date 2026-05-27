@@ -11,24 +11,18 @@ else
 fi
 
 DOWNLOAD_DIR="$HOME/Downloads"
-THEMES_DIR="$HOME/.themes"
-ICONS_DIR="$HOME/.icons"
 CONFIG_DIR="$HOME/.config"
 
-PROFILE_DIR=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n 1)
+PROFILE_DIR=$(find "$HOME/.mozilla/firefox" "$HOME/.config/mozilla/firefox" -maxdepth 1 -type d \( -name "*.default*" -o -name "*.Profile*" \) 2>/dev/null | head -n 1 || true)
 
 # lxpolkit, lxsession or lxsession-default-apps
-PROGRAMS=(curl ca-certificates git python3 python3-pip fastfetch python3-venv wget make cmake ripgrep stow wl-clipboard cliphist grim wvkbd slurp mpd mpc tar waybar cava brightnessctl network-manager cheese dunst libnotify-bin gparted pkg-config unzip ntfs-3g exfatprogs libqalculate-dev pavucontrol thunar lxpolkit xdg-desktop-portal software-properties-common xdg-desktop-portal-gtk flatpak zsh fzf blueman v4l-utils bluez dkms v4l2loopback-dkms dkms v4l2loopback-dkms  libbluetooth-dev gawk libdisplay-info-dev libgulkan-dev libliftoff-dev libsystemd-dev libtomlplusplus-dev libvulkan-volk-dev libxcb-cursor-dev libxcb-util-dev libxxhash-dev nm-tray python3-pyquery scdoc vulkan-validationlayers inxi imagemagick playerctl wlogout yad hypridle hyprlock btop loupe mpv mpv-mpris nvtop pamixer qalculate-gtk bat perl golang gcc clang libdrm-dev libgbm-dev meson build-essential flex bison ninja-build cmake-extras gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxkbcommon-x11-dev libxkbregistry-dev libxkbcommon-dev libudev-dev libseat-dev seatd libegl-dev glslang-tools libinput-bin libinput-dev libavutil-dev libavcodec-dev libavformat-dev libxcb-ewmh-dev libxcb-present-dev libxcb-xinput-dev libwayland-dev wayland-protocols libstdc++6 qt6-base-dev qt6-wayland-dev )
-
-DYNAMIC_PROG=(libfuse2 libgtk-3-dev libxml2-dev libpixman-1-dev libxcb-dri3-dev libgles2 libegl1-mesa-dev libxcb-composite0-dev libxcb-ewmh2 libspa-0.2 libxcb-icccm4-dev libxcb-render-util0-dev libxcb-res0-dev libtomlplusplus3t64 libre2-dev libdisplay-info1 libpipewire-0.3-dev)
-
-PROGRAMS+=("${DYNAMIC_PROG[@]}")
+PROGRAMS=(curl ca-certificates git python3 python3-pip fastfetch python3-venv wget make cmake ripgrep stow wl-clipboard cliphist grim wvkbd slurp mpd mpc tar waybar cava brightnessctl network-manager dunst libnotify-bin gparted pkg-config unzip ntfs-3g exfatprogs libqalculate-dev pavucontrol thunar lxpolkit xdg-desktop-portal software-properties-common xdg-desktop-portal-gtk flatpak zsh fzf blueman v4l-utils bluez dkms v4l2loopback-dkms dkms v4l2loopback-dkms  libbluetooth-dev gawk libdisplay-info-dev libgulkan-dev libliftoff-dev libsystemd-dev libtomlplusplus-dev libvulkan-volk-dev libxcb-cursor-dev libxcb-util-dev libxxhash-dev nm-tray python3-pyquery scdoc vulkan-validationlayers inxi imagemagick playerctl wlogout yad hypridle hyprlock btop loupe mpv mpv-mpris nvtop pamixer qalculate-gtk bat perl golang gcc clang libdrm-dev libgbm-dev meson build-essential flex bison ninja-build cmake-extras gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxkbcommon-x11-dev libxkbregistry-dev libxkbcommon-dev libudev-dev libseat-dev seatd libegl-dev glslang-tools libinput-bin libinput-dev libavutil-dev libavcodec-dev libavformat-dev libxcb-ewmh-dev libxcb-present-dev libxcb-xinput-dev libwayland-dev wayland-protocols libstdc++6 qt6-base-dev qt6-wayland-dev )
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 
 GIT_CONFIG_FILE="$HOME/.gitconfig"
 
-mkdir -p "$DOWNLOAD_DIR" "$ICONS_DIR" "$THEMES_DIR" "$CONFIG_DIR" "$PROFILE_DIR"
+mkdir -p "$DOWNLOAD_DIR" "$CONFIG_DIR"
 
 on_error() {
   local code=$?
@@ -331,8 +325,6 @@ install_node() {
 
 install_cargo() {
   local LOG="[Cargo-download]"
-  
-  \. "$HOME/.cargo/env"
 
   if check_command cargo "$LOG"; then
     return 0
@@ -531,8 +523,8 @@ fi
 echo -e "\n\033[1;33m[add-apt-repository ppa:zhangsongcui3371/fastfetch]\033[0m"
 add_repo_if_missing "ppa:zhangsongcui3371/fastfetch"
 
-echo -e "\n\033[1;33m[add-apt-repository ppa:neovim-ppa/stable]\033[0m"
-add_repo_if_missing "ppa:neovim-ppa/stable"
+#echo -e "\n\033[1;33m[add-apt-repository ppa:neovim-ppa/stable]\033[0m"
+#add_repo_if_missing "ppa:neovim-ppa/stable"
 
 echo -e "\n\033[1;33m[add-apt-repository ppa:cppiber/hyprland]\033[0m"
 add_repo_if_missing "ppa:cppiber/hyprland"
@@ -654,22 +646,22 @@ install_nvm
 
 install_node
 
-install_cargo
+#install_cargo
 
 install_packages
 
-install_nvim
+#install_nvim
 
-install_lunarvim
+#install_lunarvim
 
 install_kitty
 
-install_rofi_wayland
+#install_rofi_wayland
 
 install_docker
 
 install_hyprland
 
-install_jupyter
+#install_jupyter
 
 exit 0
