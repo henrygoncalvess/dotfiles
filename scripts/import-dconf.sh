@@ -43,6 +43,7 @@ CONF_TARGETS=(
   "$HOME/.bashrc"
   "$HOME/.zshrc"
   "$HOME/.gitconfig"
+  "$HOME/frigate"
 )
 
 echo -e "\033[1;33mRemovendo arquivos existentes para evitar conflitos\033[0m\n"
@@ -57,7 +58,7 @@ echo -e "\n\033[1;33mAplicando Stow\033[0m\n"
 cd "$HOME/.dotfiles" || exit 1
 
 # Aplica as configurações no diretório Home (que já existe)
-stow -v -t "$HOME" conf_wall conf_posh conf_code conf_git conf_lvim conf_shell conf_kitty conf_waybar conf_rofi conf_pip conf_hypr conf_dunst
+stow -v -t "$HOME" frigate conf_wall conf_posh conf_code conf_git conf_lvim conf_shell conf_kitty conf_waybar conf_rofi conf_pip conf_hypr conf_dunst
 
 # CRIA o diretório de destino do Firefox antes de rodar o Stow
 echo "Garantindo que o diretório de destino do Firefox exista..."
