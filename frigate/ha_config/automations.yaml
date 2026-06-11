@@ -1,0 +1,53 @@
+- id: '1781148910797'
+  alias: notific-henry
+  description: ''
+  use_blueprint:
+    path: SgtBatten/Stable.yaml
+    input:
+      camera:
+      - camera.cam_1
+      notify_device: a81d212b2f8ac522f70e642fe31bc224
+      title: Câmera de cima!
+      message: "{% set traducoes = {\n  'person': 'Pessoa', \n  'dog': 'Cachorro',
+        \n  'car': 'Carro', \n  'cat': 'Gato',\n  'motorcycle': 'Moto',\n} %}  {%
+        set ns = namespace(traduzidos=[]) %} {% for item in (label | string | lower).split(',')
+        %}\n  {% set i = item | trim %}\n  {% set ns.traduzidos = ns.traduzidos +
+        [traducoes.get(i, i) | title] %}\n{% endfor %} {{ ns.traduzidos | join(' e
+        ') }} detectado(s) às {{ now().strftime('%Hh%M') }}\n"
+      critical: 'false'
+      attachment_2: '{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif'
+      final_update: false
+      timeout: 1
+      button_1: 30min OFF
+      url_1: silence-{{ this.entity_id }}
+      button_2: Abrir App
+      url_2: /lovelace
+      button_3: Ver Vídeo
+      url_3: '{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/{{camera}}/master.m3u8'
+      custom_action_auto: []
+      attachment: '{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/thumbnail.jpg'
+      icon: mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
+        else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
+      ios_live_view: camera.cam_1
+      initial_delay: 2
+      final_delay: 0
+      tap_action: '{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/{{camera}}/master.m3u8'
+      icon_1: sfsymbols:video
+      icon_2: sfsymbols:video
+      icon_3: sfsymbols:house
+      silence_timer: 30
+      video: '{{base_url}}/api/frigate{{client_id}}/notifications/{{review_id}}/review_preview.gif?format=ts'
+      custom_action_manual: []
+- id: '1781216244208'
+  alias: Atualizar Resumo IA no Painel
+  description: ''
+  triggers:
+  - topic: frigate/events
+    trigger: mqtt
+  actions:
+  - target:
+      entity_id: input_text.ultimo_alerta_da_ia
+    data:
+      value: '{{ trigger.payload_json[''after''][''data''][''summary''] | default(''Sem
+        resumo'') }}'
+    action: input_text.set_value

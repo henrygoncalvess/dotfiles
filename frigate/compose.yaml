@@ -1,0 +1,76 @@
+services:
+  frigate:
+    container_name: frigate
+    # privileged: true | Required to access hardware acceleration and
+    # video cache (only first setup)
+    restart: unless-stopped
+    image: ghcr.io/blakeblackshear/frigate:stable
+    # Crucial for handling 1080p frame buffer allocations without crashes
+    shm_size: "1gb"
+    env_file:
+      - .env
+    # Uncomment the two lines below if you are using an Intel Mini PC
+    # (i3/i5/etc). This enables Intel QuickSync (hardware video decoding)
+    # and reduces CPU load close to 0%.
+    # devices:
+    #   - /dev/dri/renderD128
+    security_opt:
+      - apparmor=unconfined
+      - systempaths=unconfined
+    devices:
+      - /dev/dri
+      - /dev/dma_heap
+      # - /dev/rga
+      # - /dev/mpp_service
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config:/config
+      - ./storage:/media/frigate
+      # Tmpfs maps the temporary video cache directly into your RAM. This
+      # protects your SSD/HDD from destructive 24/7 continuous write cycles.
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000 # ~1GB allocation in RAM
+      - /sys/:/sys/:ro
+    ports:
+      - "8971:8971"
+      - "5000:5000"
+      - "8554:8554"
+      - "8555:8555/tcp"
+      - "8555:8555/udp"
+
+  mqtt:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    restart: unless-stopped
+    # Highly recommended to allow HA to discover local devices without network issues
+    network_mode: host
+    volumes:
+      - ./ha_config:/config
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - mqtt
+
+  # ollama:
+  #   container_name: ollama
+  #   image: ollama/ollama:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434"
+  #   environment:
+  #     - OLLAMA_CONTEXT_LENGTH=4096
+  #     - OLLAMA_NUM_PARALLEL=1
+  #   volumes:
+  #     - ./ollama_data:/root/.ollama

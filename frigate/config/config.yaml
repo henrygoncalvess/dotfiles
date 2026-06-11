@@ -1,0 +1,133 @@
+tls:
+  enabled: true
+
+auth:
+  enabled: true
+  reset_admin_password: false
+
+mqtt:
+  enabled: true # Enabled to send sensors/events to Home Assistant
+  host: mqtt # Connects using Docker's internal network name
+  port: 1883
+
+# genai:
+#   provider: ollama
+#   base_url: http://ollama:11434
+#   model: llava-phi3:3.8b
+
+objects:
+  track:
+    - person
+    - car
+    - motorcycle
+    - dog
+    - cat
+    - bird
+  filters:
+    person:
+      threshold: 0.55
+      min_score: 0.65
+    car:
+      threshold: 0.65
+      min_score: 0.45
+    dog:
+      threshold: 0.30
+      min_score: 0.45
+    cat:
+      threshold: 0.30
+      min_score: 0.45
+    bird:
+      threshold: 0.30
+      min_score: 0.45
+  # genai:
+  #   enabled: true
+  #   prompt: "Responda direto, curto e em português: Tem um cachorro pequeno (tipo pinscher) passando pelo portão aberto em direção à rua ou algo nesse sentido? se não conseguir identificar, responda NÃO."
+
+cameras:
+  cam_1:
+    ffmpeg:
+      # preset-intel-qsv (mini pc) | preset-vaapi (notebook)
+      hwaccel_args: preset-vaapi
+      input_args: preset-rtsp-restream
+      inputs:
+        - path: rtsp://127.0.0.1:8554/cam_1
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/cam_1_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    # PTZ config
+    # onvif:
+    #   host: "{FRIGATE_CAM_HOST}"
+    #   port: 5000
+    #   user: "{FRIGATE_CAM_RTSP_USER}"
+    #   password: "{FRIGATE_CAM_RTSP_PASS}"
+    review:
+      alerts:
+        labels:
+          - person
+          - dog
+          - cat
+          - bird
+      detections:
+        labels:
+          - car
+          - motorcycle
+    detect:
+      enabled: true
+      width: 640
+      height: 360
+      # 5 FPS (mini pc) is the sweet spot for AI object detection; keeps CPU usage very low
+      fps: 5
+    record:
+      enabled: true
+      continuous:
+        days: 0.06
+      alerts:
+        retain:
+          days: 0.06
+          mode: active_objects
+      detections:
+        retain:
+          days: 0.06
+          mode: active_objects
+    zones: {}
+    motion:
+      threshold: 20
+      contour_area: 8
+      improve_contrast: true
+    semantic_search:
+      triggers: {}
+    notifications:
+      enabled: true
+
+# Required for 2-way audio and ultra-low latency WebRTC streaming
+go2rtc:
+  streams:
+    cam_1:
+      - rtsp://{FRIGATE_CAM_RTSP_USER}:{FRIGATE_CAM_RTSP_PASS}@{FRIGATE_CAM_HOST}:554/onvif1#tcp#backchannel=0
+    cam_1_sub:
+      - rtsp://{FRIGATE_CAM_RTSP_USER}:{FRIGATE_CAM_RTSP_PASS}@{FRIGATE_CAM_HOST}:554/onvif2#tcp
+  webrtc:
+    candidates:
+      - "{FRIGATE_MACHINE_IP}:8555"
+      - stun:8555
+
+classification:
+  bird:
+    enabled: true
+  custom: {}
+semantic_search:
+  enabled: true
+  model_size: small
+face_recognition:
+  enabled: true
+  model_size: small
+lpr:
+  enabled: false
+notifications:
+  enabled: true
+  email: test@test.com
+version: 0.17-0
