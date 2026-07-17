@@ -11,5 +11,5 @@ ShellRoot {
 
     Main {}
     // TopBar {}       // Desabilitado — usando Waybar
-    Floating {}
+    // Floating {}     // Desabilitado — os 3 tabModules (quickactions) foram removidos
 }
