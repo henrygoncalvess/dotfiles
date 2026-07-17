@@ -1,0 +1,31 @@
+{
+  "keybinds": [],
+  "monitors": [
+    {
+      "name": "eDP-1",
+      "resW": 1366,
+      "resH": 768,
+      "rate": 60,
+      "x": 0,
+      "y": 156,
+      "scale": 1,
+      "transform": 0
+    },
+    {
+      "name": "HDMI-A-1",
+      "resW": 1920,
+      "resH": 1080,
+      "rate": 60,
+      "x": 1366,
+      "y": 0,
+      "scale": 1,
+      "transform": 0
+    }
+  ],
+  "openGuideAtStartup": true,
+  "topbarHelpIcon": true,
+  "wallpaperDir": "/home/henrygoncalves/wallpapers",
+  "language": "",
+  "kbOptions": "grp:alt_shift_toggle",
+  "workspaceCount": 8
+}
