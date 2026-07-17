@@ -558,17 +558,21 @@ Item {
                             }
 
                             Text {
+                                id: appLabel
                                 Layout.fillWidth: true
                                 text: model.name
-                                font.family: "JetBrains Mono"
+                                font.family: "Hasklug Nerd Font Propo"
                                 font.pixelSize: window.s(14)
                                 font.weight: index === appList.currentIndex ? Font.Bold : Font.Medium
                                 color: index === appList.currentIndex ? window.crust : window.text
                                 elide: Text.ElideRight
                                 verticalAlignment: Text.AlignVCenter
-                                
+
                                 property real textShift: index === appList.currentIndex ? window.s(6) : 0
-                                transform: Translate { x: textShift }
+                                // Translate resolves against its own scope, so the
+                                // property needs the Text's id or it reads undefined
+                                // and the slide never runs.
+                                transform: Translate { x: appLabel.textShift }
                                 
                                 Behavior on textShift { 
                                     NumberAnimation { duration: 500; easing.type: Easing.OutExpo } 
