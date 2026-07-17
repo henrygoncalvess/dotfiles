@@ -17,8 +17,25 @@
 <a name="overview"></a>
 ## 🔍 Visão Geral
 
-Repositório com minhas configurações pessoais para shells, extenções, terminais e outras ferramentas.
-Feito para fazer backup, organizar e replicar em novos ambientes.
+Configurações pessoais do meu ambiente **Hyprland (Wayland)** sobre **Ubuntu 24.04**, versionadas para backup, organização e replicação rápida em novas máquinas.
+
+| Categoria | Ferramenta |
+| --- | --- |
+| Window Manager | [Hyprland](https://hypr.land/) (Wayland) |
+| Barra de status | [Waybar](https://github.com/Alexays/Waybar) |
+| Widgets / painéis | [Quickshell](https://quickshell.org/) (QML) — música, clima, rede, calendário, lock, app launcher |
+| Launcher / menus | [Rofi](https://github.com/davatorium/rofi) (temas [adi1090x](https://github.com/adi1090x/rofi)) |
+| Terminal | [Kitty](https://sw.kovidgoyal.net/kitty/) |
+| Shell / prompt | Zsh + [Oh My Zsh](https://ohmyz.sh/) + [Oh My Posh](https://ohmyposh.dev/) |
+| Notificações | [Dunst](https://github.com/dunst-project/dunst) |
+| Lock / idle | Hyprlock + Hypridle |
+| Wallpaper | [swww](https://github.com/LGFae/swww) + [matugen](https://github.com/InioX/matugen) (troca dinâmica e paleta gerada do wallpaper) |
+| Clipboard | [cliphist](https://github.com/sentriz/cliphist) + wl-clipboard |
+| Screenshot / gravação | grim + slurp / [wf-recorder](https://github.com/ammen99/wf-recorder) |
+| Editores | Neovim, LunarVim, VS Code |
+| Navegador | Firefox (userChrome customizado) |
+| Config. do sistema | GNOME via [dconf](https://wiki.gnome.org/Projects/dconf) |
+| Home lab | [Frigate](https://frigate.video/) NVR + Mosquitto + Home Assistant (Docker) |
 
 <br>
 
@@ -32,10 +49,12 @@ Versionar minhas preferências de desenvolvimento, garantindo consistência e pr
 <a name="prerequisites"></a>
 ### 📦 Pré-Requisitos
 
-- **Linux** (testado em Zorin OS, mas deve funcionar em qualquer distribuição)
+Para **aplicar** os dotfiles você só precisa das ferramentas abaixo — todo o restante do stack (Hyprland, Waybar, Rofi, Kitty, etc.) é instalado automaticamente pelo [`install-softwares-ubuntu.sh`](scripts/install-softwares-ubuntu.sh).
+
+- **Linux** (testado em Ubuntu 24.04 com sessão Wayland, mas deve funcionar em qualquer distribuição)
 - **Git**
 - [**GNU stow**](https://www.gnu.org/software/stow/) - para gerenciar links simbólicos
-- [**Dconf**](https://wiki.gnome.org/Projects/dconf) e/ou [**Dconf Editor**](https://wiki.gnome.org/Apps(2f)DconfEditor.html) -  para armazenar configurações de sistema e aplicativos em um banco de dados binário eficiente
+- [**Dconf**](https://wiki.gnome.org/Projects/dconf) e/ou [**Dconf Editor**](https://wiki.gnome.org/Apps(2f)DconfEditor.html) -  para armazenar configurações de sistema (GNOME) em um banco de dados binário eficiente
 
 <br>
 
@@ -86,7 +105,7 @@ cd ~/.dotfiles
 
 `~/.dotfiles`
 ```bash
-stow -v -t ~ conf_posh/ conf_code/ conf_bash/ conf_git/
+stow -v -t ~ conf_posh/ conf_code/ conf_shell/ conf_git/
 ```
 
 <br>

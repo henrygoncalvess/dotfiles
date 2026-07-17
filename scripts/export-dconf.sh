@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Script para exportar configurações do GNOME (Zorin OS)
+# Script para exportar configurações do GNOME (Ubuntu 24.04)
 # Autor: Henry
 
 prettyPrint(){
