@@ -65,15 +65,21 @@ def get_cliphist():
         item_type = "text"
         display_content = content.strip()
 
-        # Detect images in cliphist output
-        if "[[ binary data" in content:
+        # cliphist marks images as "binary data image/png"; older releases wrapped
+        # it as "[[ binary data 4 KiB png ]]". Only the bracketed form was checked,
+        # so every image fell through as text and never got a thumbnail.
+        if content.startswith("binary data") or "[[ binary data" in content:
             item_type = "image"
             img_path = os.path.join(cache_dir, f"{iid}.png")
             
             # CACHING: Only decode the specific item if it doesn't already exist
             if not os.path.exists(img_path):
                 with open(img_path, "wb") as f:
-                    subprocess.run(["cliphist", "decode", iid], stdout=f)
+                    # cliphist reads the entry off stdin and wants it prefixed
+                    # with "<id>\t"; passing the id as an argument only gets
+                    # "input not prefixed with id" written into the file.
+                    subprocess.run(["cliphist", "decode"],
+                                   input=f"{iid}\t".encode(), stdout=f)
             display_content = img_path
 
         items.append({
