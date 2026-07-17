@@ -23,8 +23,8 @@ Item {
     property color peach: "#298DFF" // replaced warm color
     property color green: "#50fa7b"
     property color red: "#ff5555"
-    property color mauve: "#9A47FF"
-    property color pink: "#9A47FF" // replaced warm color
+    property color mauve: "#298DFF" // replaced purple accent
+    property color pink: "#298DFF" // replaced purple accent
     property color yellow: "#50fa7b" // replaced warm color
     property color maroon: "#ff5555" // replaced warm color
     property color teal: "#66daff"
