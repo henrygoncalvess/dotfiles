@@ -1,4 +1,10 @@
 .env
+*.tmp
+conf_hypr/.config/hypr/settings.json.lock
 
 conf_wall/wallpapers/desktop/wEFJeXVNJS8VKo2/S8mhSD5aTWgGWw5/hbIUjbKJjbB23qq7/L4imAxD6I1p38Gp/**
 conf_lvim/.config/lvim/session
+
+# Tabela de 40 MB que veio da config upstream do quickshell. Nenhum script usa:
+# o weather.sh lê o OPENWEATHER_CITY_ID direto do calendar/.env
+conf_quickshell/.config/quickshell/calendar/city.list.json
