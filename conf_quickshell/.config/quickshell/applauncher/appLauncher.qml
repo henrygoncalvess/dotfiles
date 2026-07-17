@@ -85,6 +85,34 @@ Item {
         onTriggered: window.isKeyboardNav = false
     }
 
+    // Subsequence match: the query characters must show up in order, but not
+    // necessarily next to each other, so "fx" still finds "Firefox".
+    // Returns -1 when there is no match; higher is a better hit.
+    function fuzzyScore(text, q) {
+        let t = text.toLowerCase();
+        let score = 0;
+        let from = 0;
+        let prev = -2;
+
+        for (let qi = 0; qi < q.length; qi++) {
+            let idx = t.indexOf(q[qi], from);
+            if (idx === -1) return -1;
+
+            // runs of adjacent characters are the strongest signal
+            if (idx === prev + 1) score += 10;
+            // so is landing on a word boundary
+            if (idx === 0 || t[idx - 1] === " " || t[idx - 1] === "-") score += 8;
+            // the further we had to skip ahead, the weaker the hit
+            score -= Math.min(idx - from, 10);
+
+            prev = idx;
+            from = idx + 1;
+        }
+
+        // on ties, prefer the shorter name
+        return score - Math.floor(t.length / 20);
+    }
+
     // --- SMART DIFFING FILTER ---
     function filterApps(query) {
         // Disable morphing behavior so the highlight box sticks to the flying item
@@ -94,13 +122,20 @@ Item {
         appList.currentIndex = -1;
         appList.positionViewAtBeginning();
 
-        let q = query.toLowerCase();
+        let q = query.toLowerCase().trim();
         let filtered = [];
-        
-        for (let i = 0; i < allApps.length; i++) {
-            if (allApps[i].name.toLowerCase().includes(q)) {
-                filtered.push(allApps[i]);
+
+        if (!q) {
+            filtered = allApps.slice();
+        } else {
+            let scored = [];
+            for (let i = 0; i < allApps.length; i++) {
+                let sc = fuzzyScore(allApps[i].name, q);
+                if (sc > -1) scored.push({ app: allApps[i], score: sc, idx: i });
             }
+            // best score first, original order breaks ties
+            scored.sort(function(a, b) { return b.score - a.score || a.idx - b.idx; });
+            for (let i = 0; i < scored.length; i++) filtered.push(scored[i].app);
         }
 
         for (let i = appModel.count - 1; i >= 0; i--) {
