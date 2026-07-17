@@ -410,6 +410,56 @@ install_kitty() {
   pretty_log -f "$LOG" "Instalado com sucesso" success
 }
 
+install_quickshell() {
+  local LOG="[Quickshell-download]"
+
+  # O Ubuntu 24.04 (noble) traz Qt 6.4, antigo demais para o Quickshell, que
+  # exige Qt >= 6.6 e é buildado contra a versão exata do Qt. Por isso não há
+  # pacote apt viável aqui — instalamos via Nix, que traz o próprio Qt na
+  # closure, sem tocar no Qt do sistema.
+  if ! command -v nix &> /dev/null; then
+    pretty_log -f "$LOG" "Instalando Nix (pré-requisito do Quickshell)" info
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
+      sh -s -- install --no-confirm
+
+    # Carrega o nix no shell atual (flakes já vêm habilitados no instalador)
+    if [[ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
+      \. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+    fi
+  fi
+
+  if command -v qs &> /dev/null; then
+    pretty_log -f "$LOG" "Já instalado" success
+  else
+    pretty_log -f "$LOG" "Instalando Quickshell via Nix flake" info
+    # Qt vem pronto do cache.nixos.org; só o quickshell compila (alguns minutos).
+    nix profile install github:quickshell-mirror/quickshell
+    pretty_log -f "$LOG" "Instalado com sucesso" success
+  fi
+
+  # Binários do Nix não enxergam o driver OpenGL do Ubuntu, por isso o
+  # quickshell é lançado via `nixGLIntel` (ver exec-once no hyprland.conf).
+  if command -v nixGLIntel &> /dev/null; then
+    pretty_log -f "[nixGL-download]" "Já instalado" success
+  else
+    pretty_log -f "[nixGL-download]" "Instalando nixGL (OpenGL para binários Nix)" info
+    nix profile install --impure github:nix-community/nixGL#nixGLIntel
+    pretty_log -f "[nixGL-download]" "Instalado com sucesso" success
+  fi
+
+  # matugen gera a paleta dinâmica a partir do wallpaper (MatugenColors.qml).
+  # Sem ele, o wallpaper/matugen_reload.sh falha em silêncio (`|| true`).
+  if command -v matugen &> /dev/null; then
+    pretty_log -f "[matugen-download]" "Já instalado" success
+  else
+    pretty_log -f "[matugen-download]" "Instalando matugen (cores dinâmicas)" info
+    nix profile install github:InioX/matugen
+    pretty_log -f "[matugen-download]" "Instalado com sucesso" success
+  fi
+
+  pretty_log -f "$LOG" "Abra um novo terminal para o 'qs' entrar no PATH" success
+}
+
 install_rofi_wayland() {
     local LOG="[Rofi-Wayland-download]"
     local BUILD_DIR="$DOWNLOAD_DIR/rofi"
@@ -655,6 +705,8 @@ install_packages
 #install_lunarvim
 
 install_kitty
+
+install_quickshell
 
 #install_rofi_wayland
 
