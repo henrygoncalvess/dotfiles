@@ -1,208 +1,135 @@
 {
-  "ipc": true,
-  "mode": "hide",
-  "reload_style_on_change": true,
-  "layer": "top",
-  "position": "top",
-  "height": 1,
-  "spacing": 1,
-
-  "modules-left": [
-    "hyprland/submap",
-    "hyprland/workspaces",
-    "mpris",
-    "backlight",
-    "tray"
-  ],
-
-  "modules-center": [
-    "hyprland/window"
-  ],
-
-  "modules-right": [
-    "idle_inhibitor",
-    "bluetooth",
-    "pulseaudio",
-    "network",
-    "clock",
-    "battery",
-    "battery#bat2",
-    "custom/multi",
-    "custom/wallpapers"
-  ],
-
-  "hyprland/submap": {
-    "format": "{}",
-    "max-length": 8,
-    "tooltip": false
-  },
-  
-  "hyprland/workspaces": {
-     "format": "{icon}",
-     "on-scroll-up": "hyprctl dispatch workspace e+1",
-     "on-scroll-down": "hyprctl dispatch workspace e-1"
-  },
-
-  "mpris": {
-    "interval": 1,
-    "format": "{status_icon} <i>[{position}]{title}</i>",
-    "format-paused": "{status_icon} <i>[{position}]{title}</i>",
-    "max-length": 35,
-    "status-icons": {
-      "playing": "",
-      "paused": "",
-      "stopped": ""
+    "ipc": true,
+    "mode": "hide",
+    "reload_style_on_change": true,
+    "layer": "top",
+    "position": "top",
+    "height": 1,
+    "spacing": 1,
+    "modules-left": [
+        "hyprland/submap",
+        "hyprland/workspaces",
+        "mpris",
+        "tray"
+    ],
+    "modules-center": [
+        "hyprland/window"
+    ],
+    "modules-right": [
+        "idle_inhibitor",
+        "pulseaudio",
+        "network",
+        "clock",
+        "custom/wallpapers",
+        "custom/poweroff",
+        "custom/monitors"
+    ],
+    "hyprland/submap": {
+        "format": "{}",
+        "max-length": 8,
+        "tooltip": false
     },
-  },
-
-  "hyprland/window": {
-    "format": "{}",
-    "max-length": 90,
-    "rewrite": {
-        "(.*) — Mozilla Firefox": "$1",
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "on-scroll-up": "hyprctl dispatch workspace e+1",
+        "on-scroll-down": "hyprctl dispatch workspace e-1"
     },
-    "separate-outputs": true
-  },
-
-  "backlight": {
-    "format": "{icon} {percent}%",
-    "format-icons": [ 
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
-    ]
-  },
-
-  "idle_inhibitor": {
-    "format": "{icon}",
-    "format-icons": {
-      "activated": "",
-      "deactivated": ""
+    "mpris": {
+        "interval": 1,
+        "format": "{status_icon} <i>[{position}]{title}</i>",
+        "format-paused": "{status_icon} <i>[{position}]{title}</i>",
+        "max-length": 35,
+        "on-click": "~/.config/waybar/scripts/quickshell.sh music",
+        "on-click-right": "playerctl play-pause",
+        "status-icons": {
+            "playing": "",
+            "paused": "",
+            "stopped": ""
+        }
+    },
+    "hyprland/window": {
+        "format": "{}",
+        "max-length": 90,
+        "rewrite": {
+            "(.*) — Mozilla Firefox": "$1"
+        },
+        "separate-outputs": true
+    },
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        }
+    },
+    "tray": {
+        "icon-size": 19,
+        "spacing": 5,
+        "icons": {}
+    },
+    "pulseaudio": {
+        "scroll-step": 10,
+        "on-scroll-up": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 10%+",
+        "on-scroll-down": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 10%-",
+        "format": "{icon} {volume}% {format_source}",
+        "format-bluetooth": " {icon} {volume}% {format_source}",
+        "format-bluetooth-muted": "  {icon} {format_source}",
+        "format-muted": " {format_source}",
+        "format-source": " {volume}%",
+        "format-source-muted": "",
+        "format-icons": {
+            "default": [
+                "",
+                "",
+                ""
+            ]
+        },
+        "on-click": "~/.config/waybar/scripts/quickshell.sh volume",
+        "on-click-right": "pavucontrol"
+    },
+    "network": {
+        "format": "⚠ Disabled",
+        "format-wifi": " {essid}",
+        "format-ethernet": "  {ifname} ({ipaddr}/{cidr}) Wired",
+        "format-disconnected": "⚠ Disconnected",
+        "on-click": "~/.config/waybar/scripts/quickshell.sh network",
+        "tooltip": false
+    },
+    "clock": {
+        "on-click": "~/.config/waybar/scripts/quickshell.sh calendar",
+        "interval": 1,
+        "format": "{:%I:%M:%S%p / %d %A %B}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "year",
+            "mode-mon-col": 3,
+            "weeks-pos": "right",
+            "on-scroll": 1,
+            "format": {
+                "months": "<span color='#ffead3'><b>{}</b></span>",
+                "days": "<span color='#ecc6d9'><b>{}</b></span>",
+                "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
+                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+            }
+        },
+        "timezones": [
+            "America/Sao_Paulo"
+        ]
+    },
+    "custom/wallpapers": {
+        "on-click": "~/.config/waybar/scripts/quickshell.sh wallpaper",
+        "format": "",
+        "tooltip": false
+    },
+    "custom/poweroff": {
+        "on-click": "~/.config/waybar/scripts/quickshell.sh battery",
+        "format": "",
+        "tooltip": false
+    },
+    "custom/monitors": {
+        "on-click": "~/.config/waybar/scripts/quickshell.sh monitors",
+        "format": "󰍹",
+        "tooltip": false
     }
-  },
-
-  "tray": {
-    "icon-size": 19,
-    "spacing": 5,
-    "icons": {
-    }
-  },
-
-  "bluetooth": {
-    "max-length": 15,
-    "format-on": "󰂯",
-    "format-off": "󰂲",
-    "format-connected": " {num_connections} {device_alias}",
-    "format-connected-battery": " {num_connections} {device_battery_percentage}% {device_alias}",
-    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
-    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
-    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
-    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
-    "on-click": "~/.config/waybar/scripts/bluetooth-toggle.sh",
-    "interval": 1
-  },
-
-  "pulseaudio": {
-    "scroll-step": 10,
-    "on-scroll-up": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 10%+",
-    "on-scroll-down": "wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 10%-",
-    "format": "{icon} {volume}% {format_source}",
-    "format-bluetooth": " {icon} {volume}% {format_source}",
-    "format-bluetooth-muted": "  {icon} {format_source}",
-    "format-muted": " {format_source}",
-    "format-source": " {volume}%",
-    "format-source-muted": "",
-    "format-icons": {
-      "default": [
-        "",
-        "",
-        ""
-      ]
-    },
-    "on-click": "pavucontrol",
-    "on-click-right": "foot -a pw-top pw-top"
-  },
-
-  "network": {
-    "format": "⚠ Disabled",
-    "format-wifi": " {essid}",
-    "format-ethernet": "  {ifname} ({ipaddr}/{cidr}) Wired",
-    "format-disconnected": "⚠ Disconnected",
-    "on-click": "~/.config/rofi/scripts/wifi/wifi.sh",
-    "tooltip": false
-  },
-
-  "battery": {
-    "states": {
-      "warning": 30,
-      "critical": 15
-    },
-    "format": "{icon} {capacity}%",
-    "format-charging": " {capacity}%",
-    "format-plugged": " {capacity}%",
-    "format-alt": "{icon} {time}",
-    "format-icons": [
-      "",
-      "",
-      "",
-      "",
-      ""
-    ]
-  },
-
-  "battery#bat2": {
-    "bat": "BAT2"
-  },
-
-  "clock": {
-    "interval": 1,
-    "format": "{:%I:%M%p}",
-    "format-alt": "{:%I:%M:%S%p / %d %A %B}",
-    "tooltip-format": "<tt><small>{calendar}</small></tt>",
-    "calendar": {
-      "mode"          : "year",
-      "mode-mon-col"  : 3,
-      "weeks-pos"     : "right",
-      "on-scroll"     : 1,
-      "format": {
-        "months":     "<span color='#ffead3'><b>{}</b></span>",
-        "days":       "<span color='#ecc6d9'><b>{}</b></span>",
-        "weeks":      "<span color='#99ffdd'><b>W{}</b></span>",
-        "weekdays":   "<span color='#ffcc66'><b>{}</b></span>",
-        "today":      "<span color='#ff6699'><b><u>{}</u></b></span>"
-      }
-    },
-    "actions":  {
-      "on-click-right": "mode",
-      "on-scroll-up": "tz_up",
-      "on-scroll-down": "tz_down",
-      "on-scroll-up": "shift_up",
-      "on-scroll-down": "shift_down"
-    },
-    "timezones": [
-      "America/Sao_Paulo"
-    ]
-  },
-
-  "custom/multi": {
-    "on-click": "~/.config/rofi/launchers/type-1/launcher.sh",
-    "on-click-middle": "hyprctl dispatch killactive",
-    "on-click-right": "pkill wvkbd || wvkbd-mobintl -L 220 --bg 0E1319A9 --alpha 200",
-    "format": "",
-    "tooltip": false
-  },
-
-  "custom/wallpapers": {
-    "exec": "~/.config/waybar/scripts/hide-module.sh",
-    "on-triple-click-middle": "~/.config/hypr/scripts/toggle-wallpaper-hypr.sh",
-    "format": "{}",
-    "interval": 7,
-    "tooltip": false
-  }
 }
