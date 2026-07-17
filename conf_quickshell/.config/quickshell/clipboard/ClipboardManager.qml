@@ -76,7 +76,8 @@ Item {
         window.fullTextPreview = "";
         let item = clipModel.get(clipList.currentIndex);
         if (item && item.type === "text") {
-            fullTextFetcher.command = ["cliphist", "decode", item.id.toString()];
+            // cliphist takes the entry on stdin, prefixed with "<id>\t"
+            fullTextFetcher.command = ["bash", "-c", "printf '%s\\t' " + item.id + " | cliphist decode"];
             fullTextFetcher.running = true;
         }
     }
@@ -175,7 +176,7 @@ Item {
     }
 
     function copyToClipboard(id) {
-        Quickshell.execDetached(["bash", "-c", "cliphist decode " + id + " | wl-copy"]);
+        Quickshell.execDetached(["bash", "-c", "printf '%s\\t' " + id + " | cliphist decode | wl-copy"]);
         Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/qs_manager.sh", "close"]);
     }
 
@@ -253,7 +254,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
 
         radius: window.s(16)
-        color: Qt.rgba(window.base.r, window.base.g, window.base.b, 1.0)
+        color: window.base
         border.color: window.surface1
         border.width: 1
         clip: true
