@@ -35,18 +35,23 @@ def get_cliphist():
     os.makedirs(cache_dir, exist_ok=True)
     
     try:
-        # Fetch the entire list quickly
-        result = subprocess.run(["cliphist", "list"], capture_output=True, text=True)
-        all_lines = result.stdout.strip().split('\n')
-        
+        # Fetch the entire list quickly.
+        # cliphist truncates each preview at a byte boundary, which splits
+        # multi-byte characters in half, so its output is not valid UTF-8.
+        # Decoding strictly (text=True) raises UnicodeDecodeError on the first
+        # accented entry and the whole list comes back empty.
+        result = subprocess.run(["cliphist", "list"], capture_output=True)
+        all_lines = result.stdout.decode("utf-8", errors="replace").strip().split('\n')
+
         # Slice only the requested chunk
         lines = all_lines[offset:offset+limit]
-        
+
         # Move cleanup to a background thread so it doesn't block the UI from receiving data
         if offset == 0:
             threading.Thread(target=cleanup_cache, args=(all_lines, cache_dir), daemon=True).start()
 
     except Exception as e:
+        print(f"clip_fetcher: {e}", file=sys.stderr)
         print("[]")
         return
 
