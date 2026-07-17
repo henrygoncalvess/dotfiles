@@ -76,12 +76,14 @@ function getPopupLayout(mw, mh, userScale) {
     }
     
     let scale = getScale(mw, mh, userScale);
+    // Geometry follows the dunst setup these popups replaced: top-right with a
+    // 10px offset, tight 2px-ish gaps and a 10px corner radius.
     return {
-        w: s(350, scale),
-        marginTop: s(60, scale),
-        marginRight: s(20, scale),
-        spacing: s(12, scale),
-        radius: s(14, scale),
+        w: s(380, scale),
+        marginTop: s(10, scale),
+        marginRight: s(10, scale),
+        spacing: s(4, scale),
+        radius: s(10, scale),
         padding: s(12, scale)
     };
 }

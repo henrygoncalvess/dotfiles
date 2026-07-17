@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import Quickshell.Services.Notifications
 import "../"
 import "../WindowRegistry.js" as Registry
 
@@ -186,8 +187,12 @@ PanelWindow {
                     anchors.fill: parent
                     radius: popupWindow.layoutConfig.radius
                     color: _theme.base
-                    border.color: _theme.surface1
-                    border.width: 1
+                    // Mirrors the dunst frame these popups replaced: a 2px blue
+                    // border, red when the notification is critical.
+                    border.color: model.urgency === NotificationUrgency.Critical
+                                  ? _theme.red
+                                  : _theme.blue
+                    border.width: 2
                     clip: true
 
                     property color blob1Color: contentWrapper.blobPalette1[index % 5]

@@ -228,6 +228,7 @@ PanelWindow {
                 "body":        n.body     !== "" ? n.body     : "",
                 "iconPath":    n.appIcon  !== "" ? n.appIcon  : "",
                 "actionsJson": JSON.stringify(extractedActions),
+                "urgency":     n.urgency,
                 "uid":         currentUid,
                 "notif":       n
             };
