@@ -13,7 +13,10 @@ Item {
     // =========================================================================
     readonly property string homeDir: Quickshell.env("HOME")
     readonly property string hyprDir: homeDir + "/.config/hypr"
-    readonly property string qsScriptsDir: hyprDir + "/scripts/quickshell"
+    // The config lives in ~/.config/quickshell; upstream kept it nested under
+    // ~/.config/hypr/scripts/quickshell, which resolved to a path that does not
+    // exist here (breaking weatherEnvPath and the TopBar reload below).
+    readonly property string qsScriptsDir: homeDir + "/.config/quickshell"
     readonly property string cacheDir: paths.cacheDir
     
     readonly property string settingsJsonPath: hyprDir + "/settings.json"
