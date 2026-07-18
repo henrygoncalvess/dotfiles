@@ -11,7 +11,6 @@ CONF_TARGETS=(
   "$PROFILE_DIR/chrome"
   "$HOME/.config/Code"
   "$HOME/.config/kitty"
-  "$HOME/.config/lvim"
   "$HOME/.config/nvim"
   "$HOME/.config/oh_my_posh_config"
   "$HOME/.config/waybar"
@@ -19,11 +18,13 @@ CONF_TARGETS=(
   "$HOME/.config/pip"
   "$HOME/.config/hypr"
   "$HOME/.config/quickshell"
-  "$HOME/.config/dunst"
+  "$HOME/.config/Brain_Shell"
+  "$HOME/.local/share/quickshell-lockscreen"
   "$HOME/.bashrc"
   "$HOME/.zshrc"
   "$HOME/.gitconfig"
   "$HOME/frigate"
+  "$HOME/.face"
 )
 
 echo -e "\033[1;33mRemovendo arquivos existentes para evitar conflitos\033[0m\n"
@@ -38,7 +39,7 @@ echo -e "\n\033[1;33mAplicando Stow\033[0m\n"
 cd "$HOME/.dotfiles" || exit 1
 
 # Aplica as configurações no diretório Home (que já existe)
-stow -v -t "$HOME" frigate conf_wall conf_posh conf_code conf_git conf_lvim conf_nvim conf_shell conf_kitty conf_waybar conf_rofi conf_pip conf_hypr conf_quickshell conf_dunst
+stow -v -t "$HOME" frigate conf_home conf_wall conf_posh conf_code conf_git conf_nvim conf_shell conf_kitty conf_waybar conf_rofi conf_pip conf_hypr conf_quickshell conf_qylock
 
 # CRIA o diretório de destino do Firefox antes de rodar o Stow
 echo "Garantindo que o diretório de destino do Firefox exista..."
