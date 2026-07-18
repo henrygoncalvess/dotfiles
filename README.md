@@ -17,22 +17,20 @@
 <a name="overview"></a>
 ## 🔍 Visão Geral
 
-Configurações pessoais do meu ambiente **Hyprland (Wayland)** sobre **Ubuntu 24.04**, versionadas para backup, organização e replicação rápida em novas máquinas.
+Configurações pessoais do meu ambiente **Hyprland (Wayland)**, versionadas para backup, organização e replicação rápida em novas máquinas. Testado em **Ubuntu 24.04**; em migração para **Arch (Omarchy)** — há um script de instalação para cada distro.
 
 | Categoria | Ferramenta |
 | --- | --- |
 | Window Manager | [Hyprland](https://hypr.land/) (Wayland) |
-| Barra de status | [Waybar](https://github.com/Alexays/Waybar) |
-| Widgets / painéis | [Quickshell](https://quickshell.org/) (QML) — música, clima, rede, calendário, lock, app launcher |
-| Launcher / menus | [Rofi](https://github.com/davatorium/rofi) (temas [adi1090x](https://github.com/adi1090x/rofi)) |
+| Shell / barra / widgets | [Quickshell](https://quickshell.org/) (QML) — **Brain_Shell**: barra, app launcher, clipboard, notificações, música, rede, calendário |
+| Launcher / menus extras | [Rofi](https://github.com/davatorium/rofi) (temas [adi1090x](https://github.com/adi1090x/rofi)) — goanime, powermenu |
 | Terminal | [Kitty](https://sw.kovidgoyal.net/kitty/) |
 | Shell / prompt | Zsh + [Oh My Zsh](https://ohmyz.sh/) + [Oh My Posh](https://ohmyposh.dev/) |
-| Notificações | [Dunst](https://github.com/dunst-project/dunst) |
-| Lock / idle | Hyprlock + Hypridle |
+| Lock / idle | Hyprlock + Hypridle / **qylock** — temas de lockscreen em Quickshell |
 | Wallpaper | [swww](https://github.com/LGFae/swww) + [matugen](https://github.com/InioX/matugen) (troca dinâmica e paleta gerada do wallpaper) |
 | Clipboard | [cliphist](https://github.com/sentriz/cliphist) + wl-clipboard |
 | Screenshot / gravação | grim + slurp / [wf-recorder](https://github.com/ammen99/wf-recorder) |
-| Editores | Neovim, LunarVim, VS Code |
+| Editores | Neovim, VS Code |
 | Navegador | Firefox (userChrome customizado) |
 | Config. do sistema | GNOME via [dconf](https://wiki.gnome.org/Projects/dconf) |
 | Home lab | [Frigate](https://frigate.video/) NVR + Mosquitto + Home Assistant (Docker) |
@@ -49,7 +47,7 @@ Versionar minhas preferências de desenvolvimento, garantindo consistência e pr
 <a name="prerequisites"></a>
 ### 📦 Pré-Requisitos
 
-Para **aplicar** os dotfiles você só precisa das ferramentas abaixo — todo o restante do stack (Hyprland, Waybar, Rofi, Kitty, etc.) é instalado automaticamente pelo [`install-softwares-ubuntu.sh`](scripts/install-softwares-ubuntu.sh).
+Para **aplicar** os dotfiles você só precisa das ferramentas abaixo — todo o restante do stack (Quickshell, Rofi, Kitty, etc.) é instalado automaticamente pelo script de instalação da sua distro: [`install-softwares-ubuntu.sh`](scripts/install-softwares-ubuntu.sh) ou [`install-softwares-arch.sh`](scripts/install-softwares-arch.sh).
 
 - **Linux** (testado em Ubuntu 24.04 com sessão Wayland, mas deve funcionar em qualquer distribuição)
 - **Git**
@@ -164,16 +162,25 @@ dconf reset -f /org/gnome/path/example
 <a name="use3"></a>
 ### 📜 Uso dos scripts e Import\Export das Configurações
 
-_para executar um script: `./script.sh` ou bash `script.sh`_
+_para executar um script: `./script.sh` ou `bash script.sh`_
 
-Execute este script para instalar todos os programas, temas, icons, configurações etc.:
+> [!IMPORTANT]
+> #### Ordem de execução em uma máquina nova
+> **1º** — `install-softwares-<distro>.sh` → instala todos os programas do stack.
+> **2º** — `import-dconf.sh` → cria os symlinks (Stow) e aplica as configurações do sistema.
+
+**1º passo** — instale os programas com o script da sua distro:
 
 `~/.dotfiles/scripts`
 ```bash
+# Ubuntu 24.04
 ./install-softwares-ubuntu.sh
+
+# Arch / Omarchy
+./install-softwares-arch.sh
 ```
 
-E em seguida:
+**2º passo** — aplique os dotfiles e as configurações:
 
 ```bash
 ./import-dconf.sh
