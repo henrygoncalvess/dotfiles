@@ -4,10 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
-import Quickshell.Services.Notifications
 import "WindowRegistry.js" as Registry
-
-import "notifications" as Notifs
 
 PanelWindow {
     id: masterWindow
@@ -123,26 +120,13 @@ PanelWindow {
             return;
         }
         let obj = compObj.createObject(preloaderContainer, {
-            "notifModel": masterWindow.notifModel,
-            "liveNotifs": masterWindow.liveNotifs,
             "visible": false
         });
         if (obj) widgetCache[name] = obj;
     }
 
     Component.onCompleted: {
-        Qt.callLater(() => preloadWidget("settings"));
-        preloadStaggerTimer.start();
-    }
-
-    Timer {
-        id: preloadStaggerTimer
-        interval: 900
-        repeat: false
-        onTriggered: {
-            preloadWidget("search");
-            preloadWidget("help");
-        }
+        // Widgets são carregados sob demanda pela 1ª chamada IPC.
     }
 
     // =========================================================
@@ -174,12 +158,7 @@ PanelWindow {
     // =========================================================
     // --- DAEMON: NOTIFICATION HANDLING
     // =========================================================
-    ListModel { id: globalNotificationHistory }
-    ListModel { id: activePopupsModel }
-
-    property var liveNotifs: ({})
-    property int _popupCounter: 0
-
+    
     // --- NEW: Startup Grace Period Flag & Timer ---
     property bool isStartup: true
     Timer {
@@ -197,61 +176,12 @@ PanelWindow {
         }
     } 
 
-    NotificationServer {
-        id: globalNotificationServer
-        bodySupported: true
-        actionsSupported: true
-        imageSupported: true
+    // NotificationServer + NotificationPopups DESABILITADOS: esta é uma 2ª
+    // instância que roda só pra fornecer os widgets (battery/calendar/music/
+    // network/wallpaper/clipboard) via IPC "main". O Brain_Shell é quem detém
+    // org.freedesktop.Notifications — subir um NotificationServer aqui roubaria
+    // o nome no D-Bus e quebraria as notificações. 
 
-        onNotification: (n) => {
-            n.tracked = true;
-
-            let extractedActions = [];
-            if (n.actions) {
-                for (let i = 0; i < n.actions.length; i++) {
-                    extractedActions.push({
-                        "id": n.actions[i].identifier || "",
-                        "text": n.actions[i].text || n.actions[i].name || "Action"
-                    });
-                }
-            }
-
-            masterWindow._popupCounter++;
-            let currentUid = masterWindow._popupCounter;
-
-            // Always store the live object so the history center can interact with it
-            masterWindow.liveNotifs[currentUid] = n;
-
-            let notifData = {
-                "appName":     n.appName  !== "" ? n.appName  : "System",
-                "summary":     n.summary  !== "" ? n.summary  : "No Title",
-                "body":        n.body     !== "" ? n.body     : "",
-                "iconPath":    n.appIcon  !== "" ? n.appIcon  : "",
-                "actionsJson": JSON.stringify(extractedActions),
-                "urgency":     n.urgency,
-                "uid":         currentUid,
-                "notif":       n
-            };
-
-            // Always silently add to the history list
-            globalNotificationHistory.insert(0, notifData);
-
-            // --- CHANGED: Only trigger the visual popup if we are past the startup phase ---
-            if (!masterWindow.isStartup) {
-                activePopupsModel.append(notifData);
-                osdPopups.storeNotif(currentUid, n);
-            }
-        }
-    }
-
-    property var notifModel: globalNotificationHistory
-
-    Notifs.NotificationPopups {
-        id: osdPopups
-        popupModel: activePopupsModel
-        uiScale: masterWindow.globalUiScale
-        onRemoveRequested: (uid) => masterWindow.removePopup(uid)
-    }
     onGlobalUiScaleChanged: { handleNativeScreenChange(); }
 
     Process {
@@ -478,16 +408,14 @@ PanelWindow {
         masterWindow.targetH = t.h;
 
         let props = {};
-        props["notifModel"]   = masterWindow.notifModel;
-        props["liveNotifs"]   = masterWindow.liveNotifs;
-        props["layoutWidth"]  = t.w;
-        props["layoutHeight"] = t.h;
+        if (newWidget === "clipboard") {
+            props["layoutWidth"]  = t.w;
+            props["layoutHeight"] = t.h;
+        }
         if (newWidget === "wallpaper") props["widgetArg"] = arg;
 
         let cached = widgetCache[newWidget];
         if (cached) {
-            if (cached.notifModel   !== undefined) cached.notifModel   = masterWindow.notifModel;
-            if (cached.liveNotifs   !== undefined) cached.liveNotifs   = masterWindow.liveNotifs;
             if (cached.layoutWidth  !== undefined) cached.layoutWidth  = t.w;
             if (cached.layoutHeight !== undefined) cached.layoutHeight = t.h;
             if (newWidget === "wallpaper" && cached.widgetArg !== undefined) cached.widgetArg = arg;

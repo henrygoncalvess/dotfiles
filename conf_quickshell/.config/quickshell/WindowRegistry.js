@@ -34,11 +34,8 @@ function getLayout(name, mx, my, mw, mh, userScale) {
         // --- Top Right Popups ---
         "battery":   { w: s(801, scale), h: s(760, scale), rx: Math.floor((mw/2)-(s(801, scale)/2)), ry: Math.floor((mh/2)-(s(760, scale)/2)), comp: "battery/BatteryPopup.qml" },
         "network":   { w: s(900, scale), h: s(700, scale), rx: Math.floor((mw/2)-(s(900, scale)/2)), ry: Math.floor((mh/2)-(s(700, scale)/2)), comp: "network/NetworkPopup.qml" },
-        "volume":    { w: s(450, scale), h: s(700, scale), rx: Math.floor((mw/2)-(s(450, scale)/2)), ry: Math.floor((mh/2)-(s(700, scale)/2)), comp: "volume/VolumePopup.qml" },
         
         // --- Central Standard Tools ---
-        "applauncher": { w: s(800, scale), h: s(700, scale), rx: Math.floor((mw/2)-(s(800, scale)/2)), ry: Math.floor((mh/2)-(s(700, scale)/2)), comp: "applauncher/appLauncher.qml" },
-        "clipboard": { w: s(800, scale), h: s(700, scale), rx: Math.floor((mw/2)-(s(800, scale)/2)), ry: Math.floor((mh/2)-(s(700, scale)/2)), comp: "clipboard/ClipboardManager.qml" },
         "monitors":  { w: s(800, scale), h: s(650, scale), rx: Math.floor((mw/2)-(s(800, scale)/2)), ry: Math.floor((mh/2)-(s(650, scale)/2)), comp: "monitors/MonitorPopup.qml" },
 
         // --- Extralarge / Custom Centered ---
@@ -47,14 +44,6 @@ function getLayout(name, mx, my, mw, mh, userScale) {
         
         // --- Top Left Edge ---
         "music":     { w: s(700, scale), h: s(650, scale), rx: Math.floor((mw/2)-(s(700, scale)/2)), ry: Math.floor((mh/2)-(s(650, scale)/2)), comp: "music/MusicPopup.qml" },
-
-        "movies": {
-            w: s(1370, scale),
-            h: s(850, scale),
-            rx: Math.floor((mw / 2) - (s(1370, scale) / 2)),
-            ry: Math.floor((mh / 2) - (s(850, scale) / 2)),
-            comp: "movies/MovieWidget.qml"
-        },
         
         // --- Utility ---
         "hidden":    { w: 1, h: 1, rx: -5000 - mx, ry: -5000 - my, comp: "" } 
