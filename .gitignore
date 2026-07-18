@@ -8,3 +8,6 @@ conf_lvim/.config/lvim/session
 # Tabela de 40 MB que veio da config upstream do quickshell. Nenhum script usa:
 # o weather.sh lê o OPENWEATHER_CITY_ID direto do calendar/.env
 conf_quickshell/.config/quickshell/calendar/city.list.json
+
+# Brain Shell — dados do usuário (mudam constantemente)
+conf_quickshell/.config/Brain_Shell/src/user_data/*.json
