@@ -1394,7 +1394,7 @@ Item {
                                 
                                 Repeater {
                                     model: ListModel {
-                                        ListElement { cmd: "hyprlock"; icon: ""; baseColor: "mauve"; weight: 1.0 }
+                                        ListElement { cmd: "hyprlock"; icon: ""; baseColor: "mauve"; weight: 0.01 }
                                         ListElement { cmd: "hyprctl dispatch exit"; icon: "󰍃"; baseColor: "blue"; weight: 1.5 }
                                         ListElement { cmd: "mpc -q pause; amixer set Master mute; systemctl suspend"; icon: "ᶻ 𝗓 𝗓"; baseColor: "teal"; weight: 1.5 }
                                         ListElement { cmd: "systemctl reboot"; icon: "󰑓"; baseColor: "yellow"; weight: 2.5 }
