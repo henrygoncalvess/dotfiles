@@ -39,6 +39,11 @@ except:
     sys.exit(1)
 " "$vals" > "$PRESET_FILE"
 
+    if ! pgrep -x easyeffects > /dev/null; then
+        easyeffects --gapplication-service >/dev/null 2>&1 &
+        sleep 1
+    fi
+
     easyeffects -l "$PRESET_NAME" >/dev/null 2>&1 &
 }
 
