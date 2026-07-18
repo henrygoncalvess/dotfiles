@@ -16,7 +16,7 @@ CONFIG_DIR="$HOME/.config"
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" "$HOME/.config/mozilla/firefox" -maxdepth 1 -type d \( -name "*.default*" -o -name "*.Profile*" \) 2>/dev/null | head -n 1 || true)
 
 # lxpolkit, lxsession or lxsession-default-apps
-PROGRAMS=(curl ca-certificates git python3 python3-pip fastfetch python3-venv wget make cmake ripgrep stow wl-clipboard cliphist grim wvkbd slurp mpd mpc tar waybar cava brightnessctl network-manager dunst libnotify-bin gparted pkg-config unzip ntfs-3g exfatprogs libqalculate-dev pavucontrol thunar lxpolkit xdg-desktop-portal software-properties-common xdg-desktop-portal-gtk flatpak zsh fzf blueman v4l-utils bluez dkms v4l2loopback-dkms dkms v4l2loopback-dkms  libbluetooth-dev gawk libdisplay-info-dev libgulkan-dev libliftoff-dev libsystemd-dev libtomlplusplus-dev libvulkan-volk-dev libxcb-cursor-dev libxcb-util-dev libxxhash-dev nm-tray python3-pyquery scdoc vulkan-validationlayers inxi imagemagick playerctl wlogout yad hypridle hyprlock btop loupe mpv mpv-mpris nvtop pamixer qalculate-gtk bat perl golang gcc clang libdrm-dev libgbm-dev meson build-essential flex bison ninja-build cmake-extras gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxkbcommon-x11-dev libxkbregistry-dev libxkbcommon-dev libudev-dev libseat-dev seatd libegl-dev glslang-tools libinput-bin libinput-dev libavutil-dev libavcodec-dev libavformat-dev libxcb-ewmh-dev libxcb-present-dev libxcb-xinput-dev libwayland-dev wayland-protocols libstdc++6 qt6-base-dev qt6-wayland-dev )
+PROGRAMS=(curl ca-certificates git python3 python3-pip fastfetch python3-venv wget make cmake ripgrep stow wl-clipboard cliphist grim wvkbd slurp mpd mpc tar waybar cava brightnessctl network-manager libnotify-bin gparted pkg-config unzip ntfs-3g exfatprogs libqalculate-dev pavucontrol thunar lxpolkit xdg-desktop-portal software-properties-common xdg-desktop-portal-gtk flatpak zsh fzf blueman v4l-utils bluez dkms v4l2loopback-dkms dkms v4l2loopback-dkms  libbluetooth-dev gawk libdisplay-info-dev libgulkan-dev libliftoff-dev libsystemd-dev libtomlplusplus-dev libvulkan-volk-dev libxcb-cursor-dev libxcb-util-dev libxxhash-dev nm-tray python3-pyquery scdoc vulkan-validationlayers inxi imagemagick playerctl wlogout yad hypridle hyprlock btop loupe mpv mpv-mpris nvtop pamixer qalculate-gtk bat perl golang gcc clang libdrm-dev libgbm-dev meson build-essential flex bison ninja-build cmake-extras gettext gettext-base fontconfig libfontconfig-dev libffi-dev libxkbcommon-x11-dev libxkbregistry-dev libxkbcommon-dev libudev-dev libseat-dev seatd libegl-dev glslang-tools libinput-bin libinput-dev libavutil-dev libavcodec-dev libavformat-dev libxcb-ewmh-dev libxcb-present-dev libxcb-xinput-dev libwayland-dev wayland-protocols libstdc++6 qt6-base-dev qt6-wayland-dev )
 
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 
@@ -384,19 +384,6 @@ install_nvim() {
   pretty_log -f "$LOG" "Instalado com sucesso" success
 }
 
-install_lunarvim() {
-  local LOG="[LunarVim-download]"
-  
-  if check_command lvim "$LOG"; then
-    return 0
-  fi
-
-  pretty_log -f "$LOG" "Instalando Lunar Vim" info
-  LV_BRANCH='release-1.4/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.4/neovim-0.9/utils/installer/install.sh)
-
-  pretty_log -f "$LOG" "Instalado com sucesso" success
-}
-
 install_kitty() {
   local LOG="[Kitty-download]"
 
@@ -701,8 +688,6 @@ install_node
 install_packages
 
 #install_nvim
-
-#install_lunarvim
 
 install_kitty
 

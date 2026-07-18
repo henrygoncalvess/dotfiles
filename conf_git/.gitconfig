@@ -6,6 +6,6 @@
   defaultBranch = main
 
 [core]
-  editor = lvim
+  editor = nvim
 [safe]
 	directory = /home/henrygoncalvess/build
