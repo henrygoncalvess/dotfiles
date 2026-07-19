@@ -8,8 +8,7 @@
 - [Clonando Repositório](#cloning-repo)
 - [Instrução de uso ( Stow )](#use1)
 - [Explicação](#explanation)
-- [Instrução de uso ( Dconf )](#use2)
-- [Uso dos scripts e Import\Export das Configurações](#use3)
+- [Uso dos scripts](#use3)
 - [Licença](#license)
 
 <br>
@@ -32,7 +31,6 @@ Configurações pessoais do meu ambiente **Hyprland (Wayland)**, versionadas par
 | Screenshot / gravação | grim + slurp / [wf-recorder](https://github.com/ammen99/wf-recorder) |
 | Editores | Neovim, VS Code |
 | Navegador | Firefox (userChrome customizado) |
-| Config. do sistema | GNOME via [dconf](https://wiki.gnome.org/Projects/dconf) |
 | Home lab | [Frigate](https://frigate.video/) NVR + Mosquitto + Home Assistant (Docker) |
 
 <br>
@@ -47,12 +45,11 @@ Versionar minhas preferências de desenvolvimento, garantindo consistência e pr
 <a name="prerequisites"></a>
 ### 📦 Pré-Requisitos
 
-Para **aplicar** os dotfiles você só precisa das ferramentas abaixo — todo o restante do stack (Quickshell, Rofi, Kitty, etc.) é instalado automaticamente pelo script de instalação da sua distro: [`install-softwares-ubuntu.sh`](scripts/install-softwares-ubuntu.sh) ou [`install-softwares-arch.sh`](scripts/install-softwares-arch.sh).
+Para **aplicar** os dotfiles você só precisa das ferramentas abaixo — todo o restante do stack (Quickshell, Rofi, Kitty, etc.) é instalado automaticamente pelo script de instalação da sua distro: [`install_softwares_ubuntu.sh`](scripts/install_softwares_ubuntu.sh) ou [`install_softwares_arch.sh`](scripts/install_softwares_arch.sh).
 
-- **Linux** (testado em Ubuntu 24.04 com sessão Wayland, mas deve funcionar em qualquer distribuição)
+- **Linux** (testado em Ubuntu 24.04 com sessão Wayland; script dedicado para Arch/Omarchy)
 - **Git**
 - [**GNU stow**](https://www.gnu.org/software/stow/) - para gerenciar links simbólicos
-- [**Dconf**](https://wiki.gnome.org/Projects/dconf) e/ou [**Dconf Editor**](https://wiki.gnome.org/Apps(2f)DconfEditor.html) -  para armazenar configurações de sistema (GNOME) em um banco de dados binário eficiente
 
 <br>
 
@@ -77,7 +74,7 @@ mv ~/dotfiles ~/.dotfiles
 <a name="use1"></a>
 ### 📜 Instrução de uso ( Stow )
 
-(passos opcionais, pois o script `import-dconf.sh` já cria Symlinks automaticamente)
+(passos opcionais, pois o script `import_conf.sh` já cria Symlinks automaticamente)
 
 1. Entre na pasta
 
@@ -145,57 +142,37 @@ para os arquivos dentro de `~/.dotfiles/conf_posh`:
 
 <br>
 
-<a name="use2"></a>
-### 📜 Instrução de uso ( Dconf )
-
-```bash
-# Exportar configurações (exemplo)
-dconf dump /org/gnome/path/example > ~/.dotfiles/my-backup.ini
-
-# Carregar configurações (exemplo)
-dconf load /org/gnome/path/example < ~/.dotfiles/my-backup.ini
-
-# Resetar configurações (exemplo)
-dconf reset -f /org/gnome/path/example
-```
-
 <a name="use3"></a>
-### 📜 Uso dos scripts e Import\Export das Configurações
+### 📜 Uso dos scripts
 
 _para executar um script: `./script.sh` ou `bash script.sh`_
 
 > [!IMPORTANT]
 > #### Ordem de execução em uma máquina nova
-> **1º** — `install-softwares-<distro>.sh` → instala todos os programas do stack.
-> **2º** — `import-dconf.sh` → cria os symlinks (Stow) e aplica as configurações do sistema.
+> **1º** — `install_softwares_<distro>.sh` → instala todos os programas do stack.
+> **2º** — `import_conf.sh` → cria os symlinks (Stow) das configurações.
 
 **1º passo** — instale os programas com o script da sua distro:
 
 `~/.dotfiles/scripts`
 ```bash
 # Ubuntu 24.04
-./install-softwares-ubuntu.sh
+./install_softwares_ubuntu.sh
 
 # Arch / Omarchy
-./install-softwares-arch.sh
+./install_softwares_arch.sh
 ```
 
-**2º passo** — aplique os dotfiles e as configurações:
+**2º passo** — aplique os dotfiles:
 
 ```bash
-./import-dconf.sh
+./import_conf.sh
 ```
 
-Execute um dos scripts para manipular as configurações do Dconf:
-
-`~/.dotfiles/scripts`
-```bash
-# Aplicar configurações
-./import-dconf.sh
-
-# Salvar configurações
-./export-dconf.sh
-```
+> [!NOTE]
+> No **Arch/Omarchy** o `import_conf.sh` detecta a distro e **não** aplica
+> `conf_hypr` nem `conf_nvim` — o Hyprland (keybindings, barra) e o Neovim do
+> Omarchy ficam intactos. Esses pacotes são exclusivos do setup Ubuntu.
 
 <br>
 
