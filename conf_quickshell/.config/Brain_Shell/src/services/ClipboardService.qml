@@ -195,33 +195,14 @@ QtObject {
         _wipeProc.running = true
     }
 
-    // ── Wipe on Quickshell close ───────────────────────────────────────────────
-    property var _shutdownWipeProc: Process {
-        command: ["bash", "-c", "cliphist wipe 2>/dev/null"]
-        running: false
-    }
-
-    Component.onDestruction: {
-        _shutdownWipeProc.running = true
-    }
-
-    // ── Install a systemd user service that wipes on OS shutdown/reboot ────────
-    property var _setupServiceProc: Process {
-        command: ["bash", "-c",
-            "mkdir -p ~/.config/systemd/user && " +
-            "printf '[Unit]\\nDescription=Wipe cliphist history on logout/shutdown\\n\\n" +
-            "[Service]\\nType=oneshot\\nRemainAfterExit=true\\nExecStart=/usr/bin/true\\nExecStop=/usr/bin/cliphist wipe\\n\\n" +
-            "[Install]\\nWantedBy=default.target\\n' " +
-            "> ~/.config/systemd/user/cliphist-wipe.service && " +
-            "systemctl --user daemon-reload && " +
-            "systemctl --user enable --now cliphist-wipe.service 2>/dev/null || true"]
-        running: false
-    }
+    // Histórico do cliphist PERSISTE entre reinícios de propósito. O upstream
+    // limpava tudo ao fechar o shell (Component.onDestruction) e instalava um
+    // cliphist-wipe.service que dava `cliphist wipe` no shutdown — os dois
+    // removidos. A limpeza continua manual, pela lixeira da UI (wipeHistory).
 
     // ── Init ───────────────────────────────────────────────────────────────────
     Component.onCompleted: {
         _loadPinsProc.running = true
-        _setupServiceProc.running = true
         load()
     }
 
