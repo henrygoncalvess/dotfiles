@@ -13,9 +13,12 @@ import Quickshell
 // Uso: OldShell.toggle("battery", "")   // arg opcional (ex. "wifi")
 // ─────────────────────────────────────────────────────────────
 QtObject {
-    // Caminho absoluto: exec do Hyprland NÃO herda o ~/.nix-profile/bin no PATH.
+    // Resolve o quickshell em runtime: nativo no arch/omarchy, nix no ubuntu
+    // (o exec do Hyprland NÃO herda o ~/.nix-profile/bin no PATH, por isso o
+    // fallback usa o caminho absoluto).
     readonly property string _cmd:
-        "~/.nix-profile/bin/quickshell -p ~/.config/quickshell ipc call main handleCommand"
+        "qs=$(command -v quickshell || echo ~/.nix-profile/bin/quickshell); " +
+        "$qs -p ~/.config/quickshell ipc call main handleCommand"
 
     function toggle(widget, arg) {
         Quickshell.execDetached(["sh", "-c",
