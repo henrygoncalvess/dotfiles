@@ -6,8 +6,8 @@
 # so this script only covers what it does NOT provide.
 #
 # Usage:
-#   ./install-softwares-arch.sh       # full run (system upgrade + install + config)
-#   ./install-softwares-arch.sh -s    # skip the full system upgrade (pacman -Syu)
+#   ./install_softwares_arch.sh       # full run (system upgrade + install + config)
+#   ./install_softwares_arch.sh -s    # skip the full system upgrade (pacman -Syu)
 #
 # Docker, Node, nvm etc. are intentionally NOT here: install those on demand
 # so you always get the latest version.
@@ -216,46 +216,59 @@ install_ohmyposh() {
   pretty_log -s "[Hasklug-font]" "Installed successfully" success
 }
 
+# Roots where Firefox may keep profiles: ~/.mozilla is the classic location,
+# but newer builds use XDG (~/.config/mozilla) when ~/.mozilla doesn't exist.
+FIREFOX_ROOTS=("$HOME/.mozilla/firefox" "$HOME/.config/mozilla/firefox")
+
 # Prints the default Firefox profile directory, or fails if none exists.
 firefox_profile_dir() {
-  local INI="$HOME/.mozilla/firefox/profiles.ini"
-  [[ -f "$INI" ]] || return 1
+  local ROOT INI PROFILE_PATH
 
-  local PROFILE_PATH
-  # Modern Firefox: the [Install*] section points at the default profile.
-  PROFILE_PATH=$(awk -F= '/^\[Install/{found=1; next} /^\[/{found=0} found && /^Default=/{print $2; exit}' "$INI")
-  # Fallbacks: the profile marked Default=1, then the first profile listed.
-  [[ -n "$PROFILE_PATH" ]] || PROFILE_PATH=$(awk -F= '/^Path=/{path=$2} /^Default=1$/{print path; exit}' "$INI")
-  [[ -n "$PROFILE_PATH" ]] || PROFILE_PATH=$(awk -F= '/^Path=/{print $2; exit}' "$INI")
-  [[ -n "$PROFILE_PATH" ]] || return 1
+  for ROOT in "${FIREFOX_ROOTS[@]}"; do
+    INI="$ROOT/profiles.ini"
+    [[ -f "$INI" ]] || continue
 
-  if [[ "$PROFILE_PATH" == /* ]]; then
-    echo "$PROFILE_PATH"
-  else
-    echo "$HOME/.mozilla/firefox/$PROFILE_PATH"
-  fi
+    # Modern Firefox: the [Install*] section points at the default profile.
+    PROFILE_PATH=$(awk -F= '/^\[Install/{found=1; next} /^\[/{found=0} found && /^Default=/{print $2; exit}' "$INI")
+    # Fallbacks: the profile marked Default=1, then the first profile listed.
+    [[ -n "$PROFILE_PATH" ]] || PROFILE_PATH=$(awk -F= '/^Path=/{path=$2} /^Default=1$/{print path; exit}' "$INI")
+    [[ -n "$PROFILE_PATH" ]] || PROFILE_PATH=$(awk -F= '/^Path=/{print $2; exit}' "$INI")
+    [[ -z "$PROFILE_PATH" ]] && continue
+
+    if [[ "$PROFILE_PATH" == /* ]]; then
+      echo "$PROFILE_PATH"
+    else
+      echo "$ROOT/$PROFILE_PATH"
+    fi
+    return 0
+  done
+
+  # Last resort: any profile-looking directory under either root.
+  find "${FIREFOX_ROOTS[@]}" -maxdepth 1 -type d -name "*.default*" 2>/dev/null | head -n 1 | grep .
 }
 
 configure_firefox() {
   local LOG="[Firefox-config]"
 
   if ! command -v firefox &> /dev/null; then
-    pretty_log -e "$LOG" "Firefox is not installed, cannot configure it"
-    return 1
+    pretty_log -e "$LOG" "Firefox is not installed, skipping its configuration"
+    return 0
   fi
 
   # The old Ubuntu script kept breaking here: it tried to configure a profile
   # that didn't exist yet (Firefox only creates one on first launch). A short
   # headless run creates the default profile deterministically.
-  if [[ ! -f "$HOME/.mozilla/firefox/profiles.ini" ]]; then
+  if [[ ! -f "${FIREFOX_ROOTS[0]}/profiles.ini" && ! -f "${FIREFOX_ROOTS[1]}/profiles.ini" ]]; then
     pretty_log -c "$LOG" "Creating the default profile (short headless run)" info
     timeout 15 firefox --headless > /dev/null 2>&1 || true
   fi
 
   local PROFILE_DIR
   if ! PROFILE_DIR=$(firefox_profile_dir); then
-    pretty_log -e "$LOG" "No Firefox profile found. Open Firefox once and run the script again"
-    return 1
+    # Soft failure on purpose: everything else is already installed, so don't
+    # abort the whole run over the browser config.
+    pretty_log -e "$LOG" "No profile found under ~/.mozilla/firefox or ~/.config/mozilla/firefox. Open Firefox once and re-run the script"
+    return 0
   fi
 
   mkdir -p "$PROFILE_DIR/chrome"
