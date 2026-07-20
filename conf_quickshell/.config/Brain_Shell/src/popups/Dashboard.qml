@@ -31,9 +31,7 @@ PanelWindow {
     readonly property var _pageWidths: ({
         "home":     900,
         "stats":    900,
-        "kanban":   900,
-        "launcher": 560,
-        "config":   900
+        "kanban":   900
     })
 
     function _applyPageWidth(p) {
@@ -162,8 +160,6 @@ PanelWindow {
                         { key: "home",     icon: "󰋜", label: "Home"   },
                         { key: "stats",    icon: "󰻠", label: "System" },
                         { key: "kanban",   icon: "󰄬", label: "Tasks"  },
-                        { key: "launcher", icon: "󱓞", label: "Apps"   },
-                        { key: "config",   icon: "󰒓", label: "Config" },
                     ]
                     onPageChanged: function(key) { Popups.dashboardPage = key }
                 }
@@ -192,22 +188,6 @@ PanelWindow {
                         anchors.fill: parent
                         visible:      root.page === "kanban"
                         KanbanBoard { anchors.fill: parent }
-                    }
-
-                    Item {
-                        anchors.fill: parent
-                        visible:      root.page === "launcher"
-                        AppLauncher { anchors.fill: parent }
-                    }
-
-                    Item {
-                        anchors.fill: parent
-                        visible:      root.page === "config"
-                        Item {
-                            anchors.fill: parent
-                            visible:      root.page === "config"
-                            ShellConfig { anchors.fill: parent }
-                        }
                     }
                     
                     Keys.onEscapePressed: Popups.dashboardOpen = false

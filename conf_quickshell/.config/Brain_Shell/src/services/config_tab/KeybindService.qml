@@ -24,26 +24,7 @@ QtObject {
     property bool isCapturing: false
 
     // ── Defaults ──────────────────────────────────────────────────────────────
-    readonly property var _defaults: ({
-        "dashboard-home":     { mods: "SUPER",        key: "D",      label: "Dashboard: System",    group: "Dashboard"      },
-        "dashboard-stats":    { mods: "CTRL + SHIFT",  key: "ESCAPE", label: "Dashboard: Home",      group: "Dashboard"      },
-        "dashboard-kanban":   { mods: "SUPER",        key: "Z",      label: "Dashboard: Tasks",     group: "Dashboard"      },
-        "dashboard-launcher": { mods: "SUPER",        key: "Q",      label: "Dashboard: Apps",      group: "Dashboard"      },
-        "dashboard-config":   { mods: "SUPER",        key: "C",      label: "Dashboard: Config",    group: "Dashboard"      },
-        "PowerMenu-toggle":   { mods: "SUPER",        key: "ESCAPE", label: "Arch Menu",            group: "Popups"         },
-        "notification-toggle":{ mods: "SUPER",        key: "N",      label: "Notifications",        group: "Popups"         },
-        "wallpaper-toggle":   { mods: "SUPER",        key: "W",      label: "Wallpaper",            group: "Popups"         },
-        "clipboard-toggle":   { mods: "SUPER",        key: "V",      label: "Clipboard",            group: "Popups"         },
-        "wifi-toggle":        { mods: "SUPER + ALT",   key: "W",      label: "Network: Wi-Fi",       group: "Network Tabs"   },
-        "bluetooth-toggle":   { mods: "SUPER + ALT",   key: "B",      label: "Network: Bluetooth",   group: "Network Tabs"   },
-        "vpn-toggle":         { mods: "SUPER + ALT",   key: "G",      label: "Network: VPN",         group: "Network Tabs"   },
-        "hotspot-toggle":     { mods: "SUPER + ALT",   key: "H",      label: "Network: Hotspot",     group: "Network Tabs"   },
-        "audioOut-toggle":    { mods: "SUPER",        key: "A",      label: "Audio: Output",        group: "Audio Tabs"     },
-        "audioIn-toggle":     { mods: "SUPER + ALT",   key: "I",      label: "Audio: Input",         group: "Audio Tabs"     },
-        "audioMix-toggle":    { mods: "SUPER",        key: "M",      label: "Audio: Mixer",         group: "Audio Tabs"     },
-        "focus-toggle":       { mods: "SUPER",        key: "B",      label: "Focus Mode",           group: "Quick Settings" },
-        "screenrec-on":       { mods: "ALT",          key: "F9",     label: "Screen Record",        group: "Quick Settings" },
-    })
+    readonly property var _defaults: ({})
 
     property var keybinds: ({})
 
@@ -376,29 +357,7 @@ QtObject {
     property var _includeProc: Process { command: []; running: false }
 
     function _ensureInclude() {
-        var lp = root._luaPath.replace(/"/g, "\\\"")
-        var cp = root._confPath.replace(/"/g, "\\\"")
-        
-        if (configProvider === "lua") {
-            _includeProc.command = ["bash", "-c", [
-                "MARKER='Brain_ShellKeybinds'",
-                "LUA=\"$HOME/.config/hypr/hyprland.lua\"",
-                "if [ -f \"$LUA\" ] && ! grep -qF \"$MARKER\" \"$LUA\"; then",
-                "  printf '\\n-- Brain_ShellKeybinds\\ndofile(\"" + lp + "\")\\n' >> \"$LUA\"",
-                "fi",
-            ].join("\n")]
-        } else {
-            _includeProc.command = ["bash", "-c", [
-                "MARKER='Brain_ShellKeybinds'",
-                "CONF=\"$HOME/.config/hypr/hyprland.conf\"",
-                "if [ -f \"$CONF\" ] && ! grep -qF \"$MARKER\" \"$CONF\"; then",
-                "  printf '\\n# Brain_ShellKeybinds\\nsource = " + cp + "\\n' >> \"$CONF\"",
-                "fi",
-            ].join("\n")]
-        }
-        
-        _includeProc.running = false
-        _includeProc.running = true
+        // Disabled: do not inject into hyprland configs.
     }
 
     Component.onCompleted: _loadProc.running = true

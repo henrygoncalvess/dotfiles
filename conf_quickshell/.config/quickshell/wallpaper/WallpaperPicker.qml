@@ -143,6 +143,7 @@ Item {
         if (outputs === "none") return;
         
         window.isApplying = true;
+        Quickshell.execDetached(["bash", "-c", "export PATH=$PATH:/usr/bin:/run/current-system/sw/bin && quickshell -p ~/.config/quickshell ipc call main handleCommand close null null"]);
         applyUnlockTimer.restart();
         
         window.targetWallName = safeFileName;
@@ -180,9 +181,9 @@ Item {
                     echo "[$(date +'%H:%M:%S.%3N')] APPLYING CACHED SEARCH: $DEST_FILE TO $TARGET_MONITORS" >> ${logFile}
                     
                     if [ "$TARGET_MONITORS" = "all" ]; then
-                        swww img "$DEST_FILE" --transition-type ${randomTransition} --transition-pos 0.5,0.5 --transition-fps 144 --transition-duration 1 >> ${logFile} 2>&1 &
+                        awww img "$DEST_FILE" --transition-type ${randomTransition} --transition-pos 0.5,0.5 --transition-fps 144 --transition-duration 1 >> ${logFile} 2>&1 &
                     else
-                        swww img -o "$TARGET_MONITORS" "$DEST_FILE" --transition-type ${randomTransition} --transition-pos 0.5,0.5 --transition-fps 144 --transition-duration 1 >> ${logFile} 2>&1 &
+                        awww img -o "$TARGET_MONITORS" "$DEST_FILE" --transition-type ${randomTransition} --transition-pos 0.5,0.5 --transition-fps 144 --transition-duration 1 >> ${logFile} 2>&1 &
                     fi
                     
                     ( matugen image "$FINAL_THUMB" || true; bash "$RELOAD_SCRIPT" || true ) &
@@ -231,9 +232,9 @@ Item {
                         fi
                         
                         if [ "$TARGET_MONITORS" = "all" ]; then
-                            swww img "$DEST_FILE" --transition-duration 5 --transition-fps 60 $TRANS_ARGS >> ${logFile} 2>&1 &
+                            awww img "$DEST_FILE" --transition-duration 5 --transition-fps 60 $TRANS_ARGS >> ${logFile} 2>&1 &
                         else
-                            swww img -o "$TARGET_MONITORS" "$DEST_FILE" --transition-duration 5 --transition-fps 60 $TRANS_ARGS >> ${logFile} 2>&1 &
+                            awww img -o "$TARGET_MONITORS" "$DEST_FILE" --transition-duration 5 --transition-fps 60 $TRANS_ARGS >> ${logFile} 2>&1 &
                         fi
                         
                         ( matugen image "$FINAL_THUMB" || true; bash "$RELOAD_SCRIPT" || true ) &
@@ -282,9 +283,9 @@ Item {
                 fi
                 
                 if [ "${escOutputs}" = "all" ]; then
-                    swww img "${escOriginal}" --transition-duration 5 --transition-fps 60 $TRANS_ARGS >> ${logFile} 2>&1 &
+                    awww img "${escOriginal}" --transition-duration 5 --transition-fps 60 $TRANS_ARGS >> ${logFile} 2>&1 &
                 else
-                    swww img -o "${escOutputs}" "${escOriginal}" --transition-duration 5 --transition-fps 60 $TRANS_ARGS >> ${logFile} 2>&1 &
+                    awww img -o "${escOutputs}" "${escOriginal}" --transition-duration 5 --transition-fps 60 $TRANS_ARGS >> ${logFile} 2>&1 &
                 fi
             `;
         }
@@ -1795,6 +1796,14 @@ Item {
     Component.onCompleted: {
         Quickshell.execDetached(["bash", "-c", "mkdir -p '" + decodeURIComponent(window.searchDir.replace("file://", "")) + "'"]);
         
+        // Generate thumbnails for local wallpapers in background
+        Quickshell.execDetached([
+            "bash",
+            decodeURIComponent(Qt.resolvedUrl("generate_thumbs.sh").toString().replace("file://", "")),
+            decodeURIComponent(window.srcDir.replace("file://", "")),
+            decodeURIComponent(window.thumbDir.replace("file://", ""))
+        ]);
+
         window.loadMonitors();
 
         if (searchState.searched) {

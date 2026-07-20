@@ -44,13 +44,6 @@ Item {
     // Because the path never changes, Qt's image cache would serve the old
     // texture. Clearing _avatarPath for one frame then restoring it forces
     // the Image to re-read the file from disk.
-    Connections {
-        target: WallpaperService
-        function onWallpaperApplied(path) {
-            root._avatarPath = ""
-            reloadTimer.restart()
-        }
-    }
 
     Timer {
         id: reloadTimer

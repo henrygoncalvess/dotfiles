@@ -24,7 +24,14 @@ PanelWindow {
     color:         "transparent"
 
     WlrLayershell.layer:         WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    property bool wantsFocus: false
+    WlrLayershell.keyboardFocus: wantsFocus ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+
+    Timer {
+        id: focusGrabTimer
+        interval: 15
+        onTriggered: if (windowVisible && Popups.clipboardOpen) root.wantsFocus = true
+    }
 
     mask: Region { item: maskProxy }
     Item {
@@ -44,7 +51,10 @@ PanelWindow {
             if (Popups.clipboardOpen) {
                 closeTimer.stop()
                 root.windowVisible = true
+                focusGrabTimer.restart()
             } else {
+                root.wantsFocus = false
+                focusGrabTimer.stop()
                 closeTimer.restart()
             }
         }
