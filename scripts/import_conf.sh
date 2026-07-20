@@ -5,21 +5,11 @@
 PROFILE_DIR=$(find "$HOME/.mozilla/firefox" "$HOME/.config/mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n 1)
 [[ -z "$PROFILE_DIR" ]] && PROFILE_DIR=$(find "$HOME/.mozilla/firefox" "$HOME/.config/mozilla/firefox" -maxdepth 1 -type d -name "*.default*" 2>/dev/null | head -n 1)
 
-# No Omarchy o Hyprland e o Neovim são identidade da distro (defaults, keybinds
-# e config próprios que valem a pena manter). Stowar conf_hypr/conf_nvim por
-# cima destrói isso — esses pacotes são exclusivos do setup Ubuntu.
-if [[ -d "$HOME/.local/share/omarchy" ]] || grep -qi "^ID=arch" /etc/os-release 2>/dev/null; then
-  OMARCHY=true
-  echo -e "\033[1;33mArch/Omarchy detectado: conf_hypr e conf_nvim NÃO serão aplicados\033[0m\n"
-else
-  OMARCHY=false
-fi
-
 echo -e "\033[1;33m- - - - - - - - - - - - - - - - - - - -\033[0m\n"
 
 echo -e "\033[1;33mCriando Symlinks com GNU Stow\033[0m\n"
 
-# A matriz agora foca na raiz do VS Code para evitar a travessia de symlinks.
+# Paths to clean before stowing (avoids conflicts with pre-existing dirs/files).
 CONF_TARGETS=(
   "$HOME/.config/Code"
   "$HOME/.config/kitty"
@@ -27,20 +17,20 @@ CONF_TARGETS=(
   "$HOME/.config/rofi"
   "$HOME/.config/quickshell"
   "$HOME/.config/Brain_Shell"
+  "$HOME/.config/hypr"
+  "$HOME/.config/nvim"
   "$HOME/.local/share/quickshell-lockscreen"
+  "$HOME/.bash_profile"
   "$HOME/.bashrc"
   "$HOME/.zshrc"
   "$HOME/.gitconfig"
   "$HOME/frigate"
   "$HOME/.face"
+  "$HOME/wallpapers"
+  "$HOME/.vscode"
 )
 
-STOW_PACKAGES=(frigate conf_home conf_wall conf_posh conf_code conf_git conf_shell conf_kitty conf_rofi conf_quickshell conf_qylock)
-
-if ! $OMARCHY; then
-  CONF_TARGETS+=("$HOME/.config/hypr" "$HOME/.config/nvim")
-  STOW_PACKAGES+=(conf_hypr conf_nvim)
-fi
+STOW_PACKAGES=(frigate conf_home conf_wall conf_posh conf_code conf_git conf_shell conf_kitty conf_rofi conf_quickshell conf_qylock conf_hypr conf_nvim)
 
 echo -e "\033[1;33mRemovendo arquivos existentes para evitar conflitos\033[0m\n"
 for target in "${CONF_TARGETS[@]}"; do

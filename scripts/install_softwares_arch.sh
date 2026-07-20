@@ -24,8 +24,6 @@ fi
 SKIP_UPGRADE=false
 [[ "${1:-}" == "-s" ]] && SKIP_UPGRADE=true
 
-GIT_CONFIG_FILE="$HOME/.gitconfig"
-
 # Everything from the official repos goes here. `pacman -S --needed` skips
 # packages that are already installed, so adding a program is just adding a
 # word to this list.
@@ -35,7 +33,7 @@ PACMAN_PACKAGES=(
 
   # CLI tools
   git curl wget unzip tar stow ripgrep fzf bat jq socat fastfetch btop zsh
-  python python-pip
+  python python-pip neovim
 
   # Wayland utilities / Brain_Shell dependencies
   wl-clipboard cliphist grim slurp swww wf-recorder brightnessctl playerctl
@@ -61,6 +59,7 @@ PACMAN_PACKAGES=(
 AUR_PACKAGES=(
   quickshell  # Brain_Shell runtime (pulls the Qt6 stack as dependencies)
   matugen-bin # dynamic colors from the wallpaper (MatugenColors.qml)
+  visual-studio-code-bin # VS Code via AUR
 )
 
 on_error() {
@@ -132,30 +131,6 @@ install_aur_packages() {
   yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
 
   pretty_log -p "$LOG" "All AUR packages are in place" success
-}
-
-configure_git() {
-  local LOG="[git-config]"
-
-  if [[ -f "$GIT_CONFIG_FILE" ]]; then
-    pretty_log -c "$LOG" "$GIT_CONFIG_FILE already exists, keeping it" success
-    return 0
-  fi
-
-  pretty_log -c "$LOG" "Writing $GIT_CONFIG_FILE" info
-  cat > "$GIT_CONFIG_FILE" << 'EOF'
-[user]
-  name = henrygoncalvess
-  email = octanebt@gmail.com
-
-[init]
-  defaultBranch = main
-
-[core]
-  editor = code --wait
-EOF
-
-  pretty_log -c "$LOG" "Configured successfully" success
 }
 
 configure_default_shell() {
@@ -339,8 +314,6 @@ ensure_yay
 install_pacman_packages
 
 install_aur_packages
-
-configure_git
 
 configure_default_shell
 
