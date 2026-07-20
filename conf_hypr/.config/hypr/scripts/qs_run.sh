@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 
-# Lança o quickshell com o build que a máquina tiver:
-#   - pacote nativo (arch/omarchy): quickshell direto
-#   - perfil nix (ubuntu):          via nixGLIntel, senão o binário nix não
-#                                   enxerga o driver OpenGL do sistema
-# Chamado pelo exec-once e pelos binds de IPC do hyprland.conf.
+# start quickshell
 
-if command -v quickshell &> /dev/null; then
-  exec quickshell "$@"
-fi
+mkdir -p "$HOME/.cache/quickshell/wallpaper_picker/thumbs"
+mkdir -p "$HOME/.cache/quickshell/wallpaper_picker/search_thumbs"
+mkdir -p "$HOME/.cache/quickshell/wallpaper_picker/colors_markers"
 
-exec "$HOME/.nix-profile/bin/nixGLIntel" "$HOME/.nix-profile/bin/quickshell" "$@"
+exec quickshell "$@"
