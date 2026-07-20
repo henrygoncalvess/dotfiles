@@ -2,11 +2,13 @@ import Quickshell
 import QtQuick
 import "./src/windows"
 import "./src/popups"
+import "./src/services"
 import "./src/"
 
 ShellRoot {
     // Force-instantiate lazy singletons that need startup behavior
     property var _keybinds:   KeybindService
+    property var _notifications: NotificationService
 
     property var _ipc:        IpcManager
 
