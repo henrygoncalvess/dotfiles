@@ -11,14 +11,15 @@ export QML_XHR_ALLOW_FILE_READ=1
 export XDG_SESSION_TYPE="${XDG_SESSION_TYPE:-$(loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type --value 2>/dev/null || echo wayland)}"
 
 # User theme preference
-# Get user theme
-CONFIG_FILE="$HOME/.config/qylock/theme"
 if [ -n "$1" ]; then
     export QS_THEME="$1"
-elif [ -f "$CONFIG_FILE" ]; then
-    export QS_THEME=$(cat "$CONFIG_FILE")
 else
-    export QS_THEME="nier-automata"
+    # Randomly select a theme from the themes directory
+    THEMES_DIR="$DIR/../themes"
+    [ ! -d "$THEMES_DIR" ] && THEMES_DIR="$DIR/themes_link"
+    
+    THEMES=($(ls -1 "$THEMES_DIR"))
+    export QS_THEME="${THEMES[$RANDOM % ${#THEMES[@]}]}"
 fi
 
 # Set theme path

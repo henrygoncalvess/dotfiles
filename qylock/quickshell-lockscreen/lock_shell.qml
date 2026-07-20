@@ -18,7 +18,6 @@ ShellRoot {
     readonly property bool isWayland: Quickshell.env("XDG_SESSION_TYPE") === "wayland"
     property bool authenticated: false
     property bool sessionLocked: true
-    property bool isTesting: Quickshell.env("QS_TESTING") === "1"
 
     SddmShim {
         id: sddmShim
@@ -114,13 +113,13 @@ ShellRoot {
                     id: window
                     required property var modelData
                     screen: modelData
-                    width: isTesting ? 1280 : screen.width
-                    height: isTesting ? 720 : screen.height
+                    width: screen.width
+                    height: screen.height
                     visible: shellRoot.sessionLocked
-                    visibility: isTesting ? Window.Windowed : Window.FullScreen
+                    visibility: Window.FullScreen
                     
                     onClosing: (close) => {
-                        close.accepted = shellRoot.authenticated || shellRoot.isTesting;
+                        close.accepted = shellRoot.authenticated;
                     }
                     
                     flags: Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint | Qt.MaximizeUsingFullscreenGeometryHint
