@@ -120,7 +120,6 @@ source $ZSH/oh-my-zsh.sh
 # export ARCHFLAGS="-arch $(uname -m)"
 
 # aliases
-alias bat="batcat"
 
 if command -v oh-my-posh &> /dev/null; then
   eval "$(oh-my-posh init zsh --config "$HOME/.dotfiles/conf_posh/.config/oh_my_posh_config/my-theme.omp.json")"
