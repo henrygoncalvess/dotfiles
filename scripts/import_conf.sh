@@ -19,6 +19,7 @@ CONF_TARGETS=(
   "$HOME/.config/Brain_Shell"
   "$HOME/.config/hypr"
   "$HOME/.config/nvim"
+  "$HOME/.config/omarchy"
   "$HOME/.local/share/quickshell-lockscreen"
   "$HOME/.bash_profile"
   "$HOME/.bashrc"
@@ -30,7 +31,7 @@ CONF_TARGETS=(
   "$HOME/.vscode"
 )
 
-STOW_PACKAGES=(frigate conf_home conf_wall conf_posh conf_code conf_git conf_shell conf_kitty conf_rofi conf_quickshell conf_qylock conf_hypr conf_nvim)
+STOW_PACKAGES=(frigate conf_home conf_wall conf_posh conf_code conf_git conf_shell conf_kitty conf_rofi conf_quickshell conf_qylock conf_hypr conf_nvim conf_omarchy)
 
 echo -e "\033[1;33mRemovendo arquivos existentes para evitar conflitos\033[0m\n"
 for target in "${CONF_TARGETS[@]}"; do

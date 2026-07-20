@@ -177,6 +177,7 @@ Item {
                     cp "$DEST_FILE" ${paths.getCacheDir("wallpaper_picker")}/current_wallpaper.png || true
                     pkill mpvpaper || true
                     
+                    mkdir -p "$(dirname "${logFile}")"
                     echo "" >> ${logFile}
                     echo "[$(date +'%H:%M:%S.%3N')] APPLYING CACHED SEARCH: $DEST_FILE TO $TARGET_MONITORS" >> ${logFile}
                     
@@ -219,6 +220,7 @@ Item {
                         cp "$DEST_FILE" ${paths.getCacheDir("wallpaper_picker")}/current_wallpaper.png || true
                         pkill mpvpaper || true
                         
+                        mkdir -p "$(dirname "${logFile}")"
                         echo "" >> ${logFile}
                         echo "[$(date +'%H:%M:%S.%3N')] APPLYING NEW DOWNLOAD: $DEST_FILE TO $TARGET_MONITORS" >> ${logFile}
                         
@@ -256,6 +258,7 @@ Item {
         
         if (isVideo) {
             wallpaperCmd = `
+                mkdir -p "$(dirname "${logFile}")"
                 echo "" >> ${logFile}
                 echo "[$(date +'%H:%M:%S.%3N')] APPLYING LOCAL VIDEO: ${escOriginal} TO ${escOutputs}" >> ${logFile}
                 
@@ -270,6 +273,7 @@ Item {
             `;
         } else {
             wallpaperCmd = `
+                mkdir -p "$(dirname "${logFile}")"
                 echo "" >> ${logFile}
                 echo "[$(date +'%H:%M:%S.%3N')] APPLYING LOCAL IMAGE: ${escOriginal} TO ${escOutputs}" >> ${logFile}
                 

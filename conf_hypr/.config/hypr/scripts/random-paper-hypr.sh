@@ -13,28 +13,24 @@ while ! awww query &>/dev/null; do
   sleep 0.5
 done
 
-# Kill Omarchy's default swaybg so it doesn't cover awww
-killall swaybg 2>/dev/null || true
+# Omarchy (the theme's base) might start swaybg a bit late, so let's kill it aggressively
+# to ensure it doesn't cover awww's wallpaper.
+for i in {1..10}; do
+  killall swaybg 2>/dev/null
+  sleep 0.5
+done &
 
-random_transition() {
+apply_wallpaper() {
   local PIC="$1"
   local STEP=$(shuf -i 1-90 -n 1)
-  effects=("wipe" "any")
-  chosen_effect=$(printf "%s\n" "${effects[@]}" | shuf -n 1)
-
-  # Copy to Quickshell's expected current wallpaper location
+  
+  # Copy to Quickshell's expected current wallpaper location (only if it's a new random one)
   mkdir -p "$QS_CACHE"
-  cp "$PIC" "$QS_CACHE/current_wallpaper.png" 2>/dev/null || true
+  if [ "$PIC" != "$QS_CACHE/current_wallpaper.png" ]; then
+      cp "$PIC" "$QS_CACHE/current_wallpaper.png" 2>/dev/null || true
+  fi
 
-  case "$chosen_effect" in
-    wipe)
-      ANGLE=$(shuf -i 0-365 -n 1)
-      awww img "$PIC" --transition-duration 5 --transition-fps 60 --transition-type wipe --transition-step $STEP --transition-angle $ANGLE
-      ;;
-    any)
-      awww img "$PIC" --transition-duration 5 --transition-fps 60 --transition-type any --transition-step $STEP
-      ;;
-  esac
+  awww img "$PIC" --transition-duration 3 --transition-fps 60 --transition-type any --transition-step $STEP
 
   # Apply matugen colors and reload quickshell
   if command -v matugen &>/dev/null; then
@@ -42,15 +38,12 @@ random_transition() {
   fi
 }
 
-PIC=$(find "$WALLPAPERS_DIR" -type f 2>/dev/null | shuf -n 1 --random-source=/dev/random)
-if [ -n "$PIC" ]; then
-  random_transition "$PIC"
-fi
-
-while true; do
-  sleep 30m
+# Restore last selected wallpaper by the user, or pick a random one if none exists
+if [ -f "$QS_CACHE/current_wallpaper.png" ]; then
+  apply_wallpaper "$QS_CACHE/current_wallpaper.png"
+else
   PIC=$(find "$WALLPAPERS_DIR" -type f 2>/dev/null | shuf -n 1 --random-source=/dev/random)
   if [ -n "$PIC" ]; then
-    random_transition "$PIC"
+    apply_wallpaper "$PIC"
   fi
-done
+fi
