@@ -1,8 +1,3 @@
-pragma Singleton
-import QtQuick
-import Quickshell.Services.Notifications
-import "../../"
-
 // ─────────────────────────────────────────────────────────────
 // NotificationService — global singleton
 // ─────────────────────────────────────────────────────────────
@@ -14,10 +9,14 @@ import "../../"
 NotificationServer {
     id: root
 
-    bodyMarkupSupported:   true
-    bodySupported:         true
-    actionsSupported:      true
-    keepOnReload:          true
+    bodyMarkupSupported:       true
+    bodySupported:             true
+    actionsSupported:          true
+    actionIconsSupported:      true
+    imageSupported:            true
+    bodyHyperlinksSupported:   true
+    bodyImagesSupported:       true
+    keepOnReload:              true
     
     signal notificationAdded(var notification)
     
