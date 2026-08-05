@@ -67,8 +67,11 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     focusable: true
 
-    implicitWidth: masterWindow.screen.width
-    implicitHeight: masterWindow.screen.height
+    // Guard against a null screen during monitor teardown / DPMS-off, when
+    // Quickshell.screens briefly empties — dereferencing a null screen here
+    // would throw and could take the instance down.
+    implicitWidth: masterWindow.screen ? masterWindow.screen.width : 0
+    implicitHeight: masterWindow.screen ? masterWindow.screen.height : 0
 
     visible: isVisible
 
