@@ -1,0 +1,137 @@
+/* Tema custom do walker — cópia do omarchy-default com ajustes pessoais.
+ *
+ * Por que existe: estas mudanças viviam editadas direto em
+ * ~/.local/share/omarchy/default/walker/themes/omarchy-default/style.css, que é
+ * a árvore git do Omarchy — todo `omarchy update` desfazia ou conflitava.
+ * Aqui elas ficam versionadas neste repo e o Omarchy segue intocado.
+ *
+ * O import abaixo é o que faz o walker seguir as cores do tema atual do Omarchy
+ * (@base, @text, @border). O caminho é relativo A ESTE ARQUIVO: subimos de
+ * .config/walker/themes/omarchy-custom/ até .config/ (3 níveis). O original
+ * subia 7 porque partia de ~/.local/share/omarchy/default/walker/themes/.
+ *
+ * layout.xml é cópia fiel do upstream; se o Omarchy mudar a estrutura do
+ * walker, é esse arquivo que precisa ser re-sincronizado.
+ */
+@import "../../../omarchy/current/theme/walker.css";
+
+* {
+  all: unset;
+}
+
+* {
+  font-family: monospace;
+  font-size: 17px;
+  color: @text;
+}
+
+scrollbar {
+  opacity: 0;
+}
+
+.normal-icons {
+  -gtk-icon-size: 16px;
+}
+
+.large-icons {
+  -gtk-icon-size: 32px;
+}
+
+.box-wrapper {
+  background: alpha(@base, 0.2);
+  padding: 20px;
+  border: 2px solid #298dff;
+  border-radius: 20px;
+}
+
+.preview-box {
+}
+
+.box {
+}
+
+.search-container {
+  background: alpha(@base, 0.2);
+  padding: 10px;
+}
+
+.input placeholder {
+  opacity: 0.5;
+}
+
+.input {
+}
+
+.input:focus,
+.input:active {
+  box-shadow: none;
+  outline: none;
+}
+
+.content-container {
+}
+
+.placeholder {
+}
+
+.scroll {
+}
+
+.list {
+}
+
+child,
+child > * {
+}
+
+child:hover .item-box {
+}
+
+child:selected .item-box {
+}
+
+child:selected .item-box * {
+  color: @selected-text;
+}
+
+child:selected {
+  background: alpha(@text, 0.07);
+  border-radius: 10px;
+}
+
+.item-box {
+  padding-left: 14px;
+}
+
+.item-text-box {
+  all: unset;
+  padding: 14px 0;
+}
+
+.item-text {
+}
+
+.item-subtext {
+  font-size: 0px;
+  min-height: 0px;
+  margin: 0px;
+  padding: 0px;
+}
+
+.item-image {
+  margin-right: 14px;
+  -gtk-icon-transform: scale(0.9);
+}
+
+.current {
+  font-style: italic;
+}
+
+.keybind-hints {
+  background: @background;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.preview {
+}
