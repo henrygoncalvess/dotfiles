@@ -176,10 +176,21 @@ _para executar um script: `./script.sh` ou `bash script.sh`_
 >
 > Os alvos de `CONF_TARGETS` são apagados com `rm -rf` antes do stow, então só
 > entram ali diretórios cujo conteúdo é 100% deste repo. Diretórios
-> compartilhados com a distro são tratados como **overlay** (`OVERLAY_PACKAGES`):
-> só os arquivos fornecidos pelo pacote são substituídos, com
-> `stow --no-folding`. Hoje são `conf_omarchy` (`~/.config/omarchy` guarda
-> `current/theme`, `themes/`, `hooks/`) e `conf_walker`.
+> compartilhados com **a distro, com outro app ou com estado de runtime** são
+> tratados como **overlay** (`OVERLAY_PACKAGES`): só os arquivos fornecidos pelo
+> pacote são substituídos, com `stow --no-folding`.
+>
+> | Pacote overlay | Por que o destino é compartilhado |
+> |---|---|
+> | `conf_omarchy` | `~/.config/omarchy` guarda `current/theme`, `themes/`, `hooks/` |
+> | `conf_walker` | recebe arquivos gerados pelo `omarchy refresh walker` |
+> | `conf_systemd` | o systemd não segue diretório de drop-in que seja symlink |
+> | `conf_qs-vpets` | o qs-vpets grava `state-<Pet>.json` ao lado do `config.json` |
+> | `conf_easyeffects` | a UI do EasyEffects cria outros presets no mesmo diretório |
+> | `conf_autostart` | `~/.config/autostart` recebe `.desktop` instalados pelos apps |
+>
+> Ao final o script roda `systemctl --user enable brainshell quickshell` e
+> `mask mako` — sem isso o Brain_Shell não sobe no login de uma máquina nova.
 
 > [!TIP]
 > **Personalizações do Omarchy vão em `~/.config/`, nunca em
