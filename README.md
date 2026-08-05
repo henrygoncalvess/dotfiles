@@ -25,8 +25,8 @@ Configurações pessoais do meu ambiente **Hyprland (Wayland)**, versionadas par
 | Launcher / menus extras | [Rofi](https://github.com/davatorium/rofi) (temas [adi1090x](https://github.com/adi1090x/rofi)) — goanime, powermenu |
 | Terminal | [Kitty](https://sw.kovidgoyal.net/kitty/) |
 | Shell / prompt | Zsh + [Oh My Zsh](https://ohmyz.sh/) + [Oh My Posh](https://ohmyposh.dev/) |
-| Lock / idle | Hyprlock + Hypridle / **qylock** — temas de lockscreen em Quickshell |
-| Wallpaper | [swww](https://github.com/LGFae/swww) + [matugen](https://github.com/InioX/matugen) (troca dinâmica e paleta gerada do wallpaper) |
+| Lock / idle | Hypridle + **qylock** (temas de lockscreen em Quickshell), com Hyprlock como fallback. Ponto de entrada único: `~/.config/hypr/scripts/system-lock.sh`; tema em `~/.config/qylock/theme` (ou `random`) |
+| Wallpaper | [awww](https://github.com/LGFae/swww) (ex-swww) + [matugen](https://github.com/InioX/matugen) (troca dinâmica e paleta gerada do wallpaper) |
 | Clipboard | [cliphist](https://github.com/sentriz/cliphist) + wl-clipboard |
 | Screenshot / gravação | grim + slurp / [wf-recorder](https://github.com/ammen99/wf-recorder) |
 | Editores | Neovim, VS Code |
@@ -170,9 +170,26 @@ _para executar um script: `./script.sh` ou `bash script.sh`_
 ```
 
 > [!NOTE]
-> No **Arch/Omarchy** o `import_conf.sh` detecta a distro e **não** aplica
-> `conf_hypr` nem `conf_nvim` — o Hyprland (keybindings, barra) e o Neovim do
-> Omarchy ficam intactos. Esses pacotes são exclusivos do setup Ubuntu.
+> O `import_conf.sh` aplica **todos** os pacotes, inclusive `conf_hypr` e
+> `conf_nvim` — no Omarchy o Hyprland daqui é sobreposto por cima dos defaults
+> da distro (via `unbind`/`source`), não em vez deles.
+>
+> Os alvos de `CONF_TARGETS` são apagados com `rm -rf` antes do stow, então só
+> entram ali diretórios cujo conteúdo é 100% deste repo. Diretórios
+> compartilhados com a distro são tratados como **overlay** (`OVERLAY_PACKAGES`):
+> só os arquivos fornecidos pelo pacote são substituídos, com
+> `stow --no-folding`. Hoje são `conf_omarchy` (`~/.config/omarchy` guarda
+> `current/theme`, `themes/`, `hooks/`) e `conf_walker`.
+
+> [!TIP]
+> **Personalizações do Omarchy vão em `~/.config/`, nunca em
+> `~/.local/share/omarchy/`** — aquilo é a árvore git da distro e qualquer
+> edição é desfeita (ou vira conflito) no próximo `omarchy update`. Exemplos
+> aqui: o tema do walker vive em `conf_walker/.config/walker/themes/omarchy-custom/`
+> em vez de editar o `omarchy-default`, e o bloqueio de tela passa por
+> `conf_hypr/.config/hypr/scripts/system-lock.sh` em vez de patchear o
+> `omarchy-system-lock`. Pro menu do Omarchy existe o ponto de extensão oficial
+> `~/.config/omarchy/extensions/menu.sh`.
 
 <br>
 
