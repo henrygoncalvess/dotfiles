@@ -42,6 +42,11 @@ Item {
         popupScreen: root.screenRef
     }
 
+    // Bottom-right corner → emoji picker (SUPER + PERIOD)
+    EmojiPopup {
+        popupScreen: root.screenRef
+    }
+
     // ── TopBar-anchored popups ───────────────────────────────
 
     // Right notch — audio

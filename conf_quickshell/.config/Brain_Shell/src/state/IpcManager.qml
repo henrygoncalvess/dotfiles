@@ -220,6 +220,15 @@ QtObject {
         }
     }
 
+    property var emoji: IpcHandler {
+        target: "emoji-toggle"
+        function toggle() {
+            var next = !Popups.emojiOpen
+            Popups.closeAll()
+            Popups.emojiOpen = next
+        }
+    }
+
     property var wallpaper: IpcHandler {
         target: "wallpaper-toggle"
         function toggle() {
