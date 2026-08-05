@@ -157,7 +157,10 @@ Item {
 
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
-                        text: ""; font.pixelSize: 12
+                        // Was an empty string: the literal glyph did not survive an
+                        // earlier edit. Codepoints are the safe way to write these.
+                        text: String.fromCharCode(0xF002)   // magnifier
+                        font.pixelSize: 12
                         color: Qt.rgba(1, 1, 1, 0.28)
                     }
 

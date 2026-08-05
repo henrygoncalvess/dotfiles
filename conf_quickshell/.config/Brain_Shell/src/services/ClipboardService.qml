@@ -96,13 +96,15 @@ QtObject {
         _copyProc.running = true
     }
 
-    // ── Type: copy first, then wtype after popup closes ────────────────────────
-    property var _wtypeProc: Process { command: []; running: false }
+    // ── Paste: copy first, then insert once the popup has closed ───────────────
+    // The script picks between wtype and Hyprland's sendshortcut depending on
+    // what is installed — see src/scripts/paste_active.sh.
+    property var _pasteProc: Process { command: []; running: false }
 
     function typeFromClipboard() {
-        _wtypeProc.command = ["bash", "-c", "sleep 0.35 && wl-paste -n | wtype -"]
-        _wtypeProc.running = false
-        _wtypeProc.running = true
+        _pasteProc.command = [Quickshell.shellPath("src/scripts/paste_active.sh")]
+        _pasteProc.running = false
+        _pasteProc.running = true
     }
 
     // ── Delete ─────────────────────────────────────────────────────────────────
