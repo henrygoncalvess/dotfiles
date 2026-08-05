@@ -144,15 +144,26 @@ StatCard {
     // ─────────────────────────────────────────────────────────────────────────
     property bool caffeineOn: false
 
+    // O truque do colchete em `[s]ystemd-inhibit` não é enfeite: `pgrep -f` casa
+    // contra a cmdline de TODOS os processos, e a cmdline do próprio `bash -c`
+    // que carrega este padrão contém a string procurada. O check dava positivo
+    // sempre — o tile nascia aceso sem existir inhibitor nenhum, e a tela
+    // travava com o "caffeine ligado". O colchete quebra o auto-match sem mudar
+    // o que o regex encontra. Mesmo motivo no pkill: sem ele o pkill derrubava
+    // o bash que o executava.
     Process { id: caffeineCheck
-        command: ["bash", "-c", "pgrep -f 'systemd-inhibit.*Caffeine'"]; running: false
-        stdout: SplitParser { onRead: function(l) { if (l.trim() !== "") root.caffeineOn = true } } }
+        command: ["bash", "-c", "pgrep -f '[s]ystemd-inhibit.*Caffeine mode' >/dev/null && echo on || echo off"]
+        running: false
+        stdout: SplitParser { onRead: function(l) { root.caffeineOn = (l.trim() === "on") } } }
     Process { id: caffeineProc
         command: ["systemd-inhibit","--what=idle:sleep",
                   "--who=Brain Shell","--why=Caffeine mode","sleep","infinity"]
-        running: false }
+        running: false
+        // O inhibitor morre junto com o processo. Se o quickshell recarregar, o
+        // estado real vira "off" — refletir isso evita o tile mentir de novo.
+        onRunningChanged: if (!running) root.caffeineOn = false }
     Process { id: caffeineKill
-        command: ["bash", "-c", "pkill -f 'systemd-inhibit.*Caffeine'"]; running: false
+        command: ["bash", "-c", "pkill -f '[s]ystemd-inhibit.*Caffeine mode'"]; running: false
         onRunningChanged: if (!running) root.caffeineOn = false }
     function _caffeineToggle() {
         if (root.caffeineOn) {
