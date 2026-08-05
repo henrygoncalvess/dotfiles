@@ -6,10 +6,13 @@ import "../services"
 import "../components"
 import "../"
 
-PopupWindow {
+import Quickshell.Wayland
+
+PanelWindow {
 	id: root
 
-	required property var anchorWindow
+	// Mantido só pra PopupLayer poder passar anchorWindow sem quebrar
+	property var anchorWindow
 
 	readonly property int fw: Theme.cornerRadius
 	readonly property int fh: Theme.cornerRadius
@@ -31,21 +34,23 @@ PopupWindow {
 	property string page: "power"
 
 	color:   "transparent"
-	visible: slide.windowVisible
+	// Monitor desta cópia (PopupLayer é instanciado por tela). Sem `screen` as
+	// cópias empilham no mesmo monitor e a de cima engole os cliques.
+	property var popupScreen: null
+	screen: popupScreen
+
+	visible: slide.windowVisible && Popups.isActiveScreen(popupScreen)
 	mask: Region { item: maskProxy }
 
 	implicitWidth:  (pageWidths["stats"]  ?? 220) + fw
 	implicitHeight: (pageHeights["stats"] ?? 220) + fh * 2
 
-	anchor.window:  anchorWindow
-	anchor.gravity: Edges.Right
-	anchor.rect: Qt.rect(
-		0,
-		anchorWindow.height / 2,
-		anchorWindow.width,
-		implicitHeight
-	)
-	
+	anchors.left: true
+	// Not setting top or bottom centers it vertically on the left edge
+
+	WlrLayershell.layer:         WlrLayer.Overlay
+	WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+	exclusionMode: ExclusionMode.Ignore
 	Item {
 		id:      maskProxy
 		x:       0

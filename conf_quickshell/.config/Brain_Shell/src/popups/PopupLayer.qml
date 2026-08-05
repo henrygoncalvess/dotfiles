@@ -21,47 +21,63 @@ Item {
     required property var rightBorder  // right Border PanelWindow
     required property var bottomBorder // bottom Border PanelWindow
 
+    // ShellScreen of this layer. shell.qml creates one PopupLayer per monitor,
+    // so every popup MUST receive it — without `screen` the copies from both
+    // monitors land on the same screen, stacked (see the note in Popups.qml).
+    required property var screenRef
+
     // ── Border-anchored popups ───────────────────────────────
 
     // Left border → center
     ArchMenu {
+        popupScreen:  root.screenRef
         anchorWindow: root.leftBorder
     }
 
     // Bottom border → slides up
     // WallpaperPopup {}
 
-    // Bottom-right corner → clipboard history + emoji
-    ClipboardPopup {}
+    // Bottom-right corner → clipboard history
+    ClipboardPopup {
+        popupScreen: root.screenRef
+    }
 
     // ── TopBar-anchored popups ───────────────────────────────
 
     // Right notch — audio
     AudioPopup {
+        popupScreen:  root.screenRef
         anchorWindow: root.rightBorder
     }
     QuickControl {
+        popupScreen:  root.screenRef
         anchorWindow: root.topBar
     }
 
     // Center notch — dashboard (expands below the center notch)
     Dashboard {
+        popupScreen:  root.screenRef
         anchorWindow: root.topBar
     }
 
     // Right notch
     NotificationsPopup {
+        popupScreen:  root.screenRef
         anchorWindow: root.topBar
     }
 
     NotificationToast {
+        popupScreen:  root.screenRef
         anchorWindow: root.rightBorder
     }
 
     // Screen recorder strip options — appears below center notch on hover
     ScreenRecOptionsPopup {
+        popupScreen:  root.screenRef
         anchorWindow: root.topBar
     }
 
-    NetworkPopup {}
+    NetworkPopup {
+        popupScreen: root.screenRef
+    }
 }

@@ -31,7 +31,12 @@ PanelWindow {
     WlrLayershell.layer:         WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
-    visible: slide.windowVisible
+    // Monitor desta cópia (PopupLayer é instanciado por tela). Sem `screen` as
+    // cópias empilham no mesmo monitor e a de cima engole os cliques.
+    property var popupScreen: null
+    screen: popupScreen
+
+    visible: slide.windowVisible && Popups.isActiveScreen(popupScreen)
     mask:    Region { item: maskProxy }
     
     Item {
@@ -105,7 +110,7 @@ PanelWindow {
         anchors.fill:     parent
         edge:             "right"
         open:             Popups.quickOpen 
-        hoverEnabled:     true
+        hoverEnabled:     false
         triggerHovered:   Popups.quickTriggerHovered 
         onCloseRequested: Popups.quickOpen = false
 

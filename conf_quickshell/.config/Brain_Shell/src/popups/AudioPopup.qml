@@ -5,42 +5,47 @@ import "../shapes"
 import "../components"
 import "../services"
 import "../"
+import Quickshell.Wayland
 
-PopupWindow {
+PanelWindow {
 	id: root
 
-	required property var anchorWindow
+	// Mantido só pra PopupLayer poder passar anchor sem quebrar
+	property var anchorWindow
 
 	readonly property int fw: Theme.cornerRadius
 	readonly property int fh: Theme.cornerRadius
 
 	readonly property var pageWidths: ({
-		"output": 200,
-		"input":  200,
-		"mixer":  300
+		"output": 320,
+		"input":  320,
+		"mixer":  320
 	})
 
 	readonly property int popupHeight: 340
 
-	readonly property int maxWidth: 300
+	readonly property int maxWidth: 320
 
 	color:   "transparent"
-	visible: slide.windowVisible
+	// Monitor desta cópia (PopupLayer é instanciado por tela). Sem `screen` as
+	// cópias empilham no mesmo monitor e a de cima engole os cliques.
+	property var popupScreen: null
+	screen: popupScreen
+
+	visible: slide.windowVisible && Popups.isActiveScreen(popupScreen)
 	mask: Region { item: maskProxy }
 
-	anchor.window:  anchorWindow
-	anchor.rect: Qt.rect(
-		Theme.cornerRadius,
-		anchorWindow.height / 2,
-		0,
-		popupHeight
-	)
-	anchor.gravity: Edges.Left
+	anchors.right: true
+	// Not setting top or bottom centers it vertically on the right edge
 	
+	WlrLayershell.layer:         WlrLayer.Overlay
+	WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+	exclusionMode: ExclusionMode.Ignore
+
 	Item {
 	    id:      maskProxy
 	    x:       root.maxWidth - sizer.width
-	    y:       ((root.popupHeight - sizer.height) / 2) -root.fh
+	    y:       (root.popupHeight - sizer.height) / 2
 	    width:   sizer.width
 	    height:  sizer.height
 	}
@@ -53,7 +58,7 @@ PopupWindow {
 		anchors.fill: parent
 		edge:             "right"
 		open:             Popups.audioOpen
-		hoverEnabled:     false
+		hoverEnabled:     true
 		triggerHovered:   Popups.audioTriggerHovered
 		onCloseRequested: Popups.audioOpen = false
 
@@ -81,7 +86,7 @@ PopupWindow {
 			anchors.verticalCenter: parent.verticalCenter
 			clip: true
 
-			width:  (root.pageWidths[audioControl.page] ?? root.maxWidth)
+			width:  root.pageWidths[audioControl.page] || root.maxWidth
 			height: root.popupHeight
 
 			Behavior on width { NumberAnimation { duration: Theme.animDuration; easing.type: Easing.InOutCubic } }

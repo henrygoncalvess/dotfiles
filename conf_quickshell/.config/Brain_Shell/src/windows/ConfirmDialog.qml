@@ -27,7 +27,8 @@ PanelWindow {
     anchors { top: true; left: true; right: true; bottom: true }
     exclusionMode: ExclusionMode.Ignore
 
-    visible: Popups.confirmOpen || Popups.confirmRunning
+    // Modal: aparece só no monitor focado, não em todos de uma vez.
+    visible: (Popups.confirmOpen || Popups.confirmRunning) && Popups.isFocusedScreen(screen)
 
     WlrLayershell.layer:         WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand

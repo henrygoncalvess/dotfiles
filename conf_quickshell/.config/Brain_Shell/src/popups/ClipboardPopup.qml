@@ -42,8 +42,14 @@ PanelWindow {
         height: sizer.height
     }
 
+    // Screen this copy belongs to (PopupLayer is instantiated per screen).
+    // Without `screen` the copies stack on one monitor and the top one
+    // swallows every click.
+    property var popupScreen: null
+    screen: popupScreen
+
     property bool windowVisible: false
-    visible: windowVisible
+    visible: windowVisible && Popups.isActiveScreen(popupScreen)
 
     Connections {
         target: Popups

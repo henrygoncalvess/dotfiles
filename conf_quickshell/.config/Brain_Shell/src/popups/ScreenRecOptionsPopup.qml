@@ -31,7 +31,11 @@ PopupWindow {
     )
 
     color:   "transparent"
-    visible: ScreenRecService.openStrip !== ""
+    // PopupWindow: a tela vem da janela-âncora, não dá pra definir `screen` aqui.
+    // Só o filtro de monitor focado, pra não abrir nos dois ao mesmo tempo.
+    property var popupScreen: null
+
+    visible: ScreenRecService.openStrip !== "" && Popups.isFocusedScreen(popupScreen)
 
     HoverHandler {
         onHoveredChanged: {

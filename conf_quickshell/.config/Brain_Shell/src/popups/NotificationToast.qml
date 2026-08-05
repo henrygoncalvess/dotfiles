@@ -29,7 +29,12 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
 
 	color:   "transparent"
-	visible: windowVisible
+	// Monitor desta cópia (PopupLayer é instanciado por tela). O toast não passa
+	// pelo estado de "popup aberto", então segue o monitor focado na hora.
+	property var popupScreen: null
+	screen: popupScreen
+
+	visible: windowVisible && Popups.isFocusedScreen(popupScreen)
 
 	property bool windowVisible: false
 	property bool showing:       false

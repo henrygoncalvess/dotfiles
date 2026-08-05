@@ -42,8 +42,12 @@ PanelWindow {
     onPageChanged: _applyPageWidth(page)
 
     color:   "transparent"
-    visible: windowVisible
+    // Monitor desta cópia (PopupLayer é instanciado por tela). Sem `screen` as
+    // cópias empilham no mesmo monitor e a de cima engole os cliques.
+    property var popupScreen: null
+    screen: popupScreen
 
+    visible: windowVisible && Popups.isActiveScreen(popupScreen)
     anchors.top:   true
     anchors.left:  true
     anchors.right: true
