@@ -1,0 +1,17 @@
+[Unit]
+Description=Quickshell overlay (qs-master launcher / control panel)
+Documentation=https://quickshell.org
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+# Work machine: never stop trying to bring the overlay back.
+StartLimitIntervalSec=0
+
+[Service]
+Type=exec
+ExecStart=%h/.config/hypr/scripts/qs_run.sh -p %h/.config/quickshell
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

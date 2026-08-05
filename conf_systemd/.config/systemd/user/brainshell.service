@@ -1,0 +1,21 @@
+[Unit]
+Description=Brain_Shell (Quickshell bar, widgets, launcher, notifications)
+Documentation=https://quickshell.org
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+# Work machine: never stop trying to bring the shell back.
+StartLimitIntervalSec=0
+
+[Service]
+Type=exec
+# Seed colors.json / config_Provider.json before launch (silences FileView errors).
+ExecStartPre=%h/.config/hypr/scripts/qs_seed.sh
+# qs_run.sh kills mako/dunst/swaync (omarchy starts mako at login) so Brain_Shell
+# can own org.freedesktop.Notifications, then exec's quickshell in the foreground.
+ExecStart=%h/.config/hypr/scripts/qs_run.sh -p %h/.config/Brain_Shell
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target
