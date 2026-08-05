@@ -1,6 +1,8 @@
 #zsh-users/zsh-autosuggestions If you come from bash you might have to change your $PATH.
 export PATH="$PATH:/usr/local/bin:$HOME/bin:$HOME/.local/bin:$HOME/.local/kitty.app/bin"
 
+export XDG_DATA_DIRS="$HOME/.local/share/flatpak/exports/share:$XDG_DATA_DIRS"
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
