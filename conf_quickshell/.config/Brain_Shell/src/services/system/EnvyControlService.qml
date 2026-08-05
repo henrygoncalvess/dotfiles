@@ -29,8 +29,10 @@ QtObject {
     property string _pendingMode: ""
 
     // ── Query current mode ────────────────────────────────────────────────────
+    // Guarded: on machines without envycontrol, sh returns empty output and the
+    // handler leaves currentMode at its "integrated" default — no error spam.
     property var _queryProc: Process {
-        command: ["envycontrol", "--query"]
+        command: ["sh", "-c", "command -v envycontrol >/dev/null 2>&1 && exec envycontrol --query"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {

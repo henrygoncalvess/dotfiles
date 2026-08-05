@@ -39,11 +39,12 @@ QtObject {
     }
 
     // ── nvidia-smi GPU temp ───────────────────────────────────────────────────
+    // Guarded so machines without an NVIDIA dGPU don't spam "binary not found":
+    // sh always exists; nvidia-smi runs only if present, else output is empty.
     property var _nvProc: Process {
         command: [
-            "nvidia-smi",
-            "--query-gpu=temperature.gpu",
-            "--format=csv,noheader,nounits"
+            "sh", "-c",
+            "command -v nvidia-smi >/dev/null 2>&1 && exec nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits"
         ]
         running: false
         stdout: StdioCollector {

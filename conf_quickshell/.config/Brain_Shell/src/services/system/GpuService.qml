@@ -69,11 +69,11 @@ QtObject {
     }
 
     // ── NVIDIA dGPU ───────────────────────────────────────────────────────────
+    // Guarded (see ThermalService): no NVIDIA present → empty output, no error.
     property var _nvProc: Process {
         command: [
-            "nvidia-smi",
-            "--query-gpu=utilization.gpu,memory.used,memory.total",
-            "--format=csv,noheader,nounits"
+            "sh", "-c",
+            "command -v nvidia-smi >/dev/null 2>&1 && exec nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits"
         ]
         running: false
         stdout: StdioCollector {
