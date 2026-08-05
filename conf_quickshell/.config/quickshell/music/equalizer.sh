@@ -3,7 +3,10 @@
 source "$(dirname "${BASH_SOURCE[0]}")/../caching.sh"
 qs_ensure_cache "music"
 
-STATE_FILE="$QS_RUN_MUSIC/eq_state.json"
+# QS_STATE_MUSIC (~/.local/state), não QS_RUN_MUSIC ($XDG_RUNTIME_DIR): o run dir
+# é tmpfs e sumia a cada reboot. O preset abaixo sobrevive, então a UI voltava
+# marcando "Flat" enquanto o EasyEffects seguia aplicando a curva antiga.
+STATE_FILE="$QS_STATE_MUSIC/eq_state.json"
 PRESET_DIR="$HOME/.local/share/easyeffects/output"
 PRESET_NAME="live_eq"
 PRESET_FILE="$PRESET_DIR/${PRESET_NAME}.json"
@@ -11,9 +14,30 @@ EE_SINK="easyeffects_sink"
 
 mkdir -p "$PRESET_DIR"
 
-# Default state (Now includes "pending": false)
+# Sem estado salvo, o preset é a fonte da verdade — é ele que está tocando, e numa
+# máquina nova é ele que vem versionado no dotfiles. Reconstruir os sliders a
+# partir dele mantém UI e áudio dizendo a mesma coisa; só cai pro Flat quando não
+# há preset nenhum.
 if [ ! -f "$STATE_FILE" ]; then
-    echo '{"b1": 0, "b2": 0, "b3": 0, "b4": 0, "b5": 0, "b6": 0, "b7": 0, "b8": 0, "b9": 0, "b10": 0, "preset": "Flat", "pending": false}' > "$STATE_FILE"
+    seeded=""
+    if [ -f "$PRESET_FILE" ]; then
+        seeded=$(python3 -c "
+import json, sys
+try:
+    eq = json.load(open(sys.argv[1]))['output']['equalizer#0']
+    bands = eq['left']
+    state = {'b%d' % (i + 1): bands['band%d' % i]['gain'] for i in range(int(eq['num-bands']))}
+    state.update({'preset': 'Custom', 'pending': False})
+    print(json.dumps(state))
+except Exception:
+    pass
+" "$PRESET_FILE" 2>/dev/null)
+    fi
+    if [ -n "$seeded" ]; then
+        echo "$seeded" > "$STATE_FILE"
+    else
+        echo '{"b1": 0, "b2": 0, "b3": 0, "b4": 0, "b5": 0, "b6": 0, "b7": 0, "b8": 0, "b9": 0, "b10": 0, "preset": "Flat", "pending": false}' > "$STATE_FILE"
+    fi
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
