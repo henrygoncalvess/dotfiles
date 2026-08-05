@@ -316,5 +316,15 @@ Item {
         }
 
         HoverHandler { id: cardHover }
+
+        // Botão direito em qualquer ponto do card fecha a notificação — mesmo
+        // gesto do toast, sem precisar mirar no X. Só RightButton, pra o clique
+        // esquerdo seguir chegando nos botões de ação e no dismissBtn.
+        MouseArea {
+            anchors.fill:    parent
+            z:               100
+            acceptedButtons: Qt.RightButton
+            onClicked:       card.notification?.dismiss()
+        }
     }
 }

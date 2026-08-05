@@ -349,5 +349,20 @@ PanelWindow {
 				}
 			}
 		}
+
+		// Botão direito em qualquer ponto do card fecha a notificação.
+		// Só RightButton: assim o clique esquerdo continua chegando nos botões
+		// de ação (que usam TapHandler) em vez de ser engolido aqui.
+		MouseArea {
+			anchors.fill:    parent
+			z:               100
+			acceptedButtons: Qt.RightButton
+			onClicked: {
+				if (root.current)
+					root.current.dismiss()
+				else
+					root.startDismiss()
+			}
+		}
 	}
 }
