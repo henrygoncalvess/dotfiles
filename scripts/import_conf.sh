@@ -12,6 +12,12 @@ echo -e "\033[1;33mCriando Symlinks com GNU Stow\033[0m\n"
 # Paths to clean before stowing (avoids conflicts with pre-existing dirs/files).
 # Only entries whose ENTIRE tree belongs to this repo go here — o alvo é apagado
 # com `rm -rf` antes do stow.
+#
+# CUIDADO: nada aqui pode ter um symlink no meio do caminho. `rm -rf` atravessa
+# symlink de diretório-pai e apaga o destino, não o link. Foi o que quase
+# aconteceu com ~/.local/share/qs/qs-vpets: o stow tinha dobrado ~/.local/share/qs
+# num link pro repo, então limpar o alvo apagaria os arquivos versionados aqui
+# dentro. Alvo de pacote overlay não entra nesta lista.
 CONF_TARGETS=(
   "$HOME/.config/Code"
   "$HOME/.config/kitty"
@@ -22,7 +28,6 @@ CONF_TARGETS=(
   "$HOME/.config/hypr"
   "$HOME/.config/nvim"
   "$HOME/.local/share/quickshell-lockscreen"
-  "$HOME/.local/share/qs/qs-vpets"
   "$HOME/.bash_profile"
   "$HOME/.bashrc"
   "$HOME/.zshrc"
@@ -61,6 +66,13 @@ OVERLAY_PACKAGES=(conf_omarchy conf_walker conf_systemd conf_qs-vpets conf_easye
 
 echo -e "\033[1;33mRemovendo arquivos existentes para evitar conflitos\033[0m\n"
 for target in "${CONF_TARGETS[@]}"; do
+  # Se o alvo NÃO é o symlink em si mas mesmo assim resolve pra dentro do repo,
+  # tem um symlink no meio do caminho e este `rm -rf` apagaria os arquivos
+  # versionados em vez de um link. Abortar é sempre melhor que isso.
+  if [ ! -L "$target" ] && [[ "$(readlink -f "$target" 2>/dev/null)" == "$HOME/.dotfiles/"* ]]; then
+    echo -e "\033[1;31mPulando $target — resolve pra dentro do repositório (symlink de pai)\033[0m"
+    continue
+  fi
   if [ -e "$target" ] || [ -L "$target" ]; then
     echo "Limpando: $target"
     rm -rf "$target"
@@ -69,8 +81,29 @@ done
 
 # Nos overlays só o arquivo que o pacote realmente fornece é removido.
 for pkg in "${OVERLAY_PACKAGES[@]}"; do
+  # 1) Desdobrar ANTES de limpar. Uma execução anterior pode ter dobrado um
+  #    diretório inteiro num symlink pro repo (foi o caso de ~/.local/share/qs).
+  #    Se isso continuar de pé, o passo 2 abaixo atravessa o link e apaga os
+  #    arquivos VERSIONADOS aqui dentro, porque `rm -f` segue symlink de pai.
+  #    Removendo só o link não se perde nada: `rm -f` num symlink nunca toca o
+  #    destino, e o stow recria o diretório real logo em seguida.
   while IFS= read -r rel; do
     target="$HOME/$rel"
+    if [ -L "$target" ] && [[ "$(readlink -f "$target")" == "$HOME/.dotfiles/"* ]]; then
+      echo "Desdobrando (overlay): $target"
+      rm -f "$target"
+    fi
+  done < <(cd "$HOME/.dotfiles/$pkg" && find . -mindepth 1 -type d -printf '%P\n')
+
+  # 2) Agora sim: só o arquivo real (não-symlink) que o pacote vai substituir.
+  while IFS= read -r rel; do
+    target="$HOME/$rel"
+    # Rede de segurança pro caso de sobrar algum symlink de pai não previsto: se
+    # o caminho resolve pra dentro do repo, não é arquivo do sistema a ser
+    # descartado — é o nosso original. Nunca apagar.
+    case "$(readlink -f "$target" 2>/dev/null)" in
+      "$HOME/.dotfiles/"*) continue ;;
+    esac
     if [ -f "$target" ] && [ ! -L "$target" ]; then
       echo "Limpando (overlay): $target"
       rm -f "$target"
