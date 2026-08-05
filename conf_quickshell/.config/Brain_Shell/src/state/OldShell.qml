@@ -3,22 +3,36 @@ import QtQuick
 import Quickshell
 
 // ─────────────────────────────────────────────────────────────
-// OldShell — aciona os widgets da 2ª instância (config antiga em
-// ~/.config/quickshell) via o IpcHandler "main".handleCommand.
+// OldShell — drives the widgets of the 2nd instance (the old config in
+// ~/.config/quickshell) through its "main".handleCommand IpcHandler.
 //
-// Essa 2ª instância roda só pra fornecer os widgets battery/calendar/
-// music/network/wallpaper/clipboard; o NotificationServer dela está
-// desligado (o Brain_Shell é quem detém as notificações).
+// That 2nd instance only exists to provide the battery/calendar/music/
+// network/wallpaper/clipboard widgets; its NotificationServer is disabled
+// (Brain_Shell owns notifications).
 //
-// Uso: OldShell.toggle("battery", "")   // arg opcional (ex. "wifi")
+// Usage: OldShell.toggle("battery", "")   // arg is optional (e.g. "wifi")
 // ─────────────────────────────────────────────────────────────
 QtObject {
-    // Resolve o quickshell em runtime: nativo no arch/omarchy, nix no ubuntu
-    // (o exec do Hyprland NÃO herda o ~/.nix-profile/bin no PATH, por isso o
-    // fallback usa o caminho absoluto).
+    // When quickshell restarts itself after a crash, the recovered process keeps
+    // __QUICKSHELL_CRASH_* in its environment, and every child it spawns
+    // inherits them. A child that is itself quickshell then thinks it IS the
+    // crash-recovery re-exec: it ignores the `ipc call` arguments entirely and
+    // relaunches the parent's config instead. That spawned a whole extra
+    // Brain_Shell — bar, borders and all — on every click that reached this
+    // singleton, stacking one more bar down the screen each time. Scrubbing the
+    // variables keeps the child an ordinary ipc client.
+    readonly property string _scrubCrashEnv:
+        "env -u __QUICKSHELL_CRASH_INFO_FD -u __QUICKSHELL_CRASH_DUMP_FD " +
+        "-u __QUICKSHELL_CRASH_LOG_FD -u __QUICKSHELL_CRASH_DUMP_PID " +
+        "-u __QUICKSHELL_CRASH_SIGNAL "
+
+    // Resolve quickshell at runtime: native on arch/omarchy, nix on ubuntu
+    // (Hyprland's exec does NOT inherit ~/.nix-profile/bin in PATH, hence the
+    // absolute path fallback).
     readonly property string _cmd:
         "qs=$(command -v quickshell || echo ~/.nix-profile/bin/quickshell); " +
-        "$qs -p ~/.config/quickshell ipc call main handleCommand"
+        "cfgDir=\"$HOME/.config/quickshell\"; " +
+        _scrubCrashEnv + "\"$qs\" -p \"$cfgDir\" ipc call main handleCommand"
 
     function toggle(widget, arg) {
         Quickshell.execDetached(["sh", "-c",
