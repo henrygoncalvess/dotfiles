@@ -4,9 +4,10 @@ source "$(dirname "${BASH_SOURCE[0]}")/../caching.sh"
 qs_ensure_cache "music"
 
 STATE_FILE="$QS_RUN_MUSIC/eq_state.json"
-PRESET_DIR="$HOME/.config/easyeffects/output"
+PRESET_DIR="$HOME/.local/share/easyeffects/output"
 PRESET_NAME="live_eq"
 PRESET_FILE="$PRESET_DIR/${PRESET_NAME}.json"
+EE_SINK="easyeffects_sink"
 
 mkdir -p "$PRESET_DIR"
 
@@ -15,36 +16,114 @@ if [ ! -f "$STATE_FILE" ]; then
     echo '{"b1": 0, "b2": 0, "b3": 0, "b4": 0, "b5": 0, "b6": 0, "b7": 0, "b8": 0, "b9": 0, "b10": 0, "preset": "Flat", "pending": false}' > "$STATE_FILE"
 fi
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Geração do preset
+#
+# Formato do EasyEffects 8.x — dois detalhes que quebravam silenciosamente antes:
+#
+#   1. A chave do plugin é "equalizer#0" (com o sufixo de instância), tanto em
+#      plugins_order quanto no objeto. Com só "equalizer" o EE ignora o plugin,
+#      retorna exit 0 e não muda nada.
+#   2. Em cada banda, `type`, `mode` e `slope` são STRINGS. O script antigo
+#      mandava "mode": "Bell" — mas Bell é um *type*, não um mode — e omitia
+#      `type`. Isso derrubava o parser com
+#      "[json.exception.type_error.302] type must be string, but is number".
+#
+# Dá pra conferir se pegou com: easyeffects -a output   (imprime o preset ativo)
+#
+# São 10 bandas, uma por slider da UI. A versão anterior declarava 32 bandas e
+# espalhava os 10 sliders nos índices 0,3,6,…,27; o resto ficava em 0 e o LSP
+# ainda reclamava de "port symbol not found: gl_6" no journal.
+# ─────────────────────────────────────────────────────────────────────────────
 apply_eq() {
     vals=$(cat "$STATE_FILE")
     python3 -c "
 import sys, json
-try:
-    data = json.loads(sys.argv[1])
-    slider_map = { 0:0, 1:3, 2:6, 3:9, 4:12, 5:15, 6:18, 7:21, 8:24, 9:27 }
-    freqs = [32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000, 22000, 24000, 24000]
-    gains = [float(data['b1']), float(data['b2']), float(data['b3']), float(data['b4']), float(data['b5']), float(data['b6']), float(data['b7']), float(data['b8']), float(data['b9']), float(data['b10'])]
+
+data  = json.loads(sys.argv[1])
+freqs = [31.0, 62.0, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 16000.0]
+gains = [float(data['b%d' % (i + 1)]) for i in range(10)]
+
+def channel():
     bands = {}
-    for i in range(32):
-        freq = freqs[i] if i < len(freqs) else 20000.0
-        gain = 0.0
-        for s_idx, b_idx in slider_map.items():
-            if i == b_idx:
-                gain = gains[s_idx]
-                break
-        bands[f\"band{i}\"] = { \"frequency\": freq, \"gain\": gain, \"mode\": \"Bell\", \"mute\": False, \"q\": 1.0, \"solo\": False, \"width\": 1.0, \"slope\": \"x1\" }
-    preset = { \"output\": { \"blocklist\": [], \"plugins_order\": [ \"equalizer\" ], \"equalizer\": { \"bypass\": False, \"input-gain\": 0.0, \"output-gain\": 0.0, \"left\": bands, \"right\": bands, \"mode\": \"IIR\", \"num-bands\": 32, \"split-channels\": False } } }
-    print(json.dumps(preset, indent=4))
-except:
-    sys.exit(1)
-" "$vals" > "$PRESET_FILE"
+    for i, (freq, gain) in enumerate(zip(freqs, gains)):
+        bands['band%d' % i] = {
+            'type':      'Bell',
+            'mode':      'RLC (BT)',
+            'slope':     'x1',
+            'frequency': freq,
+            'gain':      gain,
+            'q':         1.0,
+            'width':     1.0,
+            'mute':      False,
+            'solo':      False,
+        }
+    return bands
 
+preset = {
+    'output': {
+        'blocklist':     [],
+        'plugins_order': ['equalizer#0'],
+        'equalizer#0': {
+            'bypass':         False,
+            'input-gain':     0.0,
+            'output-gain':    0.0,
+            'mode':           'IIR',
+            'num-bands':      len(freqs),
+            'split-channels': False,
+            'balance':        0.0,
+            'pitch-left':     0.0,
+            'pitch-right':    0.0,
+            'left':           channel(),
+            'right':          channel(),
+        }
+    }
+}
+print(json.dumps(preset, indent=4))
+" "$vals" > "$PRESET_FILE" || return 1
+
+    ensure_easyeffects
+    easyeffects -l "$PRESET_NAME" >/dev/null 2>&1
+    route_through_ee
+}
+
+ensure_easyeffects() {
     if ! pgrep -x easyeffects > /dev/null; then
-        easyeffects --gapplication-service >/dev/null 2>&1 &
-        sleep 1
+        easyeffects --service-mode >/dev/null 2>&1 &
+        # Espera o sink virtual aparecer antes de tentar rotear.
+        for _ in $(seq 1 20); do
+            pactl list short sinks 2>/dev/null | grep -q "$EE_SINK" && break
+            sleep 0.25
+        done
     fi
+}
 
-    easyeffects -l "$PRESET_NAME" >/dev/null 2>&1 &
+# O EasyEffects processa APENAS o que passa pelo sink virtual dele. Se o sink
+# default for a placa direto, o preset carrega certo e mesmo assim nada muda no
+# som — era esse o sintoma ("os efeitos não mudam a música"): easyeffects_sink
+# ficava SUSPENDED, sem nenhum stream.
+route_through_ee() {
+    pactl list short sinks 2>/dev/null | grep -q "$EE_SINK" || return 0
+
+    [ "$(pactl get-default-sink 2>/dev/null)" = "$EE_SINK" ] || \
+        pactl set-default-sink "$EE_SINK" 2>/dev/null
+
+    # Streams que já estavam tocando não migram sozinhos.
+    pactl list short sink-inputs 2>/dev/null | awk '{print $1}' | while read -r id; do
+        pactl move-sink-input "$id" "$EE_SINK" 2>/dev/null || true
+    done
+}
+
+# Devolve o áudio direto pra placa (EQ fora do caminho).
+unroute() {
+    local hw
+    hw=$(pactl list short sinks 2>/dev/null | awk -v s="$EE_SINK" '$2 != s {print $2; exit}')
+    [ -z "$hw" ] && return 0
+
+    pactl set-default-sink "$hw" 2>/dev/null
+    pactl list short sink-inputs 2>/dev/null | awk '{print $1}' | while read -r id; do
+        pactl move-sink-input "$id" "$hw" 2>/dev/null || true
+    done
 }
 
 # Save state helper (Always sets pending to false because Presets apply instantly)
@@ -60,6 +139,12 @@ arg2=$3
 
 case $cmd in
     "get") cat "$STATE_FILE" ;;
+    "status")
+        # Diagnóstico: preset ativo no EE + pra onde o áudio está indo.
+        echo "preset ativo: $(easyeffects -a output 2>/dev/null | head -1)"
+        echo "sink default: $(pactl get-default-sink 2>/dev/null)"
+        echo "roteado pelo EQ: $([ "$(pactl get-default-sink 2>/dev/null)" = "$EE_SINK" ] && echo sim || echo nao)"
+        ;;
     "set_band")
         # SLIDER MOVE: Set pending = true, Preset = Custom. DO NOT APPLY.
         tmp=$(cat "$STATE_FILE")
@@ -73,6 +158,8 @@ case $cmd in
         echo "$updated" > "$STATE_FILE"
         apply_eq
         ;;
+    "route")   route_through_ee ;;
+    "unroute") unroute ;;
     "preset")
         # PRESET CLICK: Save values (pending=false) and Apply Instantly.
         case $arg1 in
