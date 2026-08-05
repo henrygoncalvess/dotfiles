@@ -87,6 +87,24 @@ stow -v -t "$HOME" "${STOW_PACKAGES[@]}"
 # --no-folding: preserva os diretórios reais do destino e linka arquivo a arquivo.
 stow -v --no-folding -t "$HOME" "${OVERLAY_PACKAGES[@]}"
 
+# ── Units systemd --user ─────────────────────────────────────────────────────
+# O stow entrega os arquivos .service, mas quem os liga ao boot é o symlink em
+# graphical-session.target.wants/ — sem `enable` o Brain_Shell simplesmente não
+# sobe no login de uma máquina nova. `mask mako` completa o par: o qs_run.sh
+# mata o mako em runtime, o mask impede que ele suba de novo.
+echo -e "\n\033[1;33mHabilitando units do usuário\033[0m\n"
+if systemctl --user is-system-running >/dev/null 2>&1 || [ -n "${XDG_RUNTIME_DIR:-}" ]; then
+  systemctl --user daemon-reload
+  systemctl --user enable brainshell.service quickshell.service
+  systemctl --user mask mako.service
+  echo "Units habilitadas (valem a partir do próximo login)"
+else
+  echo -e "\033[1;31mSem sessão de usuário do systemd — rode manualmente:\033[0m"
+  echo "  systemctl --user daemon-reload"
+  echo "  systemctl --user enable brainshell.service quickshell.service"
+  echo "  systemctl --user mask mako.service"
+fi
+
 # O user.js/userChrome só se aplica se o Firefox já tiver um perfil criado
 if [[ -n "$PROFILE_DIR" ]]; then
   rm -rf "$PROFILE_DIR/chrome"
