@@ -19,6 +19,8 @@ ShellRoot {
     property bool authenticated: false
     property bool sessionLocked: true
     property bool isTesting: Quickshell.env("QS_TESTING") === "1"
+    readonly property string unlockSentinel:
+        (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/qylock-unlocked"
 
     SddmShim {
         id: sddmShim
@@ -29,6 +31,11 @@ ShellRoot {
         target: sddmShim.sddm
         function onLoginSucceeded() {
             shellRoot.authenticated = true
+
+            // Sentinela lida pelo system-lock.sh: marca que a saída foi por
+            // autenticação, não por crash. Sem ela o supervisor relançaria o
+            // lock logo depois do usuário destravar.
+            Quickshell.execDetached(["touch", shellRoot.unlockSentinel]);
 
             // Hyprland session lock fix
             if (Quickshell.env("XDG_CURRENT_DESKTOP") === "Hyprland" || Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== "") {

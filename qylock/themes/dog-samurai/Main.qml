@@ -79,7 +79,9 @@ Item {
     }
 
     Component.onCompleted: {
-        keyboard.numLock = true
+        // `keyboard` is only injected by the SDDM greeter context; when this
+        // theme runs under quickshell-lockscreen it is undefined. Guard it.
+        if (typeof keyboard !== "undefined") keyboard.numLock = true
         if (userHelper.currentItem && userHelper.currentItem.uName) {
             root.displayUserName = userHelper.currentItem.uName.toUpperCase()
         } else if (typeof userModel !== "undefined" && userModel.lastUser) {

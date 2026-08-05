@@ -43,29 +43,68 @@ if [[ "$1" == "--test" ]]; then
     shift
 fi
 
-# User theme preference
-# Get user theme
-CONFIG_FILE="$HOME/.config/qylock/theme"
-if [ -n "$1" ]; then
-    export QS_THEME="$1"
-elif [ -f "$CONFIG_FILE" ]; then
-    THEME_CFG=$(cat "$CONFIG_FILE")
-    if [ "$THEME_CFG" = "random" ]; then
-        THEMES=("dog-samurai" "pixel-hollowknight" "winter" "sword" "star-rail" "Genshin" "wuwa" "terraria")
-        export QS_THEME="${THEMES[$RANDOM % ${#THEMES[@]}]}"
-    else
-        export QS_THEME="$THEME_CFG"
-    fi
+# Onde vivem os temas. Com o stow, themes_link aponta pra .dotfiles/qylock/themes.
+if [ -d "$DIR/../themes" ] && [ ! -d "$DIR/themes_link" ]; then
+    THEMES_DIR="$DIR/../themes"
 else
-    export QS_THEME="nier-automata"
+    THEMES_DIR="$DIR/themes_link"
 fi
 
-# Set theme path
-if [ -d "$DIR/../themes" ] && [ ! -d "$DIR/themes_link" ]; then
-    export QS_THEME_PATH="$DIR/../themes/$QS_THEME"
+# Temas que nao entram no sorteio aleatorio (continuam disponiveis se pedidos
+# explicitamente por argumento ou pelo arquivo de config).
+RANDOM_BLOCKLIST='^(osu|osumania)$'
+
+# Lista os temas validos: precisam existir em disco E ter um Main.qml, senao o
+# quickshell aborta no load e o Hyprland cai na tela de fallback dele.
+list_themes() {
+    local t
+    for t in "$THEMES_DIR"/*/; do
+        [ -f "$t/Main.qml" ] || continue
+        basename "$t"
+    done
+}
+
+random_theme() {
+    local candidates
+    mapfile -t candidates < <(list_themes | grep -vE "$RANDOM_BLOCKLIST")
+    # Se a blocklist zerar tudo, sorteia entre todos em vez de devolver vazio.
+    [ ${#candidates[@]} -eq 0 ] && mapfile -t candidates < <(list_themes)
+    [ ${#candidates[@]} -eq 0 ] && return 1
+    printf '%s' "${candidates[$RANDOM % ${#candidates[@]}]}"
+}
+
+# Preferencia de tema: argumento > ~/.config/qylock/theme > aleatorio.
+CONFIG_FILE="$HOME/.config/qylock/theme"
+if [ -n "$1" ]; then
+    QS_THEME="$1"
+elif [ -f "$CONFIG_FILE" ] && [ "$(cat "$CONFIG_FILE")" != "random" ]; then
+    QS_THEME="$(cat "$CONFIG_FILE")"
 else
-    export QS_THEME_PATH="$DIR/themes_link/$QS_THEME"
+    QS_THEME="$(random_theme)"
 fi
+
+# Um tema inexistente faz o quickshell morrer no boot e a sessao cair na tela de
+# emergencia do Hyprland. Melhor sortear outro do que travar destrancado.
+if [ ! -f "$THEMES_DIR/$QS_THEME/Main.qml" ]; then
+    echo "Tema '$QS_THEME' nao encontrado em $THEMES_DIR — sorteando outro." >&2
+    QS_THEME="$(random_theme)"
+fi
+
+if [ -z "$QS_THEME" ]; then
+    echo "Nenhum tema valido em $THEMES_DIR — caindo pro hyprlock." >&2
+    # O supervisor (system-lock.sh) so considera "usuario destravou" quando a
+    # sentinela existe, e quem a escreve e o lock_shell.qml. O hyprlock nao a
+    # conhece: sem escreve-la aqui, todo desbloqueio por este fallback era lido
+    # como "o locker morreu" e a tela voltava a trancar na hora, uma vez por
+    # tentativa do supervisor. Sai 0 so depois de autenticar de verdade.
+    hyprlock
+    rc=$?
+    [ "$rc" -eq 0 ] && touch "${XDG_RUNTIME_DIR:-/tmp}/qylock-unlocked"
+    exit "$rc"
+fi
+
+export QS_THEME
+export QS_THEME_PATH="$THEMES_DIR/$QS_THEME"
 
 echo "Locking with Quickshell using theme: $QS_THEME"
 echo "Theme path: $QS_THEME_PATH"
