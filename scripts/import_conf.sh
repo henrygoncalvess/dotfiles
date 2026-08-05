@@ -33,7 +33,7 @@ CONF_TARGETS=(
   "$HOME/.vscode"
 )
 
-STOW_PACKAGES=(frigate conf_home conf_wall conf_posh conf_code conf_git conf_shell conf_kitty conf_rofi conf_quickshell conf_qylock conf_hypr conf_nvim conf_qs-vpets)
+STOW_PACKAGES=(frigate conf_home conf_wall conf_posh conf_code conf_git conf_shell conf_kitty conf_rofi conf_quickshell conf_qylock conf_hypr conf_nvim)
 
 # Pacotes "overlay": o diretório de destino é COMPARTILHADO com o sistema
 # (~/.config/omarchy guarda current/theme, theme.name, themes/, branding/about.txt
@@ -47,7 +47,17 @@ STOW_PACKAGES=(frigate conf_home conf_wall conf_posh conf_code conf_git conf_she
 # ~/.config/systemd/user/app-...@autostart.service.d por um link, o restart.conf
 # é silenciosamente ignorado (`systemctl show -p Restart` continua "no"). Com
 # --no-folding o diretório fica real e só o .conf vira link, aí pega.
-OVERLAY_PACKAGES=(conf_omarchy conf_walker conf_systemd)
+#
+# conf_qs-vpets: o pacote entrega o runtime (~/.local/share/qs/qs-vpets, 100%
+# nosso) E o ~/.config/qs-vpets/config.json. Esse segundo diretório é onde o
+# próprio qs-vpets grava state-<Pet>.json a cada movimento; com folding o stow
+# transformaria ~/.config/qs-vpets num symlink e todo esse estado cairia dentro
+# do repositório.
+#
+# conf_easyeffects e conf_autostart compartilham o destino com arquivos que não
+# são nossos: presets criados pela UI do EasyEffects e entradas .desktop que os
+# próprios aplicativos instalam.
+OVERLAY_PACKAGES=(conf_omarchy conf_walker conf_systemd conf_qs-vpets conf_easyeffects conf_autostart)
 
 echo -e "\033[1;33mRemovendo arquivos existentes para evitar conflitos\033[0m\n"
 for target in "${CONF_TARGETS[@]}"; do
