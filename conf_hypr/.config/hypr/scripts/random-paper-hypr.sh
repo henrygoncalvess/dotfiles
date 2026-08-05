@@ -38,12 +38,50 @@ apply_wallpaper() {
   fi
 }
 
-# Restore last selected wallpaper by the user, or pick a random one if none exists
-if [ -f "$QS_CACHE/current_wallpaper.png" ]; then
-  apply_wallpaper "$QS_CACHE/current_wallpaper.png"
-else
-  PIC=$(find "$WALLPAPERS_DIR" -type f 2>/dev/null | shuf -n 1 --random-source=/dev/random)
-  if [ -n "$PIC" ]; then
-    apply_wallpaper "$PIC"
-  fi
+pick_random() {
+  find "$WALLPAPERS_DIR" -type f 2>/dev/null | shuf -n 1 --random-source=/dev/random
+}
+
+# 1. No login sempre entra um wallpaper aleatório.
+PIC=$(pick_random)
+if [ -z "$PIC" ]; then
+  echo "Nenhum wallpaper encontrado em $WALLPAPERS_DIR" >&2
+  exit 1
 fi
+apply_wallpaper "$PIC"
+
+# 2. Depois disso, rotaciona a cada INTERVAL segundos.
+#    300 = 5 min, 600 = 10 min, 1800 = 30 min. INTERVAL=0 desliga a rotação e
+#    deixa só o sorteio do login.
+INTERVAL=1800
+
+[ "$INTERVAL" -le 0 ] && exit 0
+
+# O wallpaper picker do Quickshell também escreve em current_wallpaper.png
+# quando você escolhe algo a dedo. Guardamos uma cópia do que ESTE script
+# aplicou: se na próxima volta o arquivo não bater mais, foi você que trocou —
+# aí a rotação para e a sua escolha fica. Volta a sortear no próximo login.
+MARKER="$QS_CACHE/.random_paper_marker"
+cp "$PIC" "$MARKER" 2>/dev/null || true
+
+while true; do
+  sleep "$INTERVAL"
+
+  if ! cmp -s "$QS_CACHE/current_wallpaper.png" "$MARKER"; then
+    echo "wallpaper trocado manualmente — rotação automática desligada até o próximo login"
+    rm -f "$MARKER"
+    exit 0
+  fi
+
+  # Evita sortear o mesmo de novo quando há mais de uma opção.
+  for _ in 1 2 3; do
+    NEXT=$(pick_random)
+    [ "$NEXT" != "$PIC" ] && break
+  done
+
+  if [ -n "$NEXT" ]; then
+    PIC="$NEXT"
+    apply_wallpaper "$PIC"
+    cp "$PIC" "$MARKER" 2>/dev/null || true
+  fi
+done
