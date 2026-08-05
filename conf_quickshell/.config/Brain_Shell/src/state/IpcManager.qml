@@ -108,6 +108,25 @@ QtObject {
         }
     }
 
+    // Aba de perfis de placa (equivalente ao "Configuration" do pavucontrol).
+    property var audioConfig: IpcHandler {
+        target: "audioConfig-toggle"
+        function toggle() {
+            if(Popups.anyOpen && !Popups.audioOpen) {
+                Popups.closeAll()
+                Popups.audioPage = "config"
+                Popups.audioOpen = true
+            } else if (Popups.audioOpen && Popups.audioPage != "config") {
+                Popups.audioPage = "config"
+            } else {
+                var next = !Popups.audioOpen
+                Popups.closeAll()
+                Popups.audioOpen = next
+                if (next) Popups.audioPage = "config"
+            }
+        }
+    }
+
     property var audioIn: IpcHandler {
         target: "audioIn-toggle"
         function toggle() {
