@@ -2,6 +2,7 @@
 *.tmp
 *.bak
 *.bak.*
+__pycache__/
 conf_hypr/.config/hypr/settings.json.lock
 
 conf_wall/wallpapers/desktop/wEFJeXVNJS8VKo2/S8mhSD5aTWgGWw5/hbIUjbKJjbB23qq7/L4imAxD6I1p38Gp/**
@@ -10,5 +11,15 @@ conf_wall/wallpapers/desktop/wEFJeXVNJS8VKo2/S8mhSD5aTWgGWw5/hbIUjbKJjbB23qq7/L4
 # o weather.sh lê o OPENWEATHER_CITY_ID direto do calendar/.env
 conf_quickshell/.config/quickshell/calendar/city.list.json
 
-# Brain Shell — dados do usuário (mudam constantemente)
-conf_quickshell/.config/Brain_Shell/src/user_data/*.json
+# Brain Shell — user_data guarda config E estado no mesmo diretório, e como
+# ~/.config/Brain_Shell é um symlink pro repo tudo é escrito aqui dentro. As
+# configs (wallpaper, screenrec, update_prefs, config_Provider) ficam
+# versionadas; o resto é estado que muda o tempo todo, ou segredo.
+conf_quickshell/.config/Brain_Shell/src/user_data/clipboard_pins.json
+conf_quickshell/.config/Brain_Shell/src/user_data/emoji_recents.json
+conf_quickshell/.config/Brain_Shell/src/user_data/tasks.json
+# hotspot.json carrega SSID + senha — nunca versionar.
+conf_quickshell/.config/Brain_Shell/src/user_data/hotspot.json
+
+# qs-vpets grava a posição/humor de cada pet ao lado do config.json versionado.
+conf_qs-vpets/.config/qs-vpets/state-*.json
