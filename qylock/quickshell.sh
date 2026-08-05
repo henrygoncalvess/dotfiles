@@ -57,27 +57,19 @@ substep "Quickshell found"
 
 success "Dependencies verified"
 
-info "Initializing Installation..."
+info "Checking deployment..."
 substep "Target directory: $TARGET_DIR"
 
-echo -ne "${C_MAIN}${C_BOLD} │  ${C_YELLOW}Do you want to proceed? (y/n): ${C_RESET}"
-read -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    error "Installation aborted."
+# Neste repo o runtime do lockscreen é entregue por GNU Stow (pacote conf_qylock),
+# não copiado por este script. Copiar de novo criaria uma segunda cópia que
+# divergiria da versionada — que foi exatamente o bug que existia aqui antes.
+# Então este script cuida só da ESCOLHA DE TEMA; o deploy é do import_conf.sh.
+if [ ! -e "$TARGET_DIR/lock.sh" ]; then
+    error "$TARGET_DIR não existe. Rode ~/.dotfiles/scripts/import_conf.sh primeiro."
     exit 1
 fi
-
-# Deploy Base
-rm -rf "$TARGET_DIR"
-cp -r "$DIR/quickshell-lockscreen" "$TARGET_DIR"
-substep "Copied wrapper successfully"
-
-ln -sfn "$DIR/themes" "$TARGET_DIR/themes_link"
-substep "Created symbolic link to local themes"
-
-chmod +x "$TARGET_DIR/lock.sh"
-success "Permissions applied"
+substep "Runtime encontrado (stow: conf_qylock)"
+success "Deploy verificado"
 
 # Theme Select
 info "Selecting Default Lockscreen Theme..."
@@ -216,7 +208,8 @@ mkdir -p "$HOME/.config/qylock"
 echo "$THEME_NAME" > "$HOME/.config/qylock/theme"
 substep "Configuration saved to ~/.config/qylock/theme"
 
-sed -i "s|export QS_THEME=.*$|export QS_THEME=\"\${1:-$THEME_NAME}\"|" "$TARGET_DIR/lock.sh"
+# Nada de `sed -i` no lock.sh: ele é um symlink pro repo (stow) e seria reescrito
+# no versionamento. O lock.sh já lê ~/.config/qylock/theme, gravado logo acima.
 success "Theme '$THEME_NAME' set as lockscreen default!"
 
 # Shortcuts Info
