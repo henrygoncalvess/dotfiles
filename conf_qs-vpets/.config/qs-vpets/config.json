@@ -1,0 +1,57 @@
+{
+    "pets": [
+        {
+            "name": "Kitty",
+            "sprite": "kitty",
+            "personality": "curious",
+            "scale": 2,
+            "monitor": ""
+        },
+        {
+            "name": "Belo",
+            "sprite": "belo",
+            "personality": "playful",
+            "scale": 2,
+            "monitor": ""
+        },
+        {
+            "name": "Billy",
+            "sprite": "billy",
+            "personality": "energetic",
+            "scale": 2,
+            "monitor": ""
+        },
+        {
+            "name": "Gisele",
+            "sprite": "gisele",
+            "personality": "shy",
+            "scale": 2,
+            "monitor": ""
+        },
+        {
+            "name": "Guerreiro",
+            "sprite": "guerreiro",
+            "personality": "brave",
+            "scale": 2,
+            "monitor": ""
+        },
+        {
+            "name": "Lua",
+            "sprite": "lua",
+            "personality": "curious",
+            "scale": 2,
+            "monitor": ""
+        },
+        {
+            "name": "Sandy",
+            "sprite": "sandy",
+            "personality": "chill",
+            "scale": 2,
+            "monitor": ""
+        }
+    ],
+    "behavior": {
+        "idleTimeout": 30,
+        "walkSpeed": 15
+    }
+}

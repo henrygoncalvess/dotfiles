@@ -7,11 +7,15 @@ import Quickshell.Io
 Singleton {
     id: root
 
+    // Fallback used only when ~/.config/qs-vpets/config.json is missing. It has to
+    // name a sprite that actually ships in assets/sprites/ — the upstream default
+    // ("charizard") is not one of them here, and a missing sprite dir means an
+    // invisible pet with no error.
     property var pets: [
         {
-            name: "Mochi",
-            sprite: "charizard",
-            personality: "energetic",
+            name: "Kitty",
+            sprite: "kitty",
+            personality: "curious",
             scale: 2,
             monitor: "",
             actions: {}
