@@ -36,9 +36,16 @@ PACMAN_PACKAGES=(
   python python-pip neovim
 
   # Wayland utilities / Brain_Shell dependencies
-  wl-clipboard cliphist grim slurp swww wf-recorder brightnessctl playerctl
+  # awww é o swww renomeado pelo upstream; autostart.conf e random-paper-hypr.sh
+  # chamam `awww`/`awww-daemon`, então é este o pacote que precisa entrar.
+  wl-clipboard cliphist grim slurp awww wf-recorder brightnessctl playerctl
   pamixer libpulse libnotify imagemagick cava mpd mpc
   easyeffects # music/equalizer.sh loads presets through it
+  # O equalizador do EasyEffects é o LSP para_equalizer_x32_lr. lsp-plugins-lv2 é
+  # dependência OPCIONAL do easyeffects: sem ele o preset carrega e a UI atualiza,
+  # mas nenhum ganho é aplicado — o journal enche de
+  # "para_equalizer_x32_lr port symbol not found: gl_0". Tem que ser explícito.
+  lsp-plugins-lv2
   networkmanager # Brain_Shell relies on nmcli; only enable the service if Omarchy isn't already managing the network
 
   # qylock lockscreen themes (QML modules not pulled in by quickshell itself)
