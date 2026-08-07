@@ -1,6 +1,8 @@
 import QtQuick
+import Quickshell
 import Quickshell.Services.Pipewire
 import "../../components"
+import "../../services"
 import "../../"
 
 Item {
@@ -11,7 +13,25 @@ Item {
     implicitWidth:  row.implicitWidth + 6
     implicitHeight: row.implicitHeight
 
-    readonly property var sink: Pipewire.defaultAudioSink
+    // EasyEffects exposes a virtual sink, but it is not a speaker. Keep the bar
+    // tied to the actual device even if an old configuration made that virtual
+    // node the default.
+    readonly property var sink: {
+        const current = Pipewire.defaultAudioSink
+        if (current && current.name !== "easyeffects_sink" &&
+                current.properties?.["node.virtual"] !== "true")
+            return current
+
+        const nodes = Pipewire.nodes.values
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i]
+            if (!node.isStream && node.isSink && node.audio !== null &&
+                    node.name !== "easyeffects_sink" &&
+                    node.properties?.["node.virtual"] !== "true")
+                return node
+        }
+        return current
+    }
 
     PwObjectTracker {
         objects: root.sink ? [root.sink] : []
@@ -67,17 +87,33 @@ Item {
 
     MouseArea {
         anchors.fill:        parent
-        acceptedButtons:     Qt.LeftButton | Qt.RightButton
+        acceptedButtons:     Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
 
         onClicked: function(mouse) {
             if (mouse.button === Qt.RightButton) {
-                if (root.sink?.ready)
-                    root.sink.audio.muted = !root.sink.audio.muted
-            } else {
-                // clique esquerdo: abre o widget "music" (config antiga)
+                Quickshell.execDetached([AudioService.backend, "key-volume", "mute-toggle"])
+            } else if (mouse.button === Qt.MiddleButton) {
+                // O player visual antigo continua disponível, mas não disputa
+                // mais o clique principal com os controles de áudio.
                 Popups.closeAll()
                 OldShell.toggle("music", "")
+            } else {
+                const next = !Popups.audioOpen
+                Popups.closeAll()
+                Popups.audioPage = "general"
+                Popups.audioOpen = next
             }
+        }
+    }
+
+    WheelHandler {
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+        onWheel: function(event) {
+            Quickshell.execDetached([
+                AudioService.backend,
+                "key-volume",
+                event.angleDelta.y > 0 ? "raise" : "lower"
+            ])
         }
     }
 }

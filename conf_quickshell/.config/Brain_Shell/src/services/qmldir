@@ -4,6 +4,7 @@ BatteryStatus  BatteryStatus.qml
 BatteryWarning BatteryWarning.qml
 EnvyControl ./system/EnvyControl.qml
 AudioControl AudioControl.qml
+singleton AudioService 1.0 AudioService.qml
 MemService ./system/MemService.qml
 NetService ./system/NetService.qml
 GpuService ./system/GpuService.qml

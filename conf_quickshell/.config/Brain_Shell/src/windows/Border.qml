@@ -12,7 +12,8 @@ PanelWindow {
     property int radius: Theme.cornerRadius        
     property color fillColor: "transparent"   // bordas da tela ocultadas (usuário pediu sem molduras)
     
-    implicitWidth: (edge === "left" || edge === "right") ? radius : 0
+    // Keep a tiny invisible hit target even when visual borders are disabled.
+    implicitWidth: (edge === "left" || edge === "right") ? Math.max(radius, 4) : 0
     implicitHeight: (edge === "bottom") ? radius : 0
 
     color: "transparent"
@@ -154,8 +155,9 @@ PanelWindow {
             HoverHandler {
                 enabled: root.edge === "right"
                 onHoveredChanged: {
-                    Popups.quickTriggerHovered = hovered  
                     Popups.audioTriggerHovered = hovered
+                    if (hovered && root.screen)
+                        Popups.activeScreenName = root.screen.name
                 }
             }
         }

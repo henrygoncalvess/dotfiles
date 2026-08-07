@@ -1,861 +1,750 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
-import Quickshell.Services.Pipewire
 import "../components"
 import "../"
 
 Item {
     id: root
 
-    readonly property var sink:   Pipewire.defaultAudioSink
-    readonly property var source: Pipewire.defaultAudioSource
+    property string page: normalizePage(Popups.audioPage)
+    property bool showTechnicalProfiles: false
+    property string pendingProfile: ""
 
-    // Sink que o slider de volume realmente controla.
-    //
-    // Com o EasyEffects roteando o áudio, o default sink vira easyeffects_sink —
-    // um node virtual. O PipeWire aceita e guarda o channelVolumes dele, mas não
-    // existe mixer por trás pra aplicar: dá pra deixar o node em 10% que o som
-    // continua no mesmo volume. O slider ficava mexendo num controle morto.
-    //
-    // Volume de verdade só no dispositivo real que o EE alimenta, então quando o
-    // default for o sink virtual a gente cai pro primeiro sink físico.
-    readonly property var volumeSink: {
-        var d = Pipewire.defaultAudioSink
-        if (!d || d.name !== "easyeffects_sink") return d
-        var nodes = root.sinkNodes
-        for (var i = 0; i < nodes.length; i++)
-            if (nodes[i].name !== "easyeffects_sink") return nodes[i]
-        return d
+    readonly property var outputDevice: AudioService.selectedSink()
+    readonly property var inputDevice: AudioService.selectedSource()
+    readonly property int cardRadius: Math.max(9, Theme.cornerRadius)
+
+    function normalizePage(value) {
+        if (value === "mixer") return "apps"
+        if (value === "config") return "advanced"
+        if (value === "input" || value === "output") return "general"
+        return value === "apps" || value === "advanced" ? value : "general"
     }
 
-    // Teto dos sliders. O PipeWire aceita ganho acima de 0 dB; o pavucontrol
-    // deixa ir até 150%, então aqui também.
-    readonly property real maxVolume: 1.5
-
-    function reset() { switcher.reset() }
-
-    PwObjectTracker {
-        objects: Pipewire.nodes.values
+    function setPage(value) {
+        page = value
+        Popups.audioPage = value
+        pendingProfile = ""
     }
 
-    readonly property var sinkNodes: {
-        var result = []
-        var nodes = Pipewire.nodes.values
-        for (var i = 0; i < nodes.length; i++) {
-            var n = nodes[i]
-            if (n.audio !== null && !n.isStream && n.isSink)
-                result.push(n)
+    function reset() {
+        showTechnicalProfiles = false
+        pendingProfile = ""
+        outputCard.selectorOpen = false
+        inputCard.selectorOpen = false
+    }
+
+    function sinkLabel(name) {
+        for (const sink of AudioService.sinks)
+            if (sink.name === name) return sink.label
+        return ""
+    }
+
+    function profileToken(card, profile) {
+        return String(card?.name ?? "") + "::" + String(profile?.key ?? "")
+    }
+
+    function selectProfile(card, profile) {
+        const dangerous = profile.kind === "pro" || profile.kind === "off"
+        const token = profileToken(card, profile)
+        if (dangerous && pendingProfile !== token) {
+            pendingProfile = token
+            AudioService.notice = profile.kind === "pro"
+                    ? "Click again to confirm Pro Audio mode"
+                    : "Click again to confirm that you want to disable this card"
+            AudioService.noticeIsError = true
+            return
         }
-        return result
+        pendingProfile = ""
+        AudioService.chooseProfile(card, profile)
     }
-
-    readonly property var sourceNodes: {
-        var result = []
-        var nodes = Pipewire.nodes.values
-        for (var i = 0; i < nodes.length; i++) {
-            var n = nodes[i]
-            if (n.audio !== null && !n.isStream && !n.isSink)
-                result.push(n)
-        }
-        return result
-    }
-
-    readonly property var playbackStreamNodes: {
-        var result = []
-        var nodes = Pipewire.nodes.values
-        for (var i = 0; i < nodes.length; i++) {
-            var n = nodes[i]
-            if (n.audio !== null && n.isStream && n.isSink)
-                result.push(n)
-        }
-        return result
-    }
-
-    readonly property var recordStreamNodes: {
-        var result = []
-        var nodes = Pipewire.nodes.values
-        for (var i = 0; i < nodes.length; i++) {
-            var n = nodes[i]
-            if (n.audio !== null && n.isStream && !n.isSink)
-                result.push(n)
-        }
-        return result
-    }
-
-    function deviceName(node) {
-        if (!node) return "Unknown"
-        return node.nickname || node.description || node.name || "Unknown"
-    }
-
-    // ── Streams de aplicativo ────────────────────────────────────────────────
-    // node.description num stream costuma ser genérico ("Playback"); o nome que
-    // o usuário reconhece está em application.name, e a faixa em media.name.
-    function streamAppName(node) {
-        if (!node) return "Unknown"
-        const p = node.properties ?? ({})
-        return p["application.name"] || node.description || node.name || "Unknown"
-    }
-
-    function streamMediaName(node) {
-        const p = node?.properties ?? ({})
-        const media = p["media.name"] || ""
-        return media === streamAppName(node) ? "" : media
-    }
-
-    function streamIcon(node) {
-        const p = node?.properties ?? ({})
-        const role = (p["media.role"] || "").toLowerCase()
-        if (role === "music")   return "󰎆"
-        if (role === "video")   return "󰕧"
-        if (role === "game")    return "󰊴"
-        if (role === "phone")   return "󰏲"
-        return "󰎆"
-    }
-
-    // O pactl indexa sink-inputs por object.serial — conferido: "Sink Input #381"
-    // corresponde a object.serial=381. O PwNode.id é o id global do PipeWire e
-    // NÃO serve aqui (mover pelo id move o alvo errado ou o default global).
-    function streamSerial(node) {
-        const p = node?.properties ?? ({})
-        return p["object.serial"] ?? ""
-    }
-
-    // Roteia um app pra outra saída, igual ao seletor de dispositivo por
-    // aplicativo do pavucontrol.
-    function moveStream(node, sinkName) {
-        const serial = streamSerial(node)
-        if (!serial || !sinkName) return
-        Quickshell.execDetached(["pactl", "move-sink-input", String(serial), sinkName])
-        routeRefresh.restart()
-    }
-
-    // serial do stream → nome do sink em que ele toca agora. O PwNode não expõe
-    // esse vínculo, então vem do pactl.
-    property var streamRoutes: ({})
-
-    Process {
-        id: routeProbe
-        command: ["pactl", "-f", "json", "list", "sink-inputs"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const data = JSON.parse(text)
-                    const map = {}
-                    for (const si of data) {
-                        const serial = si.properties?.["object.serial"]
-                        if (serial !== undefined) map[String(serial)] = si.sink
-                    }
-                    root.streamRoutes = map
-                } catch (e) {
-                    root.streamRoutes = ({})
-                }
-            }
-        }
-    }
-
-    // Nome do sink onde o stream está tocando (índice numérico → nome do node).
-    function streamSinkName(node) {
-        const target = root.streamRoutes[String(streamSerial(node))]
-        if (target === undefined) return ""
-        for (const s of root.sinkNodes) {
-            if (String(s.id) === String(target) || s.name === target)
-                return root.deviceName(s)
-        }
-        return String(target)
-    }
-
-    // ── Perfis de placa (aba Config) ─────────────────────────────────────────
-    // Equivalente à aba "Configuration" do pavucontrol: troca o perfil da placa
-    // (analog stereo, HDMI, duplex…), que é o que habilita/desabilita saídas.
-    property var cards: []
-
-    Process {
-        id: cardProbe
-        command: ["pactl", "-f", "json", "list", "cards"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const data = JSON.parse(text)
-                    root.cards = data.map(c => ({
-                        name:     c.name,
-                        pretty:   c.properties?.["device.description"] || c.name,
-                        active:   c.active_profile,
-                        profiles: Object.keys(c.profiles ?? {})
-                            .filter(k => (c.profiles[k]?.available ?? true))
-                            .map(k => ({ key: k, desc: c.profiles[k]?.description || k }))
-                    }))
-                } catch (e) {
-                    root.cards = []
-                }
-            }
-        }
-    }
-
-    function setCardProfile(cardName, profileKey) {
-        Quickshell.execDetached(["pactl", "set-card-profile", cardName, profileKey])
-        cardRefresh.restart()
-    }
-
-    Timer { id: routeRefresh; interval: 250; onTriggered: routeProbe.running = true }
-    Timer { id: cardRefresh;  interval: 250; onTriggered: cardProbe.running  = true }
-
-    // Só consulta o pactl enquanto o popup está aberto — sem polling de fundo.
-    Timer {
-        interval: 2000
-        repeat:   true
-        running:  Popups.audioOpen
-        triggeredOnStart: true
-        onTriggered: {
-            routeProbe.running = true
-            if (root.page === "config") cardProbe.running = true
-        }
-    }
-
-    property string page: Popups.audioPage
 
     Connections {
         target: Popups
-        function onAudioPageChanged() {
-            root.page = Popups.audioPage
-            if (root.page === "config") cardProbe.running = true
-        }
+        function onAudioPageChanged() { root.page = root.normalizePage(Popups.audioPage) }
     }
 
-    Row {
+    ColumnLayout {
         anchors.fill: parent
-        spacing: 8
-
-        // ── Page content ──────────────────────────────────────────────────────
-        Item {
-            width:  parent.width - switcher.implicitWidth - parent.spacing - 1 - parent.spacing
-            height: parent.height
-            clip:   true
-
-            // Output
-            Item {
-                anchors.fill: parent
-                visible:      root.page === "output"
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 10
-
-                    SectionLabel { text: "Master Output" }
-
-                    HorizontalSlider {
-                        Layout.fillWidth: true
-                        label:  (root.volumeSink && root.volumeSink.ready) ? root.deviceName(root.volumeSink) : "Output"
-                        icon: {
-                            if (!root.volumeSink || !root.volumeSink.ready) return "󰕾"
-                            if (root.volumeSink.audio.muted) return "󰖁"
-                            if (root.volumeSink.audio.volume > 0.6) return "󰕾"
-                            if (root.volumeSink.audio.volume > 0.2) return "󰖀"
-                            return "󰕿"
-                        }
-                        value:  (root.volumeSink && root.volumeSink.ready) ? root.volumeSink.audio.volume : 0
-                        muted:  (root.volumeSink && root.volumeSink.audio) ? root.volumeSink.audio.muted : false
-                        active: (root.volumeSink && root.volumeSink.ready) || false
-                        maxValue: root.maxVolume
-                        onVolumeChanged: function(v) {
-                            if (root.volumeSink && root.volumeSink.ready) root.volumeSink.audio.volume = v
-                        }
-                        onMuteToggled: {
-                            if (root.volumeSink && root.volumeSink.ready)
-                                root.volumeSink.audio.muted = !root.volumeSink.audio.muted
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 1
-                        color: Qt.rgba(1, 1, 1, 0.06)
-                    }
-
-                    SectionLabel { text: "Applications" }
-
-                    Flickable {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        contentHeight: streamsCol.implicitHeight
-                        clip: true
-                        boundsBehavior: Flickable.StopAtBounds
-
-                        Column {
-                            id: streamsCol
-                            width: parent.width
-                            spacing: 6
-
-                            Repeater {
-                                model: root.playbackStreamNodes
-                                delegate: HorizontalSlider {
-                                    width: streamsCol.width
-                                    label: root.streamAppName(modelData)
-                                    sublabel: root.streamMediaName(modelData)
-                                    icon: root.streamIcon(modelData)
-                                    value: modelData.audio.volume
-                                    muted: modelData.audio.muted
-                                    active: true
-                                    maxValue: root.maxVolume
-                                    // Seletor de saída por app (como o pavucontrol)
-                                    routeTargets: root.sinkNodes
-                                    routeCurrent: root.streamSinkName(modelData)
-                                    onRoutePicked: function(sinkNode) {
-                                        root.moveStream(modelData, sinkNode.name)
-                                    }
-                                    onVolumeChanged: function(v) { modelData.audio.volume = v }
-                                    onMuteToggled: { modelData.audio.muted = !modelData.audio.muted }
-                                }
-                            }
-                            
-                            Text {
-                                visible: root.playbackStreamNodes.length === 0
-                                text: "No apps playing audio"
-                                color: Qt.rgba(1,1,1,0.2)
-                                font.pixelSize: 11
-                                leftPadding: 10
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Input
-            Item {
-                anchors.fill: parent
-                visible:      root.page === "input"
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 10
-
-                    SectionLabel { text: "Master Input" }
-
-                    HorizontalSlider {
-                        Layout.fillWidth: true
-                        label:  (root.source && root.source.ready) ? root.deviceName(root.source) : "Input"
-                        icon:   (root.source && root.source.audio && root.source.audio.muted) ? "󰍭" : "󰍬"
-                        value:  (root.source && root.source.ready) ? root.source.audio.volume : 0
-                        muted:  (root.source && root.source.audio) ? root.source.audio.muted : false
-                        active: (root.source && root.source.ready) || false
-                        maxValue: root.maxVolume
-                        onVolumeChanged: function(v) {
-                            if (root.source && root.source.ready) root.source.audio.volume = v
-                        }
-                        onMuteToggled: {
-                            if (root.source && root.source.ready)
-                                root.source.audio.muted = !root.source.audio.muted
-                        }
-                    }
-                    
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 1
-                        color: Qt.rgba(1, 1, 1, 0.06)
-                    }
-
-                    SectionLabel { text: "Applications" }
-
-                    Flickable {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        contentHeight: recordCol.implicitHeight
-                        clip: true
-                        boundsBehavior: Flickable.StopAtBounds
-
-                        Column {
-                            id: recordCol
-                            width: parent.width
-                            spacing: 6
-
-                            Repeater {
-                                model: root.recordStreamNodes
-                                delegate: HorizontalSlider {
-                                    width: recordCol.width
-                                    label: root.deviceName(modelData)
-                                    icon: "󰍬"
-                                    value: modelData.audio.volume
-                                    muted: modelData.audio.muted
-                                    active: true
-                                    onVolumeChanged: function(v) { modelData.audio.volume = v }
-                                    onMuteToggled: { modelData.audio.muted = !modelData.audio.muted }
-                                }
-                            }
-                            
-                            Text {
-                                visible: root.recordStreamNodes.length === 0
-                                text: "No apps recording audio"
-                                color: Qt.rgba(1,1,1,0.2)
-                                font.pixelSize: 11
-                                leftPadding: 10
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Mixer
-            Item {
-                anchors.fill: parent
-                visible:      root.page === "mixer"
-
-                Flickable {
-                    anchors.fill: parent
-                    contentHeight: mixerCol.implicitHeight
-                    clip: true
-                    boundsBehavior: Flickable.StopAtBounds
-
-                    Column {
-                        id: mixerCol
-                        width: parent.width
-                        spacing: 8
-
-                        SectionLabel { text: "Output Devices" }
-
-                        Repeater {
-                            model: root.sinkNodes
-                            delegate: HorizontalSlider {
-                                width: mixerCol.width
-                                label: root.deviceName(modelData)
-                                icon: "󰕾"
-                                value: modelData.audio.volume
-                                muted: modelData.audio.muted
-                                isDefault: (root.sink && root.sink.ready && modelData.name === root.sink.name) || false
-                                active: true
-                                showDefaultButton: true
-                                maxValue: root.maxVolume
-                                onVolumeChanged: function(v) { modelData.audio.volume = v }
-                                onMuteToggled: { modelData.audio.muted = !modelData.audio.muted }
-                                onSetDefault: { Pipewire.preferredDefaultAudioSink = modelData }
-                            }
-                        }
-
-                        Text {
-                            visible: root.sinkNodes.length === 0
-                            text: "No output devices"
-                            color: Qt.rgba(1,1,1,0.2)
-                            font.pixelSize: 11
-                            leftPadding: 10
-                        }
-
-                        Rectangle {
-                            width: parent.width; height: 1
-                            color: Qt.rgba(1, 1, 1, 0.06)
-                        }
-
-                        SectionLabel { text: "Input Devices" }
-
-                        Repeater {
-                            model: root.sourceNodes
-                            delegate: HorizontalSlider {
-                                width: mixerCol.width
-                                label: root.deviceName(modelData)
-                                icon: "󰍬"
-                                value: modelData.audio.volume
-                                muted: modelData.audio.muted
-                                isDefault: (root.source && root.source.ready && modelData.name === root.source.name) || false
-                                active: true
-                                showDefaultButton: true
-                                maxValue: root.maxVolume
-                                onVolumeChanged: function(v) { modelData.audio.volume = v }
-                                onMuteToggled: { modelData.audio.muted = !modelData.audio.muted }
-                                onSetDefault: { Pipewire.preferredDefaultAudioSource = modelData }
-                            }
-                        }
-
-                        Text {
-                            visible: root.sourceNodes.length === 0
-                            text: "No input devices"
-                            color: Qt.rgba(1,1,1,0.2)
-                            font.pixelSize: 11
-                            leftPadding: 10
-                        }
-                    }
-                }
-            }
-
-            // Config — perfis de placa (aba "Configuration" do pavucontrol)
-            Item {
-                anchors.fill: parent
-                visible:      root.page === "config"
-
-                Flickable {
-                    anchors.fill: parent
-                    contentHeight: cardsCol.implicitHeight
-                    clip: true
-                    boundsBehavior: Flickable.StopAtBounds
-
-                    Column {
-                        id: cardsCol
-                        width: parent.width
-                        spacing: 8
-
-                        SectionLabel { text: "Card Profiles" }
-
-                        Repeater {
-                            model: root.cards
-                            delegate: Column {
-                                id: cardEntry
-                                required property var modelData
-                                // Alias nomeado: o Repeater de dentro declara o
-                                // próprio modelData e sombrearia este.
-                                readonly property var card: modelData
-
-                                width: cardsCol.width
-                                spacing: 4
-
-                                Text {
-                                    text: cardEntry.card.pretty
-                                    color: Theme.text
-                                    font.pixelSize: 11
-                                    font.bold: true
-                                    elide: Text.ElideRight
-                                    width: parent.width
-                                    leftPadding: 4
-                                }
-
-                                Repeater {
-                                    model: cardEntry.card.profiles
-                                    delegate: Rectangle {
-                                        id: profRow
-                                        required property var modelData
-                                        readonly property bool isActive:
-                                            modelData.key === cardEntry.card.active
-
-                                        width:  cardsCol.width
-                                        height: 28
-                                        radius: Theme.cornerRadius - 4
-                                        color: profRow.isActive
-                                               ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.15)
-                                               : (profHover.hovered ? Qt.rgba(1,1,1,0.08) : "transparent")
-
-                                        Text {
-                                            anchors.left:           parent.left
-                                            anchors.leftMargin:     12
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            width: parent.width - 40
-                                            text:  profRow.modelData.desc
-                                            color: profRow.isActive ? Theme.text : Qt.rgba(1,1,1,0.65)
-                                            font.pixelSize: 10
-                                            elide: Text.ElideRight
-                                        }
-
-                                        Text {
-                                            anchors.right:          parent.right
-                                            anchors.rightMargin:    10
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            visible: profRow.isActive
-                                            text:    "✓"
-                                            color:   Theme.active
-                                            font.pixelSize: 11
-                                            font.bold: true
-                                        }
-
-                                        HoverHandler { id: profHover; cursorShape: Qt.PointingHandCursor }
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            onClicked: root.setCardProfile(
-                                                cardEntry.card.name, profRow.modelData.key)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        Text {
-                            visible: root.cards.length === 0
-                            text: "No sound cards found"
-                            color: Qt.rgba(1,1,1,0.2)
-                            font.pixelSize: 11
-                            leftPadding: 10
-                        }
-                    }
-                }
-            }
-        }
-
-        // Divider
-        Rectangle {
-            width: 1; height: parent.height
-            color: Qt.rgba(1, 1, 1, 0.1)
-        }
-
-        // Tab switcher — right side
-        TabSwitcher {
-            id: switcher
-            orientation: "vertical"
-            height: (parent.height - 17)
-            anchors.verticalCenter: parent.verticalCenter
-            model: [
-                { key: "output", icon: "󰕾" },
-                { key: "input",  icon: "󰍬" },
-                { key: "mixer",  icon: "󰾝" },
-                { key: "config", icon: "󰢻" },
-            ]
-            currentPage: root.page
-            onPageChanged: function(key) { Popups.audioPage = key }
-        }
-    }
-
-    // ── HorizontalSlider ─────────────────────────────────────────────────────────
-    component HorizontalSlider: Item {
-        id: comp
-        property string label: ""
-        property string sublabel: ""      // faixa/mídia tocando, quando houver
-        property string icon: ""
-        property real value: 0.0
-        property bool muted: false
-        property bool isDefault: false
-        property bool active: false
-        property bool showDefaultButton: false
-
-        // Teto do slider. 1.0 = 100%; sinks e streams usam 1.5 pra permitir boost.
-        property real maxValue: 1.0
-
-        // Seletor de saída por app: lista de PwNode de sink pra onde este stream
-        // pode ir. Vazio = não mostra o seletor (dispositivos não se "movem").
-        property var    routeTargets: []
-        property string routeCurrent: ""
-        signal routePicked(var sinkNode)
-
-        signal volumeChanged(real value)
-        signal muteToggled()
-        signal setDefault()
-
-        readonly property bool hasRouting: routeTargets && routeTargets.length > 1
-        property bool routeOpen: false
-
-        implicitHeight: 46 + (routeOpen ? routeList.implicitHeight + 6 : 0)
-        Behavior on implicitHeight { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
-
-        readonly property string pctText: active ? Math.round(value * 100) + "%" : "--%"
-
-        Rectangle {
-            anchors.fill: parent
-            radius: Theme.cornerRadius - 4
-            color: comp.isDefault ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.12) : "transparent"
-        }
+        spacing: 9
 
         RowLayout {
-            id: mainRow
-            anchors.left:   parent.left
-            anchors.right:  parent.right
-            anchors.top:    parent.top
-            anchors.margins: 6
-            height: 46 - 12
-            spacing: 8
+            Layout.fillWidth: true
+            Layout.preferredHeight: 44
+            spacing: 10
 
-            // Mute / Icon Button
             Rectangle {
-                Layout.preferredWidth: 32
-                Layout.preferredHeight: 32
-                radius: 16
-                color: comp.muted ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.2) : Qt.rgba(1,1,1,0.06)
+                Layout.preferredWidth: 38
+                Layout.preferredHeight: 38
+                radius: 12
+                color: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.14)
 
                 Text {
                     anchors.centerIn: parent
-                    text: comp.icon
-                    font.pixelSize: 14
-                    color: comp.muted ? Theme.active : Qt.rgba(1,1,1,0.55)
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: comp.muteToggled()
-                    cursorShape: Qt.PointingHandCursor
+                    text: "󰕾"
+                    color: Theme.active
+                    font.pixelSize: 19
                 }
             }
 
             ColumnLayout {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                spacing: 2
+                spacing: 1
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6
-
-                    Text {
-                        text: comp.label
-                        color: Theme.text
-                        font.pixelSize: 11
-                        font.bold: true
-                        elide: Text.ElideRight
-                        Layout.fillWidth: true
-                    }
-
-                    // Faixa/mídia tocando — só aparece pra streams de app.
-                    Text {
-                        visible: comp.sublabel !== ""
-                        text:    comp.sublabel
-                        color:   Qt.rgba(1,1,1,0.35)
-                        font.pixelSize: 9
-                        elide:   Text.ElideRight
-                        Layout.maximumWidth: 110
-                    }
-
-                    // Seletor de saída (pavucontrol-style): abre a lista de sinks.
-                    Rectangle {
-                        visible: comp.hasRouting
-                        Layout.preferredWidth:  18
-                        Layout.preferredHeight: 14
-                        radius: 4
-                        color: comp.routeOpen || routeHover.hovered
-                               ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.35)
-                               : Qt.rgba(1,1,1,0.1)
-
-                        Text {
-                            anchors.centerIn: parent
-                            text:  "󰓃"
-                            color: comp.routeOpen ? Theme.active : Qt.rgba(1,1,1,0.5)
-                            font.pixelSize: 9
-                        }
-
-                        HoverHandler { id: routeHover; cursorShape: Qt.PointingHandCursor }
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: comp.routeOpen = !comp.routeOpen
-                        }
-                    }
-
-                    Rectangle {
-                        visible: comp.showDefaultButton && !comp.isDefault
-                        Layout.preferredWidth: 20
-                        Layout.preferredHeight: 14
-                        radius: 4
-                        color: defaultHover.hovered ? Theme.active : Qt.rgba(1,1,1,0.1)
-                        
-                        Text {
-                            anchors.centerIn: parent
-                            text: "✓"
-                            color: defaultHover.hovered ? "#fff" : Qt.rgba(1,1,1,0.5)
-                            font.pixelSize: 10
-                        }
-                        
-                        HoverHandler { id: defaultHover; cursorShape: Qt.PointingHandCursor }
-                        MouseArea { anchors.fill: parent; onClicked: comp.setDefault() }
-                    }
-                    
-                    Text {
-                        text: "Default"
-                        visible: comp.isDefault
-                        color: Theme.active
-                        font.pixelSize: 9
-                        font.bold: true
-                    }
+                Text {
+                    text: "Audio"
+                    color: Theme.text
+                    font.pixelSize: 16
+                    font.bold: true
                 }
 
-                Item {
+                Text {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 8
-                    
-                    Rectangle {
-                        id: track
-                        anchors.fill: parent
-                        radius: 4
-                        color: Qt.rgba(1,1,1,0.08)
-
-                        // Marca dos 100% quando o slider vai além (boost)
-                        Rectangle {
-                            visible: comp.maxValue > 1.0
-                            x:       parent.width * (1.0 / comp.maxValue) - 1
-                            width:   1
-                            height:  parent.height
-                            color:   Qt.rgba(1,1,1,0.25)
-                        }
-
-                        Rectangle {
-                            height: parent.height
-                            width: Math.max(parent.radius * 2,
-                                            parent.width * (comp.value / comp.maxValue))
-                            radius: parent.radius
-                            // Acima de 100% o preenchimento avisa que está com ganho.
-                            color: comp.muted
-                                   ? Qt.rgba(1,1,1,0.15)
-                                   : (comp.value > 1.0 ? "#e5c890" : Theme.active)
-                            Behavior on width { NumberAnimation { duration: 80 } }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.SizeHorCursor
-                            function calc(mx) {
-                                return Math.max(0.0, Math.min(comp.maxValue,
-                                                (mx / width) * comp.maxValue))
-                            }
-                            onPressed: comp.volumeChanged(calc(mouseX))
-                            onPositionChanged: if (pressed) comp.volumeChanged(calc(mouseX))
-                        }
-
-                        WheelHandler {
-                            acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-                            onWheel: function(event) {
-                                var step = 0.05
-                                var delta = event.angleDelta.y > 0 ? step : -step
-                                comp.volumeChanged(Math.max(0.0,
-                                    Math.min(comp.maxValue, comp.value + delta)))
-                            }
-                        }
+                    text: {
+                        if (AudioService.loading && !AudioService.state.ok) return "Reading devices…"
+                        const output = root.outputDevice?.label ?? "no output"
+                        const input = root.inputDevice?.label ?? "no microphone"
+                        return output + "  •  " + input
                     }
+                    color: Qt.rgba(1, 1, 1, 0.40)
+                    font.pixelSize: 9
+                    elide: Text.ElideRight
                 }
             }
 
-            Text {
-                Layout.preferredWidth: 35
-                text: comp.pctText
-                color: comp.muted ? Qt.rgba(1,1,1,0.25)
-                                  : (comp.value > 1.0 ? "#e5c890" : Theme.text)
-                font.pixelSize: 11
-                font.bold: true
-                horizontalAlignment: Text.AlignRight
+            Rectangle {
+                Layout.preferredWidth: 31
+                Layout.preferredHeight: 31
+                radius: 9
+                color: refreshHover.hovered ? Qt.rgba(1, 1, 1, 0.09) : Qt.rgba(1, 1, 1, 0.045)
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "󰑐"
+                    color: AudioService.loading ? Theme.active : Qt.rgba(1, 1, 1, 0.55)
+                    font.pixelSize: 13
+                    rotation: AudioService.loading ? 180 : 0
+                    Behavior on rotation { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
+                }
+
+                HoverHandler { id: refreshHover; cursorShape: Qt.PointingHandCursor }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: !AudioService.busy
+                    onClicked: AudioService.refresh()
+                }
             }
         }
 
-        // ── Lista de saídas do app (expande sob a linha) ─────────────────────
-        Column {
-            id: routeList
-            visible: comp.routeOpen && comp.hasRouting
-            anchors.top:        mainRow.bottom
-            anchors.left:       parent.left
-            anchors.right:      parent.right
-            anchors.topMargin:  4
-            anchors.leftMargin:  44   // alinha com o texto, depois do botão de mute
-            anchors.rightMargin: 12
-            spacing: 2
+        Rectangle {
+            visible: AudioService.notice !== ""
+            Layout.fillWidth: true
+            Layout.preferredHeight: visible ? 31 : 0
+            radius: 8
+            color: AudioService.noticeIsError
+                   ? Qt.rgba(0.96, 0.55, 0.24, 0.13)
+                   : Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.13)
+            border.color: AudioService.noticeIsError
+                          ? Qt.rgba(0.96, 0.55, 0.24, 0.28)
+                          : Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.28)
 
-            Repeater {
-                model: comp.routeTargets
-                delegate: Rectangle {
-                    id: sinkRow
-                    required property var modelData
-                    readonly property bool isCurrent:
-                        root.deviceName(modelData) === comp.routeCurrent
+            Row {
+                anchors.centerIn: parent
+                spacing: 7
 
-                    width:  routeList.width
-                    height: 22
-                    radius: 4
-                    color: sinkRow.isCurrent
-                           ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.18)
-                           : (sinkHover.hovered ? Qt.rgba(1,1,1,0.08) : "transparent")
+                Text {
+                    text: AudioService.busy ? "󰔟" : (AudioService.noticeIsError ? "󰀦" : "󰄬")
+                    color: AudioService.noticeIsError ? "#f5a45d" : Theme.active
+                    font.pixelSize: 11
+                }
+                Text {
+                    text: AudioService.notice
+                    color: Theme.text
+                    font.pixelSize: 10
+                    elide: Text.ElideRight
+                    width: Math.min(implicitWidth, root.width - 55)
+                }
+            }
+        }
 
-                    Text {
-                        anchors.left:           parent.left
-                        anchors.leftMargin:     8
-                        anchors.verticalCenter: parent.verticalCenter
-                        width:  parent.width - 16
-                        text:   root.deviceName(sinkRow.modelData)
-                        color:  sinkRow.isCurrent ? Theme.active : Qt.rgba(1,1,1,0.6)
-                        font.pixelSize: 9
-                        elide:  Text.ElideRight
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 35
+            radius: 10
+            color: Qt.rgba(1, 1, 1, 0.045)
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 3
+                spacing: 3
+
+                Repeater {
+                    model: [
+                        { key: "general", icon: "󰋋", label: "General" },
+                        { key: "apps", icon: "󰏖", label: "Applications" },
+                        { key: "advanced", icon: "󰒓", label: "Advanced" }
+                    ]
+
+                    delegate: Rectangle {
+                        id: tab
+                        required property var modelData
+                        readonly property bool selected: root.page === modelData.key
+
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        radius: 8
+                        color: selected
+                               ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.18)
+                               : (tabHover.hovered ? Qt.rgba(1, 1, 1, 0.055) : "transparent")
+
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: 6
+                            Text {
+                                text: tab.modelData.icon
+                                color: tab.selected ? Theme.active : Qt.rgba(1, 1, 1, 0.48)
+                                font.pixelSize: 11
+                            }
+                            Text {
+                                text: tab.modelData.label
+                                color: tab.selected ? Theme.text : Qt.rgba(1, 1, 1, 0.48)
+                                font.pixelSize: 10
+                                font.bold: tab.selected
+                            }
+                        }
+
+                        HoverHandler { id: tabHover; cursorShape: Qt.PointingHandCursor }
+                        MouseArea { anchors.fill: parent; onClicked: root.setPage(tab.modelData.key) }
+                    }
+                }
+            }
+        }
+
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            clip: true
+
+            Flickable {
+                anchors.fill: parent
+                visible: root.page === "general"
+                contentHeight: generalColumn.implicitHeight + 3
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+
+                Column {
+                    id: generalColumn
+                    width: parent.width
+                    spacing: 9
+
+                    Rectangle {
+                        visible: AudioService.orphanCount > 0 || AudioService.effects.invalidDefault === true
+                        width: parent.width
+                        height: visible ? warningContent.implicitHeight + 20 : 0
+                        radius: root.cardRadius
+                        color: Qt.rgba(0.96, 0.55, 0.24, 0.11)
+                        border.color: Qt.rgba(0.96, 0.55, 0.24, 0.28)
+                        border.width: 1
+
+                        RowLayout {
+                            id: warningContent
+                            anchors {
+                                left: parent.left
+                                right: parent.right
+                                verticalCenter: parent.verticalCenter
+                                margins: 10
+                            }
+                            spacing: 9
+
+                            Text {
+                                text: "󰀦"
+                                color: "#f5a45d"
+                                font.pixelSize: 17
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 1
+                                Text {
+                                    text: AudioService.orphanCount > 0
+                                          ? "Application route was interrupted"
+                                          : "EasyEffects became the default output"
+                                    color: Theme.text
+                                    font.pixelSize: 11
+                                    font.bold: true
+                                }
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: AudioService.orphanCount > 0
+                                          ? "Try reconnecting. If the app kept the old route, pause and resume its audio."
+                                          : "The physical device should remain the default."
+                                    color: Qt.rgba(1, 1, 1, 0.43)
+                                    font.pixelSize: 9
+                                    wrapMode: Text.Wrap
+                                }
+                            }
+
+                            ActionButton {
+                                label: "Reconnect"
+                                accent: true
+                                onClicked: AudioService.repair()
+                            }
+                        }
                     }
 
-                    HoverHandler { id: sinkHover; cursorShape: Qt.PointingHandCursor }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            comp.routePicked(sinkRow.modelData)
-                            comp.routeOpen = false
+                    AudioEndpointCard {
+                        id: outputCard
+                        width: parent.width
+                        heading: "Listen through"
+                        input: false
+                        endpoint: root.outputDevice
+                        endpoints: AudioService.sinks
+                        audioNode: AudioService.outputNode
+                        signalLevel: AudioService.outputPeak
+                        onDevicePicked: function(device) { AudioService.chooseOutput(device) }
+                        onPortPicked: function(device, port) { AudioService.chooseOutputPort(device, port) }
+                    }
+
+                    AudioEndpointCard {
+                        id: inputCard
+                        width: parent.width
+                        heading: "Speak through"
+                        input: true
+                        endpoint: root.inputDevice
+                        endpoints: AudioService.sources
+                        audioNode: AudioService.inputNode
+                        signalLevel: AudioService.inputPeak
+                        onDevicePicked: function(device) { AudioService.chooseInput(device) }
+                        onPortPicked: function(device, port) { AudioService.chooseInputPort(device, port) }
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: 82
+                        radius: root.cardRadius
+                        color: Qt.rgba(1, 1, 1, 0.04)
+                        border.color: AudioService.effects.enabled
+                                      ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.30)
+                                      : Qt.rgba(1, 1, 1, 0.07)
+                        border.width: 1
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 11
+                            spacing: 10
+
+                            Rectangle {
+                                Layout.preferredWidth: 36
+                                Layout.preferredHeight: 36
+                                radius: 11
+                                color: AudioService.effects.enabled
+                                       ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.15)
+                                       : Qt.rgba(1, 1, 1, 0.055)
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "󰓃"
+                                    color: AudioService.effects.enabled ? Theme.active : Qt.rgba(1, 1, 1, 0.45)
+                                    font.pixelSize: 16
+                                }
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text {
+                                    text: "EasyEffects • output"
+                                    color: Theme.text
+                                    font.pixelSize: 12
+                                    font.bold: true
+                                }
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: !AudioService.effects.installed
+                                          ? "Not installed"
+                                          : (!AudioService.effects.running
+                                             ? "Stopped • turn it on to start"
+                                          : (AudioService.effects.enabled
+                                             ? "On • preset " + (AudioService.effects.preset || "current")
+                                             : "Bypass • effects skipped, physical output preserved"))
+                                    color: Qt.rgba(1, 1, 1, 0.40)
+                                    font.pixelSize: 9
+                                    elide: Text.ElideRight
+                                }
+                            }
+
+                            ActionButton {
+                                label: "Open"
+                                onClicked: Quickshell.execDetached(["easyeffects"])
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 38
+                                Layout.preferredHeight: 21
+                                radius: height / 2
+                                color: AudioService.effects.enabled
+                                       ? Theme.active
+                                       : Qt.rgba(1, 1, 1, 0.13)
+
+                                Rectangle {
+                                    width: 15
+                                    height: 15
+                                    radius: 8
+                                    y: 3
+                                    x: AudioService.effects.enabled ? parent.width - width - 3 : 3
+                                    color: AudioService.effects.enabled ? "#ffffff" : Qt.rgba(1, 1, 1, 0.65)
+                                    Behavior on x { NumberAnimation { duration: 130; easing.type: Easing.OutCubic } }
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    enabled: AudioService.effects.available && !AudioService.busy
+                                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                    onClicked: AudioService.setEffects(!AudioService.effects.enabled)
+                                }
+                            }
+                        }
+                    }
+
+                    Text {
+                        width: parent.width
+                        text: "Output and microphone are independent: connecting a microphone does not change where sound plays."
+                        color: Qt.rgba(1, 1, 1, 0.30)
+                        font.pixelSize: 9
+                        wrapMode: Text.Wrap
+                        horizontalAlignment: Text.AlignHCenter
+                        topPadding: 2
+                    }
+                }
+            }
+
+            Flickable {
+                anchors.fill: parent
+                visible: root.page === "apps"
+                contentHeight: appsColumn.implicitHeight + 3
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+
+                Column {
+                    id: appsColumn
+                    width: parent.width
+                    spacing: 7
+
+                    SectionTitle { width: parent.width; title: "Playback"; subtitle: "Volume and output per application" }
+
+                    Text {
+                        visible: AudioService.effects.running
+                        width: parent.width
+                        text: "EasyEffects combines playback into one route. Turn it off in General to choose a different output per application."
+                        color: "#f5a45d"
+                        font.pixelSize: 9
+                        wrapMode: Text.Wrap
+                        horizontalAlignment: Text.AlignHCenter
+                        bottomPadding: 2
+                    }
+
+                    Repeater {
+                        model: AudioService.playbackStreams
+                        delegate: AudioAppRow {
+                            required property var modelData
+                            width: appsColumn.width
+                            streamNode: modelData
+                            recording: false
+                            routeTargets: AudioService.effects.running ? [] : AudioService.sinks
+                            routeCurrent: {
+                                const route = AudioService.streamRoute(modelData)
+                                return route ? route.sinkName : ""
+                            }
+                            routeLabel: root.sinkLabel(routeCurrent)
+                            onRoutePicked: function(sink) { AudioService.moveStream(modelData, sink) }
+                        }
+                    }
+
+                    EmptyState {
+                        width: parent.width
+                        visible: AudioService.playbackStreams.length === 0
+                        message: "No applications are playing audio"
+                    }
+
+                    Rectangle { width: parent.width; height: 1; color: Qt.rgba(1, 1, 1, 0.07) }
+
+                    SectionTitle { width: parent.width; title: "Recording"; subtitle: "Microphone and system audio capture" }
+
+                    Repeater {
+                        model: AudioService.recordingStreams
+                        delegate: AudioAppRow {
+                            required property var modelData
+                            width: appsColumn.width
+                            streamNode: modelData
+                            recording: true
+                            systemCapture: AudioService.recordingRoute(modelData)?.isMonitor === true
+                        }
+                    }
+
+                    EmptyState {
+                        width: parent.width
+                        visible: AudioService.recordingStreams.length === 0
+                        message: "No applications are recording audio"
+                    }
+                }
+            }
+
+            Flickable {
+                anchors.fill: parent
+                visible: root.page === "advanced"
+                contentHeight: advancedColumn.implicitHeight + 3
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+
+                Column {
+                    id: advancedColumn
+                    width: parent.width
+                    spacing: 9
+
+                    Rectangle {
+                        width: parent.width
+                        height: 72
+                        radius: root.cardRadius
+                        color: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.08)
+                        border.color: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.20)
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 11
+                            spacing: 10
+                            Text { text: "󰑓"; color: Theme.active; font.pixelSize: 19 }
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 1
+                                Text { text: "Restore routes"; color: Theme.text; font.pixelSize: 11; font.bold: true }
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Returns to Sound + microphone mode and restores physical devices."
+                                    color: Qt.rgba(1, 1, 1, 0.40)
+                                    font.pixelSize: 9
+                                    wrapMode: Text.Wrap
+                                }
+                            }
+                            ActionButton { label: "Restore"; accent: true; onClicked: AudioService.repair() }
+                        }
+                    }
+
+                    SectionTitle {
+                        width: parent.width
+                        title: "Card mode"
+                        subtitle: "Duplex is the normal choice for sound + microphone"
+                    }
+
+                    Repeater {
+                        model: AudioService.cards
+
+                        delegate: Rectangle {
+                            id: cardBox
+                            required property var modelData
+                            readonly property var cardData: modelData
+
+                            width: advancedColumn.width
+                            height: cardColumn.implicitHeight + 22
+                            radius: root.cardRadius
+                            color: Qt.rgba(1, 1, 1, 0.038)
+                            border.color: Qt.rgba(1, 1, 1, 0.065)
+                            border.width: 1
+
+                            Column {
+                                id: cardColumn
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                    top: parent.top
+                                    margins: 11
+                                }
+                                spacing: 5
+
+                                Text {
+                                    width: parent.width
+                                    text: cardBox.cardData.label
+                                    color: Theme.text
+                                    font.pixelSize: 11
+                                    font.bold: true
+                                    elide: Text.ElideRight
+                                }
+
+                                Repeater {
+                                    model: AudioService.profilesFor(cardBox.cardData, root.showTechnicalProfiles)
+
+                                    delegate: Rectangle {
+                                        id: profileRow
+                                        required property var modelData
+                                        readonly property var profileData: modelData
+                                        readonly property bool dangerous: profileData.kind === "pro" || profileData.kind === "off"
+                                        readonly property string token: root.profileToken(cardBox.cardData, profileData)
+                                        readonly property bool confirming: root.pendingProfile === token
+
+                                        width: cardColumn.width
+                                        height: 52
+                                        radius: 8
+                                        color: profileData.active
+                                               ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.13)
+                                               : (profileHover.hovered ? Qt.rgba(1, 1, 1, 0.055) : "transparent")
+                                        border.color: confirming ? "#f5a45d" : "transparent"
+                                        border.width: confirming ? 1 : 0
+
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.margins: 8
+                                            spacing: 9
+
+                                            Rectangle {
+                                                Layout.preferredWidth: 28
+                                                Layout.preferredHeight: 28
+                                                radius: 9
+                                                color: profileRow.profileData.active
+                                                       ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.18)
+                                                       : (profileRow.dangerous ? Qt.rgba(0.96, 0.55, 0.24, 0.12)
+                                                                               : Qt.rgba(1, 1, 1, 0.05))
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    text: profileRow.profileData.kind === "duplex" ? "󰂚"
+                                                          : profileRow.profileData.kind === "output" ? "󰕾"
+                                                          : profileRow.profileData.kind === "input" ? "󰍬"
+                                                          : profileRow.profileData.kind === "pro" ? "󰐹" : "󰅖"
+                                                    color: profileRow.profileData.active ? Theme.active
+                                                           : (profileRow.dangerous ? "#f5a45d" : Qt.rgba(1, 1, 1, 0.48))
+                                                    font.pixelSize: 13
+                                                }
+                                            }
+
+                                            ColumnLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 1
+                                                RowLayout {
+                                                    Layout.fillWidth: true
+                                                    spacing: 5
+                                                    Text {
+                                                        text: profileRow.profileData.title
+                                                        color: Theme.text
+                                                        font.pixelSize: 10
+                                                        font.bold: true
+                                                    }
+                                                    Text {
+                                                        visible: profileRow.profileData.recommended
+                                                        text: "RECOMMENDED"
+                                                        color: Theme.active
+                                                        font.pixelSize: 7
+                                                        font.bold: true
+                                                    }
+                                                }
+                                                Text {
+                                                    Layout.fillWidth: true
+                                                    text: AudioService.profileHint(profileRow.profileData)
+                                                    color: Qt.rgba(1, 1, 1, 0.36)
+                                                    font.pixelSize: 8
+                                                    elide: Text.ElideRight
+                                                }
+                                            }
+
+                                            Text {
+                                                visible: profileRow.profileData.active || profileRow.confirming
+                                                text: profileRow.confirming ? "Confirm" : "󰄬"
+                                                color: profileRow.confirming ? "#f5a45d" : Theme.active
+                                                font.pixelSize: profileRow.confirming ? 9 : 12
+                                                font.bold: true
+                                            }
+                                        }
+
+                                        HoverHandler { id: profileHover; cursorShape: Qt.PointingHandCursor }
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            enabled: !AudioService.busy && !profileRow.profileData.active
+                                            onClicked: root.selectProfile(cardBox.cardData, profileRow.profileData)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: 36
+                        radius: 9
+                        color: technicalHover.hovered ? Qt.rgba(1, 1, 1, 0.06) : Qt.rgba(1, 1, 1, 0.035)
+
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: 7
+                            Text {
+                                text: root.showTechnicalProfiles ? "󰅀" : "󰅂"
+                                color: Qt.rgba(1, 1, 1, 0.45)
+                                font.pixelSize: 11
+                            }
+                            Text {
+                                text: root.showTechnicalProfiles ? "Hide Pro Audio and Disabled" : "Show technical modes"
+                                color: Qt.rgba(1, 1, 1, 0.55)
+                                font.pixelSize: 9
+                            }
+                        }
+
+                        HoverHandler { id: technicalHover; cursorShape: Qt.PointingHandCursor }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                root.showTechnicalProfiles = !root.showTechnicalProfiles
+                                root.pendingProfile = ""
+                            }
+                        }
+                    }
+
+                    SectionTitle { width: parent.width; title: "Diagnostics"; subtitle: "Full controls when you need them" }
+
+                    Rectangle {
+                        width: parent.width
+                        height: diagnosticColumn.implicitHeight + 22
+                        radius: root.cardRadius
+                        color: Qt.rgba(1, 1, 1, 0.038)
+                        border.color: Qt.rgba(1, 1, 1, 0.065)
+
+                        Column {
+                            id: diagnosticColumn
+                            anchors {
+                                left: parent.left
+                                right: parent.right
+                                top: parent.top
+                                margins: 11
+                            }
+                            spacing: 7
+
+                            DiagnosticRow { width: parent.width; label: "Default output"; value: root.outputDevice?.label ?? "None" }
+                            DiagnosticRow { width: parent.width; label: "Default microphone"; value: root.inputDevice?.label ?? "None" }
+                            DiagnosticRow {
+                                width: parent.width
+                                label: "EasyEffects"
+                                value: AudioService.effects.enabled
+                                       ? "On (" + (AudioService.effects.preset || "current preset") + ")"
+                                       : "Off"
+                            }
+                            DiagnosticRow {
+                                width: parent.width
+                                label: "Lost routes"
+                                value: String(AudioService.orphanCount)
+                                warning: AudioService.orphanCount > 0
+                            }
+
+                            RowLayout {
+                                width: parent.width
+                                spacing: 7
+                                ActionButton {
+                                    Layout.fillWidth: true
+                                    label: "Pavucontrol"
+                                    onClicked: Quickshell.execDetached(["pavucontrol"])
+                                }
+                                ActionButton {
+                                    Layout.fillWidth: true
+                                    label: "EasyEffects"
+                                    onClicked: Quickshell.execDetached(["easyeffects"])
+                                }
+                            }
                         }
                     }
                 }
@@ -863,13 +752,101 @@ Item {
         }
     }
 
-    // ── SectionLabel ──────────────────────────────────────────────────────────
-    component SectionLabel: Text {
-        color:           Qt.rgba(1, 1, 1, 0.35)
-        font.pixelSize:  10
-        font.capitalization: Font.AllUppercase
-        font.letterSpacing: 0.8
-        leftPadding: 4
-        topPadding:  2
+    Rectangle {
+        anchors.fill: parent
+        visible: AudioService.busy
+        z: 100
+        color: Qt.rgba(0, 0, 0, 0.12)
+        MouseArea { anchors.fill: parent }
+    }
+
+    component ActionButton: Rectangle {
+        id: button
+        property string label: ""
+        property bool accent: false
+        signal clicked()
+
+        implicitWidth: buttonText.implicitWidth + 18
+        implicitHeight: 27
+        radius: 8
+        color: accent
+               ? (buttonHover.hovered ? Theme.active : Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.72))
+               : (buttonHover.hovered ? Qt.rgba(1, 1, 1, 0.11) : Qt.rgba(1, 1, 1, 0.06))
+
+        Text {
+            id: buttonText
+            anchors.centerIn: parent
+            text: button.label
+            color: button.accent ? "#ffffff" : Theme.text
+            font.pixelSize: 9
+            font.bold: true
+        }
+
+        HoverHandler { id: buttonHover; cursorShape: Qt.PointingHandCursor }
+        MouseArea {
+            anchors.fill: parent
+            enabled: !AudioService.busy
+            onClicked: button.clicked()
+        }
+    }
+
+    component SectionTitle: Item {
+        property string title: ""
+        property string subtitle: ""
+        implicitHeight: titleColumn.implicitHeight + 3
+
+        Column {
+            id: titleColumn
+            width: parent.width
+            spacing: 1
+            Text {
+                text: parent.parent.title
+                color: Theme.text
+                font.pixelSize: 11
+                font.bold: true
+            }
+            Text {
+                width: parent.width
+                text: parent.parent.subtitle
+                color: Qt.rgba(1, 1, 1, 0.35)
+                font.pixelSize: 8
+                elide: Text.ElideRight
+            }
+        }
+    }
+
+    component EmptyState: Rectangle {
+        property string message: ""
+        height: visible ? 48 : 0
+        radius: 9
+        color: Qt.rgba(1, 1, 1, 0.025)
+        Text {
+            anchors.centerIn: parent
+            text: parent.message
+            color: Qt.rgba(1, 1, 1, 0.28)
+            font.pixelSize: 9
+        }
+    }
+
+    component DiagnosticRow: RowLayout {
+        property string label: ""
+        property string value: ""
+        property bool warning: false
+        spacing: 8
+        Text {
+            text: parent.label
+            color: Qt.rgba(1, 1, 1, 0.38)
+            font.pixelSize: 9
+        }
+        Item { Layout.fillWidth: true }
+        Text {
+            Layout.maximumWidth: 245
+            text: parent.value
+            color: parent.warning ? "#f5a45d" : Theme.text
+            font.pixelSize: 9
+            font.bold: true
+            elide: Text.ElideLeft
+            horizontalAlignment: Text.AlignRight
+        }
     }
 }

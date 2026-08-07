@@ -41,7 +41,7 @@ QtObject {
     property string dashboardPage:      "home"
     
     // ── Audio popup — per-page state ─────────────────────────────────────────
-    property string audioPage: "output"
+    property string audioPage: "general"
 
     // ── Network popup — per-page content (string key) ─────────────────────────
     property string networkPage: "wifi"

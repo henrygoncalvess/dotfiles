@@ -17,14 +17,19 @@ PanelWindow {
 	readonly property int fh: Theme.cornerRadius
 
 	readonly property var pageWidths: ({
-		"output": 320,
-		"input":  320,
-		"mixer":  320
+		"general":  450,
+		"apps":     450,
+		"advanced": 450,
+		// Compatibilidade com os IPCs antigos.
+		"output":   450,
+		"input":    450,
+		"mixer":    450,
+		"config":   450
 	})
 
-	readonly property int popupHeight: 340
+	readonly property int popupHeight: 590
 
-	readonly property int maxWidth: 320
+	readonly property int maxWidth: 450
 
 	color:   "transparent"
 	// Monitor desta cópia (PopupLayer é instanciado por tela). Sem `screen` as
@@ -61,23 +66,30 @@ PanelWindow {
 		hoverEnabled:     true
 		triggerHovered:   Popups.audioTriggerHovered
 		onCloseRequested: Popups.audioOpen = false
+		onWindowVisibleChanged: {
+			AudioService.panelVisible = windowVisible
+			if (windowVisible) {
+				audioResetTimer.stop()
+				AudioService.refresh()
+			}
+			else audioResetTimer.restart()
+		}
 
 		Connections {
 			target: Popups
 			function onAudioOpenChanged() {
 				if (!Popups.audioOpen) audioResetTimer.restart()
-                else audioControl.page = Popups.audioPage
+				else {
+					audioResetTimer.stop()
+					AudioService.refresh()
+				}
 			}
-
-            function onAudioPageChanged() {
-                audioControl.page = Popups.audioPage
-            }
 		}
 
 		Timer {
 			id: audioResetTimer
 			interval: Theme.animDuration + 20
-			onTriggered: audioControl.reset()
+			onTriggered: if (!slide.windowVisible) audioControl.reset()
 		}
 
 		Item {
@@ -108,7 +120,7 @@ PanelWindow {
 					topMargin:    root.fh + 6
 					bottomMargin: root.fh + 6
 					leftMargin:   10
-					rightMargin:  root.fw - 4
+					rightMargin:  Math.max(10, root.fw - 4)
 				}
 			}
 		}

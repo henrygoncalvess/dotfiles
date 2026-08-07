@@ -77,15 +77,15 @@ QtObject {
         function toggle() {
             if(Popups.anyOpen && !Popups.audioOpen) {
                 Popups.closeAll()
-                Popups.audioPage = "output"
+                Popups.audioPage = "general"
                 Popups.audioOpen = true
-            } else if (Popups.audioOpen && Popups.audioPage != "output") {
-                Popups.audioPage = "output"
+            } else if (Popups.audioOpen && Popups.audioPage != "general") {
+                Popups.audioPage = "general"
             } else {
                 var next = !Popups.audioOpen
                 Popups.closeAll()
                 Popups.audioOpen = next
-                if (next) Popups.audioPage = "output"
+                if (next) Popups.audioPage = "general"
             }
         }
     }
@@ -95,15 +95,15 @@ QtObject {
         function toggle() {
             if(Popups.anyOpen && !Popups.audioOpen) {
                 Popups.closeAll()
-                Popups.audioPage = "mixer"
+                Popups.audioPage = "apps"
                 Popups.audioOpen = true
-            } else if (Popups.audioOpen && Popups.audioPage != "mixer") {
-                Popups.audioPage = "mixer"
+            } else if (Popups.audioOpen && Popups.audioPage != "apps") {
+                Popups.audioPage = "apps"
             } else {
                 var next = !Popups.audioOpen
                 Popups.closeAll()
                 Popups.audioOpen = next
-                if (next) Popups.audioPage = "mixer"
+                if (next) Popups.audioPage = "apps"
             }
         }
     }
@@ -114,15 +114,15 @@ QtObject {
         function toggle() {
             if(Popups.anyOpen && !Popups.audioOpen) {
                 Popups.closeAll()
-                Popups.audioPage = "config"
+                Popups.audioPage = "advanced"
                 Popups.audioOpen = true
-            } else if (Popups.audioOpen && Popups.audioPage != "config") {
-                Popups.audioPage = "config"
+            } else if (Popups.audioOpen && Popups.audioPage != "advanced") {
+                Popups.audioPage = "advanced"
             } else {
                 var next = !Popups.audioOpen
                 Popups.closeAll()
                 Popups.audioOpen = next
-                if (next) Popups.audioPage = "config"
+                if (next) Popups.audioPage = "advanced"
             }
         }
     }
@@ -132,15 +132,15 @@ QtObject {
         function toggle() {
             if(Popups.anyOpen && !Popups.audioOpen) {
                 Popups.closeAll()
-                Popups.audioPage = "input"
+                Popups.audioPage = "general"
                 Popups.audioOpen = true
-            } else if (Popups.audioOpen && Popups.audioPage != "input") {
-                Popups.audioPage = "input"
+            } else if (Popups.audioOpen && Popups.audioPage != "general") {
+                Popups.audioPage = "general"
             } else {
                 var next = !Popups.audioOpen
                 Popups.closeAll()
                 Popups.audioOpen = next
-                if (next) Popups.audioPage = "input"
+                if (next) Popups.audioPage = "general"
             }
         }
     }
