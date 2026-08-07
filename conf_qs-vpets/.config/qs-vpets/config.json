@@ -10,28 +10,28 @@
         {
             "name": "Belo",
             "sprite": "belo",
-            "personality": "playful",
+            "personality": "curious",
             "scale": 2,
             "monitor": ""
         },
         {
             "name": "Billy",
             "sprite": "billy",
-            "personality": "energetic",
+            "personality": "curious",
             "scale": 2,
             "monitor": ""
         },
         {
             "name": "Gisele",
             "sprite": "gisele",
-            "personality": "shy",
+            "personality": "curious",
             "scale": 2,
             "monitor": ""
         },
         {
             "name": "Guerreiro",
             "sprite": "guerreiro",
-            "personality": "brave",
+            "personality": "curious",
             "scale": 2,
             "monitor": ""
         },
@@ -45,7 +45,7 @@
         {
             "name": "Sandy",
             "sprite": "sandy",
-            "personality": "chill",
+            "personality": "curious",
             "scale": 2,
             "monitor": ""
         }
