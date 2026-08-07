@@ -11,6 +11,7 @@ PRESET_DIR="$HOME/.local/share/easyeffects/output"
 PRESET_NAME="live_eq"
 PRESET_FILE="$PRESET_DIR/${PRESET_NAME}.json"
 EE_SINK="easyeffects_sink"
+AUDIO_BACKEND="$HOME/.config/Brain_Shell/src/scripts/audio-control.sh"
 
 mkdir -p "$PRESET_DIR"
 
@@ -67,6 +68,9 @@ import sys, json
 data  = json.loads(sys.argv[1])
 freqs = [31.0, 62.0, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 16000.0]
 gains = [float(data['b%d' % (i + 1)]) for i in range(10)]
+# Preserve headroom: a +7 dB bass band with 0 dB preamp clips before the
+# hardware volume is even considered. Compensate by the largest positive band.
+preamp = -max(0.0, max(gains))
 
 def channel():
     bands = {}
@@ -91,7 +95,7 @@ preset = {
         'equalizer#0': {
             'bypass':         False,
             'input-gain':     0.0,
-            'output-gain':    0.0,
+            'output-gain':    preamp,
             'mode':           'IIR',
             'num-bands':      len(freqs),
             'split-channels': False,
@@ -122,32 +126,25 @@ ensure_easyeffects() {
     fi
 }
 
-# O EasyEffects processa APENAS o que passa pelo sink virtual dele. Se o sink
-# default for a placa direto, o preset carrega certo e mesmo assim nada muda no
-# som — era esse o sintoma ("os efeitos não mudam a música"): easyeffects_sink
-# ficava SUSPENDED, sem nenhum stream.
+# O Brain_Shell é a autoridade única de roteamento. O EasyEffects upstream pede
+# que o hardware continue sendo o default; o sink virtual é apenas um detalhe do
+# grafo e não deve aparecer como se fosse um alto-falante. O backend também
+# desliga o bypass global, que antes podia deixar a UI em "aplicado" sem efeito.
 route_through_ee() {
-    pactl list short sinks 2>/dev/null | grep -q "$EE_SINK" || return 0
-
-    [ "$(pactl get-default-sink 2>/dev/null)" = "$EE_SINK" ] || \
-        pactl set-default-sink "$EE_SINK" 2>/dev/null
-
-    # Streams que já estavam tocando não migram sozinhos.
-    pactl list short sink-inputs 2>/dev/null | awk '{print $1}' | while read -r id; do
-        pactl move-sink-input "$id" "$EE_SINK" 2>/dev/null || true
-    done
+    if [ -x "$AUDIO_BACKEND" ]; then
+        "$AUDIO_BACKEND" effects on >/dev/null
+        return
+    fi
+    easyeffects -b 2 >/dev/null 2>&1 || true
 }
 
-# Devolve o áudio direto pra placa (EQ fora do caminho).
+# Desliga o processamento e conserva a saída física escolhida no painel.
 unroute() {
-    local hw
-    hw=$(pactl list short sinks 2>/dev/null | awk -v s="$EE_SINK" '$2 != s {print $2; exit}')
-    [ -z "$hw" ] && return 0
-
-    pactl set-default-sink "$hw" 2>/dev/null
-    pactl list short sink-inputs 2>/dev/null | awk '{print $1}' | while read -r id; do
-        pactl move-sink-input "$id" "$hw" 2>/dev/null || true
-    done
+    if [ -x "$AUDIO_BACKEND" ]; then
+        "$AUDIO_BACKEND" effects off >/dev/null
+        return
+    fi
+    easyeffects -b 1 >/dev/null 2>&1 || true
 }
 
 # Save state helper (Always sets pending to false because Presets apply instantly)
@@ -164,10 +161,9 @@ arg2=$3
 case $cmd in
     "get") cat "$STATE_FILE" ;;
     "status")
-        # Diagnóstico: preset ativo no EE + pra onde o áudio está indo.
-        echo "preset ativo: $(easyeffects -a output 2>/dev/null | head -1)"
-        echo "sink default: $(pactl get-default-sink 2>/dev/null)"
-        echo "roteado pelo EQ: $([ "$(pactl get-default-sink 2>/dev/null)" = "$EE_SINK" ] && echo sim || echo nao)"
+        echo "active preset: $(easyeffects -a output 2>/dev/null | head -1)"
+        echo "bypass: $(easyeffects -b 3 2>/dev/null | head -1)"
+        echo "physical output: $(pactl get-default-sink 2>/dev/null)"
         ;;
     "set_band")
         # SLIDER MOVE: Set pending = true, Preset = Custom. DO NOT APPLY.
