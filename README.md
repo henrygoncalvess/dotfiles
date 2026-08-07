@@ -189,6 +189,11 @@ _para executar um script: `./script.sh` ou `bash script.sh`_
 > | `conf_easyeffects` | a UI do EasyEffects cria outros presets no mesmo diretório |
 > | `conf_autostart` | `~/.config/autostart` recebe `.desktop` instalados pelos apps |
 >
+> O `conf_code` é stowado duas vezes: em `~/.config/Code` e, como overlay, em
+> `~/.config/Antigravity IDE/User` — o Antigravity é um fork do VS Code e lê o
+> mesmo `settings.json`/`keybindings.json`, só que sob outro nome de diretório.
+> Não existe segunda cópia dos arquivos: os dois editores seguem o mesmo link.
+>
 > Ao final o script roda `systemctl --user enable brainshell quickshell` e
 > `mask mako` — sem isso o Brain_Shell não sobe no login de uma máquina nova.
 

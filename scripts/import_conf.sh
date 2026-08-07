@@ -120,6 +120,37 @@ stow -v -t "$HOME" "${STOW_PACKAGES[@]}"
 # --no-folding: preserva os diretórios reais do destino e linka arquivo a arquivo.
 stow -v --no-folding -t "$HOME" "${OVERLAY_PACKAGES[@]}"
 
+# ── Antigravity IDE ──────────────────────────────────────────────────────────
+# Antigravity is a VS Code fork, so it reads the very same settings.json and
+# keybindings.json — it just looks for them under its own name (product.json:
+# nameLong "Antigravity IDE"), which is why the conf_code package alone never
+# reached it.
+#
+# The same package is stowed a second time with the Antigravity data dir as the
+# target: --dir points at conf_code/.config so that the package "Code" maps its
+# User/ subtree onto "<data dir>/User". No second copy of the files exists, both
+# editors follow the same links into conf_code.
+#
+# Overlay rules apply here for the usual reason: that User/ directory also holds
+# History/, globalStorage/ and workspaceStorage/, none of which belong to this
+# repo — hence --no-folding, and only the two files we provide get removed
+# before the stow.
+ANTIGRAVITY_DIR="$HOME/.config/Antigravity IDE"
+echo -e "\n\033[1;33mAplicando as configurações do VS Code no Antigravity IDE\033[0m\n"
+if [ -d "$ANTIGRAVITY_DIR" ]; then
+  mkdir -p "$ANTIGRAVITY_DIR/User"
+  for name in settings.json keybindings.json; do
+    target="$ANTIGRAVITY_DIR/User/$name"
+    if [ -f "$target" ] && [ ! -L "$target" ]; then
+      echo "Limpando (overlay): $target"
+      rm -f "$target"
+    fi
+  done
+  stow -v --no-folding --dir "$HOME/.dotfiles/conf_code/.config" --target "$ANTIGRAVITY_DIR" Code
+else
+  echo -e "\033[1;31mAntigravity IDE não encontrado — abra ele uma vez e rode o script de novo\033[0m"
+fi
+
 # ── Units systemd --user ─────────────────────────────────────────────────────
 # O stow entrega os arquivos .service, mas quem os liga ao boot é o symlink em
 # graphical-session.target.wants/ — sem `enable` o Brain_Shell simplesmente não

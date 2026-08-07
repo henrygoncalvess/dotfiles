@@ -108,4 +108,6 @@
     "window.commandCenter": false,
     "window.zoomLevel": -1,
     "terminal.integrated.tabs.enabled": false,
+    "claudeCode.preferredLocation": "panel",
+    "chatgpt.followUpQueueMode": "queue",
 }
