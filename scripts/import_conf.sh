@@ -59,10 +59,10 @@ STOW_PACKAGES=(frigate conf_home conf_wall conf_posh conf_code conf_git conf_she
 # transformaria ~/.config/qs-vpets num symlink e todo esse estado cairia dentro
 # do repositório.
 #
-# conf_easyeffects e conf_autostart compartilham o destino com arquivos que não
+# conf_easyeffects, conf_pipewire e conf_autostart compartilham destinos com arquivos que não
 # são nossos: presets criados pela UI do EasyEffects e entradas .desktop que os
 # próprios aplicativos instalam.
-OVERLAY_PACKAGES=(conf_omarchy conf_walker conf_systemd conf_qs-vpets conf_easyeffects conf_autostart)
+OVERLAY_PACKAGES=(conf_omarchy conf_walker conf_systemd conf_qs-vpets conf_easyeffects conf_pipewire conf_autostart)
 
 echo -e "\033[1;33mRemovendo arquivos existentes para evitar conflitos\033[0m\n"
 for target in "${CONF_TARGETS[@]}"; do

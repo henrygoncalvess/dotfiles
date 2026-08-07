@@ -187,6 +187,7 @@ _para executar um script: `./script.sh` ou `bash script.sh`_
 > | `conf_systemd` | o systemd não segue diretório de drop-in que seja symlink |
 > | `conf_qs-vpets` | o qs-vpets grava `state-<Pet>.json` ao lado do `config.json` |
 > | `conf_easyeffects` | a UI do EasyEffects cria outros presets no mesmo diretório |
+> | `conf_pipewire` | `~/.config/pipewire` pode conter outros drop-ins locais do usuário |
 > | `conf_autostart` | `~/.config/autostart` recebe `.desktop` instalados pelos apps |
 >
 > O `conf_code` é stowado duas vezes: em `~/.config/Code` e, como overlay, em
