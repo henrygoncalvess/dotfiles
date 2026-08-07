@@ -27,6 +27,7 @@ Item {
         visible: opacity > 0
         Behavior on opacity { NumberAnimation { duration: 150 } }
 
+        Screenshot{}
         Network{}
         Monitors{}
         Audio{}
