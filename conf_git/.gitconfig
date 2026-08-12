@@ -7,5 +7,4 @@
 
 [core]
   editor = nvim
-[safe]
-	directory = /home/henrygoncalvess/build
+

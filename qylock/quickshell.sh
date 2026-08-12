@@ -99,17 +99,6 @@ else
 fi
 
 # Variant Select
-if [ "$THEME_NAME" == "terraria" ]; then
-    info "Customizing Terraria sub-theme..."
-    echo -e "${C_MAIN}${C_BOLD} │  ${C_ACCENT}1 ${C_DIM}❯ ${C_RESET}Time-based (Transitions with day/night)"
-    echo -e "${C_MAIN}${C_BOLD} │  ${C_ACCENT}2 ${C_DIM}❯ ${C_RESET}Random (New background per lock)"
-    echo -ne "${C_MAIN}${C_BOLD} ╰─ ${C_YELLOW}Choice [1/2]: ${C_RESET}"
-    read -rp "" SUB_OPT
-    case $SUB_OPT in
-        1) sed -i "s/^background_mode=.*/background_mode=time/" "$THEMES_DIR/terraria/theme.conf" ;;
-        2) sed -i "s/^background_mode=.*/background_mode=random/" "$THEMES_DIR/terraria/theme.conf" ;;
-    esac
-fi
 
 if [ "$THEME_NAME" == "Genshin" ]; then
     info "Customizing Genshin Impact sub-theme..."

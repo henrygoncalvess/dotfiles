@@ -140,37 +140,36 @@ StatCard {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    //  Caffeine  (systemd-inhibit)
+    //  Caffeine  (kill / restart hypridle)
+    //
+    //  A abordagem anterior usava `systemd-inhibit --what=idle:sleep`, mas o
+    //  hypridle continuava disparando os listeners de lock/screensaver mesmo
+    //  com o inhibitor ativo. A solução confiável é matar o hypridle enquanto
+    //  caffeine está ligado e reiniciá-lo ao desligar.
     // ─────────────────────────────────────────────────────────────────────────
     property bool caffeineOn: false
 
-    // O truque do colchete em `[s]ystemd-inhibit` não é enfeite: `pgrep -f` casa
-    // contra a cmdline de TODOS os processos, e a cmdline do próprio `bash -c`
-    // que carrega este padrão contém a string procurada. O check dava positivo
-    // sempre — o tile nascia aceso sem existir inhibitor nenhum, e a tela
-    // travava com o "caffeine ligado". O colchete quebra o auto-match sem mudar
-    // o que o regex encontra. Mesmo motivo no pkill: sem ele o pkill derrubava
-    // o bash que o executava.
     Process { id: caffeineCheck
-        command: ["bash", "-c", "pgrep -f '[s]ystemd-inhibit.*Caffeine mode' >/dev/null && echo on || echo off"]
+        command: ["bash", "-c", "pgrep -x hypridle >/dev/null && echo off || echo on"]
         running: false
         stdout: SplitParser { onRead: function(l) { root.caffeineOn = (l.trim() === "on") } } }
-    Process { id: caffeineProc
-        command: ["systemd-inhibit","--what=idle:sleep",
-                  "--who=Brain Shell","--why=Caffeine mode","sleep","infinity"]
+    Process { id: caffeineKillIdle
+        command: ["bash", "-c", "killall -q hypridle || true"]
         running: false
-        // O inhibitor morre junto com o processo. Se o quickshell recarregar, o
-        // estado real vira "off" — refletir isso evita o tile mentir de novo.
-        onRunningChanged: if (!running) root.caffeineOn = false }
-    Process { id: caffeineKill
-        command: ["bash", "-c", "pkill -f '[s]ystemd-inhibit.*Caffeine mode'"]; running: false
+        onRunningChanged: if (!running) root.caffeineOn = true }
+    Process { id: caffeineRestoreIdle
+        command: ["bash", "-c", "pgrep -x hypridle >/dev/null || setsid hypridle >/dev/null 2>&1 &"]
+        running: false
         onRunningChanged: if (!running) root.caffeineOn = false }
     function _caffeineToggle() {
         if (root.caffeineOn) {
-            caffeineProc.running = false
-            caffeineKill.running = false; caffeineKill.running = true
-        } else { caffeineProc.running = true; root.caffeineOn = true }
+            caffeineRestoreIdle.running = false; caffeineRestoreIdle.running = true
+        } else {
+            caffeineKillIdle.running = false; caffeineKillIdle.running = true
+        }
     }
+
+
 
     // ─────────────────────────────────────────────────────────────────────────
     //  Do Not Disturb

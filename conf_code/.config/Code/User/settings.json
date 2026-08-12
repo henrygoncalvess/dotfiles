@@ -39,7 +39,7 @@
     "workbench.navigationControl.enabled": false,
     // or JetBrainsMonoNL Nerd Font
     "editor.fontFamily": "Hasklug Nerd Font Propo",
-    "editor.rulers": [112],
+    "editor.rulers": [80],
     "editor.wordWrap": "on",
     "editor.fontSize": 14,
     "editor.lineHeight": 1.48,
@@ -106,8 +106,15 @@
     "workbench.layoutControl.enabled": false,
     "chat.viewSessions.orientation": "stacked",
     "window.commandCenter": false,
-    "window.zoomLevel": -1,
     "terminal.integrated.tabs.enabled": false,
     "claudeCode.preferredLocation": "panel",
     "chatgpt.followUpQueueMode": "queue",
+    "ft_utils.email": "hegoncal@student.42sp.org.br",
+    "[c]": {
+        "editor.defaultFormatter": "keyhr.42-c-format",
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "keyhr.42-c-format",
+    },
+    "window.zoomLevel": -1,
 }
