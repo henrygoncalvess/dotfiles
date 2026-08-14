@@ -11,6 +11,7 @@ Item {
     id: root
 
     property var    _networks:      []
+    property var    _newNetworks:   []
     property var    _needsPassword: ({})
     property bool   _scanning:      false
     property bool   _wifiEnabled:   true
@@ -70,7 +71,7 @@ Item {
                 var inUse   = inUseStr.trim() === "*"
                 var signal  = parseInt(signalStr.trim()) || 0
                 var secured = security.trim() !== "" && security.trim() !== "--"
-                var nets = root._networks.slice()
+                var nets = root._newNetworks.slice()
                 var found = false
                 for (var i = 0; i < nets.length; i++) {
                     if (nets[i].ssid === ssid) {
@@ -80,10 +81,15 @@ Item {
                     }
                 }
                 if (!found) nets.push({ ssid: ssid, signal: signal, secured: secured, inUse: inUse })
-                root._networks = nets
+                root._newNetworks = nets
             }
         }
-        onRunningChanged: if (!running) root._scanning = false
+        onRunningChanged: {
+            if (!running) {
+                root._networks = root._newNetworks
+                root._scanning = false
+            }
+        }
     }
 
     // First attempt — captures stderr to detect secret requirement
@@ -165,7 +171,7 @@ Item {
 
     function _scan(rescan) {
         if (_scanning || !root._wifiEnabled) return
-        _scanning = true; _networks = []
+        _scanning = true; root._newNetworks = []
         scanProc.command = ["bash", "-c",
             "nmcli -t -f IN-USE,SSID,SIGNAL,SECURITY dev wifi list " +
             (rescan ? "--rescan yes" : "--rescan no") + " 2>/dev/null"]

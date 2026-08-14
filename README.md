@@ -169,6 +169,18 @@ _para executar um script: `./script.sh` ou `bash script.sh`_
 ./import_conf.sh
 ```
 
+**3º passo (Opcional)** — gerencie a sessão do seu Firefox (abas e grupos):
+
+O script `firefox_session_sync.py` permite que você faça o backup da sua sessão atual (removendo cookies e dados sensíveis) e restaure-a em outra máquina.
+
+```bash
+# Para salvar a sua sessão atual nos dotfiles (backup limpo)
+./scripts/firefox_session_sync.py backup
+
+# Para restaurar o backup na máquina nova (FECHE O FIREFOX ANTES!)
+./scripts/firefox_session_sync.py restore
+```
+
 > [!NOTE]
 > O `import_conf.sh` aplica **todos** os pacotes, inclusive `conf_hypr` e
 > `conf_nvim` — no Omarchy o Hyprland daqui é sobreposto por cima dos defaults
