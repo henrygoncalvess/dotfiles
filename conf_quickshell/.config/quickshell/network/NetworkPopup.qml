@@ -210,11 +210,12 @@ Item {
 
     property string pendingWifiSsid: ""
     property string pendingWifiId: ""
+    property string pendingWifiSecurity: ""
     property var savedWifiNetworks: []
 
     Process {
         id: savedNetworksFetcher
-        command: ["bash", "-c", "nmcli -t -f NAME connection show | grep -v 'lo'"]
+        command: ["bash", "-c", window.scriptsDir + "/network_actions.sh get_saved_wifi"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let text = this.text.trim();
@@ -240,7 +241,7 @@ Item {
                 window.playSfx("error.wav"); 
                 
                 if (window.activeMode === "wifi" && targetSsid !== "") {
-                    Quickshell.execDetached(["bash", "-c", "nmcli connection delete '" + targetSsid + "' 2>/dev/null"]);
+                    Quickshell.execDetached(["bash", "-c", window.scriptsDir + "/network_actions.sh wifi_forget '" + targetSsid + "'"]);
                     let newSaved = [];
                     for(let i = 0; i < window.savedWifiNetworks.length; i++) {
                         if(window.savedWifiNetworks[i] !== targetSsid) {
@@ -269,12 +270,14 @@ Item {
         connectProcess.targetSsid = (mode === "wifi") ? macOrSsid : ""; 
         
         if (mode === "eth") {
-            connectProcess.command = ["bash", "-c", "nmcli device connect '" + macOrSsid + "'"];
+            connectProcess.command = ["bash", "-c", window.scriptsDir + "/network_actions.sh eth_connect '" + macOrSsid + "'"];
         } else if (mode === "wifi") {
-            if (password !== "") {
-                connectProcess.command = ["bash", "-c", "nmcli device wifi connect '" + macOrSsid + "' password '" + password + "'"];
+            if (username !== "") {
+                connectProcess.command = ["bash", "-c", window.scriptsDir + "/network_actions.sh wifi_connect_enterprise '" + macOrSsid + "' '" + username + "' '" + password + "'"];
+            } else if (password !== "") {
+                connectProcess.command = ["bash", "-c", window.scriptsDir + "/network_actions.sh wifi_connect '" + macOrSsid + "' '" + password + "'"];
             } else {
-                connectProcess.command = ["bash", "-c", "nmcli device wifi connect '" + macOrSsid + "'"];
+                connectProcess.command = ["bash", "-c", window.scriptsDir + "/network_actions.sh wifi_connect '" + macOrSsid + "'"];
             }
         } else {
             connectProcess.command = ["bash", "-c", window.scriptsDir + "/bluetooth_panel_logic.sh --connect '" + macOrSsid + "'"];
@@ -1315,6 +1318,8 @@ Item {
                                 Behavior on scale { NumberAnimation { duration: 400; easing.type: Easing.OutBack; easing.overshoot: 1.5 } }
                                 Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutSine } }
                                 
+                                property bool isEnterprise: window.pendingWifiSecurity.toUpperCase().indexOf("802.1X") >= 0 || window.pendingWifiSecurity.toUpperCase().indexOf("EAP") >= 0 || window.pendingWifiSecurity.toUpperCase().indexOf("ENTERPRISE") >= 0
+                                
                                 ColumnLayout {
                                     anchors.centerIn: parent
                                     spacing: window.s(8)
@@ -1327,6 +1332,28 @@ Item {
                                         color: window.crust; text: window.pendingWifiSsid; elide: Text.ElideRight 
                                     }
                                     
+                                    Rectangle {
+                                        visible: pwdLayer.isEnterprise
+                                        Layout.alignment: Qt.AlignHCenter
+                                        Layout.preferredWidth: pwdLayer.width - window.s(40); height: window.s(36)
+                                        radius: window.s(18)
+                                        color: window.surface0
+                                        border.color: wifiUserField.activeFocus ? window.crust : "transparent"
+                                        border.width: 1
+                                        Behavior on border.color { ColorAnimation { duration: 200 } }
+                                        
+                                        TextInput {
+                                            id: wifiUserField
+                                            anchors.fill: parent
+                                            anchors.leftMargin: window.s(15); anchors.rightMargin: window.s(15)
+                                            verticalAlignment: TextInput.AlignVCenter
+                                            font.family: "JetBrains Mono"; font.pixelSize: window.s(13); color: window.text
+                                            clip: true
+                                            onAccepted: wifiPasswordField.forceActiveFocus()
+                                            Keys.onEscapePressed: { window.pendingWifiId = ""; window.pendingWifiSsid = ""; text = ""; wifiPasswordField.text = ""; window.forceActiveFocus(); }
+                                        }
+                                    }
+
                                     Rectangle {
                                         Layout.alignment: Qt.AlignHCenter
                                         Layout.preferredWidth: pwdLayer.width - window.s(40); height: window.s(36)
@@ -1345,18 +1372,19 @@ Item {
                                             echoMode: TextInput.Password; clip: true
                                             onAccepted: {
                                                 if (text.trim() !== "") {
-                                                    window.connectDevice(window.activeMode, window.pendingWifiId, window.pendingWifiSsid, text);
-                                                    window.pendingWifiId = ""; window.pendingWifiSsid = ""; text = "";
+                                                    if (pwdLayer.isEnterprise && wifiUserField.text.trim() === "") return;
+                                                    window.connectDevice(window.activeMode, window.pendingWifiId, window.pendingWifiSsid, text, pwdLayer.isEnterprise ? wifiUserField.text : "");
+                                                    window.pendingWifiId = ""; window.pendingWifiSsid = ""; text = ""; wifiUserField.text = "";
                                                     window.forceActiveFocus();
                                                 }
                                             }
-                                            Keys.onEscapePressed: { window.pendingWifiId = ""; window.pendingWifiSsid = ""; text = ""; window.forceActiveFocus(); }
+                                            Keys.onEscapePressed: { window.pendingWifiId = ""; window.pendingWifiSsid = ""; text = ""; wifiUserField.text = ""; window.forceActiveFocus(); }
                                         }
                                     }
                                 }
                                 
-                                Timer { id: deferFocusTimer; interval: 50; onTriggered: wifiPasswordField.forceActiveFocus() }
-                                onVisibleChanged: { if (visible) { wifiPasswordField.text = ""; deferFocusTimer.start(); } }
+                                Timer { id: deferFocusTimer; interval: 50; onTriggered: { if (pwdLayer.isEnterprise) wifiUserField.forceActiveFocus(); else wifiPasswordField.forceActiveFocus(); } }
+                                onVisibleChanged: { if (visible) { wifiPasswordField.text = ""; wifiUserField.text = ""; deferFocusTimer.start(); } }
                             }
 
                             Item {
@@ -1489,8 +1517,8 @@ Item {
                                     busyTimeout.restart();
                                     
                                     let cmd = "";
-                                    if (window.activeMode === "eth") cmd = "nmcli device disconnect '" + coreContainer.myId + "'";
-                                    else if (window.activeMode === "wifi") cmd = "nmcli device disconnect $(nmcli -t -f DEVICE,TYPE d | grep wifi | cut -d: -f1 | head -n1)";
+                                    if (window.activeMode === "eth") cmd = "bash " + window.scriptsDir + "/network_actions.sh eth_disconnect '" + coreContainer.myId + "'";
+                                    else if (window.activeMode === "wifi") cmd = "bash " + window.scriptsDir + "/network_actions.sh wifi_disconnect";
                                     else cmd = "bash " + window.scriptsDir + "/bluetooth_panel_logic.sh --disconnect '" + coreContainer.myId + "'";
                                     Quickshell.execDetached(["sh", "-c", cmd])
                                     
@@ -2042,6 +2070,7 @@ Item {
 
                                             if (window.activeMode === "wifi" && isSecure && !isSaved) {
                                                 window.pendingWifiSsid = ssid;
+                                                window.pendingWifiSecurity = typeof security !== "undefined" ? security : "";
                                                 window.pendingWifiId = floatCard.itemId;
                                             } else {
                                                 window.connectDevice(window.activeMode, floatCard.itemId, window.activeMode === "wifi" ? ssid : (window.activeMode === "eth" ? floatCard.itemId : mac), "");
@@ -2334,8 +2363,8 @@ Item {
                                 window.ethPower = window.expectedEthPower; 
                                 let targetDev = window.ethDeviceName !== "" ? window.ethDeviceName : (window.currentCores[0] ? window.currentCores[0].id : "");
                                 if (targetDev !== "") {
-                                    if (window.expectedEthPower === "on") Quickshell.execDetached(["nmcli", "device", "connect", targetDev]);
-                                    else Quickshell.execDetached(["nmcli", "device", "disconnect", targetDev]);
+                                    if (window.expectedEthPower === "on") Quickshell.execDetached(["bash", "-c", window.scriptsDir + "/network_actions.sh eth_connect '" + targetDev + "'"]);
+                                    else Quickshell.execDetached(["bash", "-c", window.scriptsDir + "/network_actions.sh eth_disconnect '" + targetDev + "'"]);
                                 }
                                 ethPoller.running = true;
                             } else if (window.activeMode === "wifi") {
@@ -2345,7 +2374,7 @@ Item {
                                 if (window.expectedWifiPower === "on") window.playSfx("power_on.wav"); else window.playSfx("power_off.wav");
                                 wifiPendingReset.restart();
                                 window.wifiPower = window.expectedWifiPower;
-                                Quickshell.execDetached(["nmcli", "radio", "wifi", window.wifiPower]);
+                                Quickshell.execDetached(["bash", "-c", window.scriptsDir + "/network_actions.sh wifi_power " + window.wifiPower]);
                                 wifiPoller.running = true;
                             } else {
                                 if (window.btPowerPending) return;

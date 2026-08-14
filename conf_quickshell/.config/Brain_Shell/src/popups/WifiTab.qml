@@ -11,7 +11,6 @@ Item {
     id: root
 
     property var    _networks:      []
-    property var    _newNetworks:   []
     property var    _needsPassword: ({})
     property bool   _scanning:      false
     property bool   _wifiEnabled:   true
@@ -71,7 +70,7 @@ Item {
                 var inUse   = inUseStr.trim() === "*"
                 var signal  = parseInt(signalStr.trim()) || 0
                 var secured = security.trim() !== "" && security.trim() !== "--"
-                var nets = root._newNetworks.slice()
+                var nets = root._networks.slice()
                 var found = false
                 for (var i = 0; i < nets.length; i++) {
                     if (nets[i].ssid === ssid) {
@@ -81,15 +80,10 @@ Item {
                     }
                 }
                 if (!found) nets.push({ ssid: ssid, signal: signal, secured: secured, inUse: inUse })
-                root._newNetworks = nets
+                root._networks = nets
             }
         }
-        onRunningChanged: {
-            if (!running) {
-                root._networks = root._newNetworks
-                root._scanning = false
-            }
-        }
+        onRunningChanged: if (!running) root._scanning = false
     }
 
     // First attempt — captures stderr to detect secret requirement
@@ -154,7 +148,7 @@ Item {
 
     Process {
         id: radioCheckProc
-        command: ["bash", "-c", "nmcli radio wifi"]
+        command: ["bash", "-c", Quickshell.env("HOME") + "/.config/quickshell/network/network_actions.sh wifi_status"]
         running: false
         stdout: SplitParser {
             onRead: function(line) { root._wifiEnabled = line.trim() === "enabled" }
@@ -165,23 +159,21 @@ Item {
 
     function _setWifiEnabled(on) {
         root._wifiEnabled = on
-        radioProc.command = ["bash", "-c", "nmcli radio wifi " + (on ? "on" : "off")]
+        radioProc.command = ["bash", "-c", Quickshell.env("HOME") + "/.config/quickshell/network/network_actions.sh wifi_power " + (on ? "on" : "off")]
         radioProc.running = false; radioProc.running = true
     }
 
     function _scan(rescan) {
         if (_scanning || !root._wifiEnabled) return
-        _scanning = true; root._newNetworks = []
+        _scanning = true; _networks = []
         scanProc.command = ["bash", "-c",
-            "nmcli -t -f IN-USE,SSID,SIGNAL,SECURITY dev wifi list " +
-            (rescan ? "--rescan yes" : "--rescan no") + " 2>/dev/null"]
+            Quickshell.env("HOME") + "/.config/quickshell/network/network_actions.sh wifi_list_legacy"]
         scanProc.running = false; scanProc.running = true
     }
 
     function _disconnect() {
         actionProc.command = ["bash", "-c",
-            "nmcli con down \"$(nmcli -t -f NAME,TYPE con show --active" +
-            " | grep ':802-11-wireless' | head -1 | cut -d: -f1)\" 2>/dev/null"]
+            Quickshell.env("HOME") + "/.config/quickshell/network/network_actions.sh wifi_disconnect"]
         actionProc.running = false; actionProc.running = true
     }
 
@@ -191,10 +183,7 @@ Item {
     
         actionProc.command = [
             "bash", "-c",
-            "for uuid in $(nmcli -g UUID,TYPE connection show | awk -F: '$2==\"802-11-wireless\"{print $1}'); do " +
-            "if [ \"$(nmcli -g 802-11-wireless.ssid connection show \"$uuid\" 2>/dev/null)\" = \"$1\" ]; then " +
-            "nmcli connection delete \"$uuid\"; " +
-            "fi; done",
+            Quickshell.env("HOME") + "/.config/quickshell/network/network_actions.sh wifi_forget \"$1\"",
             "--", ssid
         ];
     
@@ -205,8 +194,7 @@ Item {
         _connectingTo = ssid; _expandSsid = ""
         connectProc._ssid = ssid
         connectProc.command = ["bash", "-c",
-            "nmcli con up id \"" + ssid + "\" 2>&1 ||" +
-            " nmcli dev wifi connect \"" + ssid + "\" 2>&1"]
+            Quickshell.env("HOME") + "/.config/quickshell/network/network_actions.sh wifi_connect \"" + ssid + "\""]
         connectProc.running = false; connectProc.running = true
     }
 
@@ -216,7 +204,17 @@ Item {
         delete np[ssid]
         root._needsPassword = np
         passProc.command = ["bash", "-c",
-            "nmcli dev wifi connect \"" + ssid + "\" password \"" + password + "\" 2>/dev/null"]
+            Quickshell.env("HOME") + "/.config/quickshell/network/network_actions.sh wifi_connect \"" + ssid + "\" \"" + password + "\""]
+        passProc.running = false; passProc.running = true
+    }
+
+    function _connectWithEnterprise(ssid, username, password) {
+        _connectingTo = ssid; _expandSsid = ""
+        var np = Object.assign({}, root._needsPassword)
+        delete np[ssid]
+        root._needsPassword = np
+        passProc.command = ["bash", "-c",
+            Quickshell.env("HOME") + "/.config/quickshell/network/network_actions.sh wifi_connect_enterprise \"" + ssid + "\" \"" + username + "\" \"" + password + "\""]
         passProc.running = false; passProc.running = true
     }
 
@@ -292,6 +290,7 @@ Item {
         readonly property bool isExpanded:      root._expandSsid   === net.ssid
         readonly property bool isConnecting:    root._connectingTo === net.ssid
         readonly property bool needsPassword:   !!root._needsPassword[net.ssid]
+        readonly property bool isEnterprise:    net.security.toUpperCase().indexOf("802.1X") >= 0 || net.security.toUpperCase().indexOf("EAP") >= 0 || net.security.toUpperCase().indexOf("ENTERPRISE") >= 0
         property bool _showPass: false
         width: parent?.width ?? 0
         height: baseRow.height + expandArea.height
@@ -327,7 +326,7 @@ Item {
                 }
                 Text {
                     visible: netRow.needsPassword && !netRow.isCurrent
-                    text: "Password required"; font.pixelSize: 10
+                    text: netRow.isEnterprise ? "Login required" : "Password required"; font.pixelSize: 10
                     color: Qt.rgba(245/255,196/255,122/255,0.80)
                 }
                 Text { visible: netRow.isCurrent; text: "Connected"; font.pixelSize: 10; color: Theme.active }
@@ -391,8 +390,10 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             root._forgetSsid = ""
-                            if (netRow.isExpanded && passInput.text !== "")
-                                root._connectWithPassword(netRow.net.ssid, passInput.text)
+                            if (netRow.isExpanded && passInput.text !== "") {
+                                if (netRow.isEnterprise) root._connectWithEnterprise(netRow.net.ssid, userInput.text, passInput.text)
+                                else root._connectWithPassword(netRow.net.ssid, passInput.text)
+                            }
                             else
                                 root._connectFirst(netRow.net.ssid)
                         }
@@ -444,15 +445,31 @@ Item {
             Item {
                 id: passRow
                 anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: 8 }
-                implicitHeight: 40
+                implicitHeight: netRow.isEnterprise ? 80 : 40
                 opacity: netRow.isExpanded ? 1 : 0
                 visible: opacity > 0
                 Behavior on opacity { NumberAnimation { duration: 150 } }
-                Row {
+                Column {
                     anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
                     spacing: 8
                     Rectangle {
-                        width: parent.width - parent.spacing; height: 32; radius: 8
+                        visible: netRow.isEnterprise
+                        width: parent.width; height: 32; radius: 8
+                        color: Qt.rgba(1,1,1,0.06)
+                        border.color: userInput.activeFocus ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.55) : Qt.rgba(1,1,1,0.12)
+                        border.width: 1; Behavior on border.color { ColorAnimation { duration: 120 } }
+                        Text { anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+                        text: "Username…"; font.pixelSize: 12; color: Qt.rgba(1,1,1,0.22); visible: userInput.text === "" }
+                        TextInput {
+                            id: userInput
+                            anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
+                            verticalAlignment: TextInput.AlignVCenter; color: Theme.text; font.pixelSize: 12
+                            selectionColor: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.35); clip: true
+                            Keys.onReturnPressed: { passInput.forceActiveFocus() }
+                        }
+                    }
+                    Rectangle {
+                        width: parent.width; height: 32; radius: 8
                         color: Qt.rgba(1,1,1,0.06)
                         border.color: passInput.activeFocus ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.55) : Qt.rgba(1,1,1,0.12)
                         border.width: 1; Behavior on border.color { ColorAnimation { duration: 120 } }
@@ -466,7 +483,12 @@ Item {
                             // Toggle echoMode based on state
                             echoMode: netRow._showPass ? TextInput.Normal : TextInput.Password
                             selectionColor: Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.35); clip: true
-                            Keys.onReturnPressed: { if (text.length > 0) root._connectWithPassword(netRow.net.ssid, text) }
+                            Keys.onReturnPressed: { 
+                                if (text.length > 0) {
+                                    if (netRow.isEnterprise) root._connectWithEnterprise(netRow.net.ssid, userInput.text, text)
+                                    else root._connectWithPassword(netRow.net.ssid, text)
+                                }
+                            }
                         }
 
                         // Added Show Password Button
@@ -488,12 +510,12 @@ Item {
                 }
             }
 
-            onVisibleChanged: { if (visible && netRow.isExpanded) Qt.callLater(function() { passInput.forceActiveFocus() }) }
+            onVisibleChanged: { if (visible && netRow.isExpanded) Qt.callLater(function() { if (netRow.isEnterprise) userInput.forceActiveFocus(); else passInput.forceActiveFocus(); }) }
         }
 
         onIsExpandedChanged: {
-            if (isExpanded) Qt.callLater(function() { passInput.forceActiveFocus() })
-            else            passInput.text = ""
+            if (isExpanded) Qt.callLater(function() { if (netRow.isEnterprise) userInput.forceActiveFocus(); else passInput.forceActiveFocus(); })
+            else            { passInput.text = ""; userInput.text = ""; }
         }
 
         HoverHandler { id: rHov; enabled: !netRow.isCurrent }

@@ -113,7 +113,7 @@ Rectangle {
         Behavior on scale   { NumberAnimation { duration: 200 } }
 
         Repeater {
-            model: 8   // 8 workspaces
+            model: 10   // 10 workspaces
             delegate: Rectangle {
                 id: dot
                 
