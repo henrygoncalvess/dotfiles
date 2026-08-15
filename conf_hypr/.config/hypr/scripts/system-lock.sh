@@ -102,13 +102,13 @@ if [[ ${OMARCHY_LOCK_ONLY:-false} != "true" ]]; then
     pgrep -f "lock_shell.qml" >/dev/null || pidof hyprlock >/dev/null || exit 0
     omarchy-brightness-keyboard off
 
-    panel="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
-    for candidate in amdgpu_bl* intel_backlight acpi_video*; do
-      if [[ -e /sys/class/backlight/$candidate ]]; then
-        panel="$candidate"
-        break
-      fi
-    done
-    [[ -n $panel ]] && brightnessctl -sd "$panel" set 0 >/dev/null
+    # panel="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
+    # for candidate in amdgpu_bl* intel_backlight acpi_video*; do
+    #   if [[ -e /sys/class/backlight/$candidate ]]; then
+    #     panel="$candidate"
+    #     break
+    #   fi
+    # done
+    # [[ -n $panel ]] && brightnessctl -sd "$panel" set 0 >/dev/null
   ) &
 fi

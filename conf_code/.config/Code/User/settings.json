@@ -116,5 +116,5 @@
     "[cpp]": {
         "editor.defaultFormatter": "keyhr.42-c-format",
     },
-    "window.zoomLevel": -1,
+    "window.zoomLevel": 0,
 }

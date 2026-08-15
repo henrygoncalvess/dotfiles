@@ -9,17 +9,17 @@
 # o backlight — não religar DPMS.
 
 # Mesma heurística de device do omarchy-brightness-display.
-panel="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
-for candidate in amdgpu_bl* intel_backlight acpi_video*; do
-  if [[ -e /sys/class/backlight/$candidate ]]; then
-    panel="$candidate"
-    break
-  fi
-done
+# panel="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
+# for candidate in amdgpu_bl* intel_backlight acpi_video*; do
+#   if [[ -e /sys/class/backlight/$candidate ]]; then
+#     panel="$candidate"
+#     break
+#   fi
+# done
 
 # -r devolve o nível salvo com -s no lock. Sem save prévio o brightnessctl sai
 # != 0, o que aqui não é erro (acordar sem ter passado pelo lock).
-[[ -n $panel ]] && brightnessctl -rd "$panel" >/dev/null 2>&1
+# [[ -n $panel ]] && brightnessctl -rd "$panel" >/dev/null 2>&1
 
 omarchy-brightness-keyboard restore
 

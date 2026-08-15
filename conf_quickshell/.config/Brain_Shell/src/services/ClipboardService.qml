@@ -84,14 +84,14 @@ QtObject {
 
     function copyEntry(id) {
         _copyProc.command = ["bash", "-c",
-            "cliphist list 2>/dev/null | grep '^" + id + "\\b' | cliphist decode 2>/dev/null | wl-copy"]
+            "touch /tmp/cliphist-ignore && cliphist list 2>/dev/null | grep '^" + id + "\\b' | cliphist decode 2>/dev/null | wl-copy && sleep 0.5 && rm -f /tmp/cliphist-ignore"]
         _copyProc.running = false
         _copyProc.running = true
     }
 
     function copyText(t) {
         _copyProc.command = ["bash", "-c",
-            "printf '%s' '" + t.replace(/\\/g, "\\\\").replace(/'/g, "'\\''") + "' | wl-copy"]
+            "touch /tmp/cliphist-ignore && printf '%s' '" + t.replace(/\\/g, "\\\\").replace(/'/g, "'\\''") + "' | wl-copy && sleep 0.5 && rm -f /tmp/cliphist-ignore"]
         _copyProc.running = false
         _copyProc.running = true
     }

@@ -366,12 +366,12 @@ component ClipRow: Item {
                 verticalCenter: parent.verticalCenter
             }
             spacing: 8
-            height: Math.max(row.isImage ? 56 : 22, previewLabel.implicitHeight)
+            height: Math.max(row.isImage ? 120 : 22, previewLabel.implicitHeight)
 
             // Left: image thumbnail -OR- text glyph
             Item {
                 id:     leftSlot
-                width:  row.isImage ? 74 : 18
+                width:  row.isImage ? 180 : 18
                 height: innerRow.height
                 anchors.verticalCenter: parent.verticalCenter
 
