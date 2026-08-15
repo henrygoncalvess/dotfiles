@@ -24,3 +24,16 @@ conf_quickshell/.config/Brain_Shell/src/user_data/hotspot.json
 
 # qs-vpets grava a posição/humor de cada pet ao lado do config.json versionado.
 conf_qs-vpets/.config/qs-vpets/state-*.json
+
+# VSCode / Antigravity IDE: Ignora todo estado interno, cache e sessões
+conf_code/.config/Code/*
+!conf_code/.config/Code/User/
+conf_code/.config/Code/User/*
+!conf_code/.config/Code/User/settings.json
+!conf_code/.config/Code/User/keybindings.json
+!conf_code/.config/Code/User/snippets/
+!conf_code/.config/Code/User/tasks.json
+!conf_code/.config/Code/User/launch.json
+
+conf_code/.vscode/*
+!conf_code/.vscode/extensions.json
