@@ -328,7 +328,27 @@ install_ohmyzsh
 
 install_ohmyposh
 
+install_hyprland_plugins() {
+  local LOG="[hyprpm-plugins]"
+
+  if ! command -v hyprpm &> /dev/null; then
+    pretty_log -e "$LOG" "hyprpm not found, skipping plugin installation"
+    return 0
+  fi
+
+  pretty_log -s "$LOG" "Updating hyprpm and installing plugins (dynamic-cursors, hyprexpo)" info
+  hyprpm update || true
+  hyprpm add https://github.com/Virtcode/hypr-dynamic-cursors || true
+  hyprpm enable dynamic-cursors || true
+  hyprpm add https://github.com/sandwichfarm/hyprexpo || true
+  hyprpm enable hyprexpo || true
+
+  pretty_log -s "$LOG" "Plugins installed/enabled successfully" success
+}
+
 configure_firefox
+
+install_hyprland_plugins
 
 echo -e "\n\033[1;33m[info] --- done. Open a new terminal (or re-login) to load zsh, oh-my-posh and PATH changes ---\033[0m\n"
 
