@@ -117,4 +117,7 @@
         "editor.defaultFormatter": "keyhr.42-c-format",
     },
     "window.zoomLevel": 0,
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
 }

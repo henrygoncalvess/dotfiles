@@ -26,6 +26,11 @@ ShellRoot {
                 Border    { id: rightBorder;   screen: modelData; edge: "right"  }
                 Border    { id: bottomBorder;  screen: modelData; edge: "bottom" }
 
+                // ── CavaBorders overlay (audio visualizer on edges) ──
+                CavaBorderOverlay { screen: modelData; edge: "left"   }
+                CavaBorderOverlay { screen: modelData; edge: "right"  }
+                CavaBorderOverlay { screen: modelData; edge: "bottom" }
+
                 // ── Overlays ─────────────────────────────────────
                 // Dismisses all popups on click-outside or Escape
                 PopupDismiss { screen: modelData }

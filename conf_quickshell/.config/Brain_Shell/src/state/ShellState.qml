@@ -29,6 +29,7 @@ QtObject {
     property bool screenRecord: false
     property bool hotspot:      false
     property bool airplane:     false
+    property bool cavaBorders:  false
 
     // WiFi — false when radio is off OR hotspot is using the interface
     property bool wifiOn:       false

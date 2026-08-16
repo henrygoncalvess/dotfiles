@@ -4,109 +4,23 @@
         "command": "workbench.action.togglePanel"
     },
     {
-        "key": "ctrl+k ctrl+h",
-        "command": "workbench.action.activityBarLocation.hide"
-    },
-    {
-        "key": "ctrl+k ctrl+s",
-        "command": "workbench.action.focusActivityBar"
-    },
-    {
         "key": "ctrl+;",
         "command": "editor.action.commentLine",
         "when": "editorTextFocus && !editorReadonly"
     },
     {
-        "key": "ctrl+\\",
-        "command": "-workbench.action.splitEditor"
-    },
-    {
-        "key": "ctrl+k ctrl+shift+\\",
-        "command": "-workbench.action.splitEditorInGroup",
-        "when": "activeEditorCanSplitInGroup"
-    },
-    {
-        "key": "ctrl+k ctrl+\\",
-        "command": "-workbench.action.splitEditorLeft"
-    },
-    {
-        "key": "ctrl+k ctrl+\\",
-        "command": "-workbench.action.splitEditorOrthogonal"
-    },
-    {
-        "key": "ctrl+k ctrl+\\",
-        "command": "-workbench.action.splitEditorRight"
-    },
-    {
-        "key": "ctrl+k ctrl+\\",
-        "command": "-workbench.action.splitEditorUp"
-    },
-    {
-        "key": "ctrl+k ctrl+d",
-        "command": "-editor.action.moveSelectionToNextFindMatch",
-        "when": "editorFocus"
+        "key": "ctrl+shift+i",
+        "command": "editor.action.formatDocument",
+        "when": "editorTextFocus && !editorReadonly"
     },
     {
         "key": "ctrl+k ctrl+d",
         "command": "workbench.action.splitEditorDown"
     },
     {
-        "key": "ctrl+k ctrl+\\",
-        "command": "-workbench.action.splitEditorDown"
-    },
-    {
-        "key": "ctrl+shift+5",
-        "command": "-workbench.action.terminal.splitActiveTab",
-        "when": "terminalProcessSupported && terminalTabsFocus"
-    },
-    {
         "key": "ctrl+k ctrl+d",
         "command": "workbench.action.terminal.split",
         "when": "terminalFocus && terminalProcessSupported || terminalFocus && terminalWebExtensionContributedProfile"
-    },
-    {
-        "key": "ctrl+shift+5",
-        "command": "-workbench.action.terminal.split",
-        "when": "terminalFocus && terminalProcessSupported || terminalFocus && terminalWebExtensionContributedProfile"
-    },
-    {
-        "key": "ctrl+k ctrl+shift+\\",
-        "command": "-notebook.cell.split",
-        "when": "editorTextFocus && notebookCellEditable && notebookEditable && notebookEditorFocused"
-    },
-    {
-        "key": "alt+left",
-        "command": "-workbench.action.terminal.focusPreviousPane",
-        "when": "terminalFocus && terminalHasBeenCreated || terminalFocus && terminalProcessSupported"
-    },
-    {
-        "key": "alt+left",
-        "command": "-workbench.action.terminal.sendSequence",
-        "when": "terminalFocus"
-    },
-    {
-        "key": "alt+left",
-        "command": "workbench.action.quickOpenTerm"
-    },
-    {
-        "key": "alt+down",
-        "command": "workbench.action.terminal.focusNextPane",
-        "when": "terminalFocus && terminalHasBeenCreated || terminalFocus && terminalProcessSupported"
-    },
-    {
-        "key": "alt+right",
-        "command": "-workbench.action.terminal.focusNextPane",
-        "when": "terminalFocus && terminalHasBeenCreated || terminalFocus && terminalProcessSupported"
-    },
-    {
-        "key": "alt+up",
-        "command": "workbench.action.terminal.focusPrevious",
-        "when": "terminalFocus && terminalHasBeenCreated && !terminalEditorFocus || terminalFocus && terminalProcessSupported && !terminalEditorFocus"
-    },
-    {
-        "key": "ctrl+pageup",
-        "command": "-workbench.action.terminal.focusPrevious",
-        "when": "terminalFocus && terminalHasBeenCreated && !terminalEditorFocus || terminalFocus && terminalProcessSupported && !terminalEditorFocus"
     },
     {
         "key": "ctrl+shift+enter",

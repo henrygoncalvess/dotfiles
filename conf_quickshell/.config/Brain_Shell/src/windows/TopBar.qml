@@ -140,6 +140,45 @@ PanelWindow {
             }
         }
 
+        // ── CavaBorders toggle — gap between center and right notch ──────────
+        Rectangle {
+            id: cavaBordersBtn
+            width:  20
+            height: 20
+            radius: 4
+            anchors.verticalCenter: parent.verticalCenter
+            // Position: right edge of centerNotch + small gap
+            x: centerNotch.x + centerNotch.width + 8
+
+            visible: CavaService.isPlaying
+            color: cavaHover.hovered
+                   ? Theme.active
+                   : (ShellState.cavaBorders ? Qt.rgba(Theme.active.r, Theme.active.g, Theme.active.b, 0.25)
+                                             : "transparent")
+            Behavior on color { ColorAnimation { duration: 150 } }
+
+            Text {
+                anchors.centerIn: parent
+                // nf-md-waveform (U+F0553)
+                text: String.fromCodePoint(0xF0553)
+                font.pixelSize: 13
+                color: cavaHover.hovered
+                       ? Theme.background
+                       : (ShellState.cavaBorders ? Theme.active : Theme.subtext)
+                Behavior on color { ColorAnimation { duration: 150 } }
+            }
+
+            HoverHandler {
+                id: cavaHover
+                cursorShape: Qt.PointingHandCursor
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: ShellState.cavaBorders = !ShellState.cavaBorders
+            }
+        }
+
         Item {
             id:            rightNotch
             width:         root.rWidth
